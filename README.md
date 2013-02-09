@@ -23,7 +23,7 @@ that they don't know where to start. Assembly, at the other extreme, is very
 concrete. You have exactly $10000 bytes to fit your program, sprites, and
 memory, and the instruction set is very small. You have to be able to reuse
 your code, or you'll run out of space. If you can make your program really
-small, get it. If you can actually make a game, you //really// get it.
+small, get it. If you can actually make a game, you *really* get it.
 
 Assembly programming is like a puzzle, since all of the pieces are laid out
 in a palette in front of you in your spec sheet. Subroutines aren't magic
