@@ -39,6 +39,8 @@ The todo list is as follows:
  * We need a textbook (we'll make that on a wiki)
  * Exercises
  * Some standard libraries for the 6502
+ * An epic logo (maybe get opengameart to help)
+ * Some sprites for students to use for games (I'll make a sprite converter)
 
 The web platform needs:
  * A wiki (for the textbook)
