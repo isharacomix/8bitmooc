@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'gravatar',
     'bootstrap_toolkit',
     # My Apps
+    'front',
 )
 
 #AUTH_PROFILE_MODULE = 'lug_people.MemberProfile'
