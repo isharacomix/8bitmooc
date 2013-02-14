@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.views.generic.base import TemplateView
 
 # This kicks off the admin panel.
 admin.autodiscover()
@@ -11,8 +12,10 @@ urlpatterns = patterns('',
     # url(r'^$', 'mooc.views.home', name='home'),
     # url(r'^mooc/', include('mooc.foo.urls')),
     
-    # The 'front' app is just for the index.
-    url(r'^$', include('front.urls')),
+    # Use a basic TemplateView to get the index page.
+    # We might make it into a fancy blog feed one day (maybe import the
+    # tumblr RSS as a planet-like thing).
+    url(r'^$', TemplateView.as_view(template_name="index.html"), name='index'),
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
