@@ -73,9 +73,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '_30#3$6#)q#2#tj!gh3l2ikbv&amp;x4ixcu5%k^*s9f%_zny5^0$$'
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -120,6 +117,7 @@ INSTALLED_APPS = (
     'gravatar',
     'bootstrap_toolkit',
     # My Apps
+    'textbook',
 )
 
 #AUTH_PROFILE_MODULE = 'lug_people.MemberProfile'
