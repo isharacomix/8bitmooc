@@ -1,0 +1,19 @@
+{% extends "layout_base.html" %}
+
+{% load textbook %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            <article class="article">
+
+                {{ content|wikitext }}
+
+            </article>
+        </div>
+    </div>
+
+{% endblock body %}

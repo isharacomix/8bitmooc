@@ -102,6 +102,10 @@ TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, 'templates'),
 )
 
+FIXTURE_DIRS = (
+    os.path.join(PROJECT_DIR, 'fixtures'),
+)
+
 INSTALLED_APPS = (
     # Included stuff
     'django.contrib.auth',
@@ -125,6 +129,10 @@ LOGIN_REDIRECT_URL = '/'
 
 GRAVATAR_DEFAULT_IMAGE = 'identicon'
 GRAVATAR_IMG_CLASS = 'gravatar'
+
+INTERWIKIS = {
+    'wikipedia': ('http://en.wikipedia.org/wiki/', '_')
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

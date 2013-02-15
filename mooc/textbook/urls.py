@@ -6,7 +6,7 @@ from textbook import views
 # Textbook URL pattern.
 urlpatterns = patterns('',
     url(r'^$', views.view_page, name='textbook'),
-    url(r'^(?P<page>[a-z0-9-]+)/$', views.view_page, name='textbook_page'),
-    url(r'^search/(?P<query>[a-z0-9-]+)$', views.find_pages, name='textbook_search'),
+    url(r'^(?P<page>[^/]+)/$', views.view_page, name='textbook_page'),
+    url(r'^search/(?P<query>[^/]+)$', views.find_pages, name='textbook_search'),
 )
 
