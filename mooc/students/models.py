@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # The student represents each user in the Database. We use their username and
 # e-mail from the User model, and don't worry so much about their real name
 # and such. The primary purpose of the User is to manage submissions for
