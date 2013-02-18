@@ -31,11 +31,11 @@ class Student(models.Model):
     # Personal profile settings (all of which are optional for the student).
     # In order to protect privacy, I will not support any 3rd-party connections
     # except for Persona for OpenBadges.
-    bio             = models.TextField("bio", blank=True
+    bio             = models.TextField("bio", blank=True,
                         help_text="The user's bio.")
     display_email   = models.BooleanField("display e-mail", default=False,
                         help_text="Display E-mail publicly?")
-    twitter         = models.CharField("twitter", max_length=32,
+    twitter         = models.CharField("twitter", max_length=32, blank=True,
                         help_text="Twitter handle.")
     
     # When we represent the student, we put their TA tag on so that others can
