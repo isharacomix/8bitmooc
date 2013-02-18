@@ -1,0 +1,21 @@
+{% extends "layout_base.html" %}
+
+{% block title %}Badge{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            Example badge: {{ badge }}<br /><br />
+            
+            {% if user.is_authenticated %}
+                <script src="http://beta.openbadges.org/issuer.js"></script>
+                <script type="text/javascript">
+                
+                OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
+                </script>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock body %}

@@ -9,9 +9,15 @@ from django.contrib.auth.models import User
 
 import hashlib
 import json
+import os
 
 
-BADGE_SALT = "moocbadges"
+# Here are the constants needed to do things.
+BADGE_SALT = "8bitmoocbadges"
+ISSUER_DOMAIN = "http://8bitmooc.org"
+ISSUER_NAME = "8bitmooc"
+ISSUER_ORG = "8bitmooc"
+ISSUER_CONTACT = "admin@8bitmooc.org"
 
 
 # This function returns True if the specified User has the Badge.
@@ -29,8 +35,17 @@ def list_badges(request):
 # If the logged-in user has successfully gotten this badge, this is where they
 # go to add it to their badge backpack (handled by template).
 def view_badge(request, badge):
-    badge_object = Badge.objects.get(shortname=badge)
-    return HttpResponse(badge)
+    badge = Badge.objects.get(shortname=badge)
+    
+    # To embed the add-to-backpack button in your model, use the following
+    # script: be sure you check to see if the user is authenticated.
+    #   <script src="http://beta.openbadges.org/issuer.js"></script>
+    #   <script type="text/javascript">
+    #   OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"],function(errors, successes) {});
+    #   </script>
+    
+    return render( request, "badges/details.html", {"badge":badge,
+                                                    "domain":ISSUER_DOMAIN} )
 
 
 # This returns a JSON string for the badge for the specified user if they
@@ -44,18 +59,20 @@ def assert_badge(request, badge, user):
         badge_assertion_dict = {
           "recipient": "sha256$"+hashlib.sha256(user.email+BADGE_SALT).hexdigest(),
           "salt": BADGE_SALT,
-          "evidence": "/badges/~"+user.username,
+          "evidence": ISSUER_DOMAIN+"/badges/~"+user.username,
+          #"expires": "2013-06-01",
+          #"issued_on": "2011-06-01",
           "badge": {
             "version": "0.5.0",
             "name": badge.name,
-            "image": badge.graphic,
+            "image": ISSUER_DOMAIN + settings.STATIC_URL + "img/" + badge.graphic +".png",
             "description": badge.shortdesc,
-            "criteria": "/badges/"+badge.shortname,
+            "criteria": ISSUER_DOMAIN + "/badges/"+badge.shortname,
             "issuer": {
-              "origin": "http://8bitmooc.org",
-              "name": "8bitmooc",
-              "org": "8bitmooc",
-              "contact": "admin@8bitmooc.org"
+              "origin": ISSUER_DOMAIN,
+              "name": ISSUER_NAME,
+              "org": ISSUER_ORG,
+              "contact": ISSUER_CONTACT
            }
           }
         }
@@ -63,7 +80,8 @@ def assert_badge(request, badge, user):
         badge_assertion_json = json.dumps(badge_assertion_dict)
         return HttpResponse(badge_assertion_json, mimetype='application/json')
     
-    # Otherwise return an empty page.
+    # Otherwise return an empty page. This is not a page for humans, so no need
+    # to make it pretty.
     else:
         raise Http404()
 
