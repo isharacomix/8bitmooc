@@ -1,5 +1,6 @@
 {% extends "layout_base.html" %}
 {% load static %}
+{% load textbook %}
 
 {% block title %}Badge{% endblock title %}
 
@@ -29,9 +30,13 @@
         </div>
         
         <div class="span10">
-            <h2>{{ badge.name }}</h2>
+            <h1>{{ badge.name }}</h1>
             
-            Description goes here
+            <article class="article">
+
+                {{ badge.description|wikitext }}
+
+            </article>
         </div>
     </div>
 
