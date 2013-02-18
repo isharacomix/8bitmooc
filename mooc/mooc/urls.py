@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 
     # Apps!
     url(r'^textbook/', include('textbook.urls')),
+    url(r'^badges/', include('badges.urls')),
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
