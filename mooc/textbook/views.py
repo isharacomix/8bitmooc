@@ -28,7 +28,7 @@ def fetch_page(page):
         return None
     try:
         report = ""
-        f = open(os.path.join(settings.PROJECT_DIR, 'textbook', page))
+        f = open(os.path.join(settings.TEXTBOOK_DIR, page))
         report = f.read()
         f.close()
         return report
@@ -61,7 +61,7 @@ def get_megafile():
     current_time = int(time.time())
     try:
         report = ""
-        f = open(os.path.join(settings.PROJECT_DIR, 'textbook', ".megafile"))
+        f = open(os.path.join(settings.TEXTBOOK_DIR, ".megafile"))
         report = f.read()
         f.close()
         old_time = int(report.split()[0])
@@ -76,15 +76,15 @@ def get_megafile():
         report = str(current_time)+"\n"
         
         # Iterate over all of the files, avoiding the megafile.
-        listing = os.listdir(os.path.join(settings.PROJECT_DIR, 'textbook'))
+        listing = os.listdir(settings.TEXTBOOK_DIR)
         for slug in listing:
             if '.' not in slug:
-                f = open(os.path.join(settings.PROJECT_DIR, 'textbook', slug))
+                f = open(os.path.join(settings.TEXTBOOK_DIR, slug))
                 s = f.read().replace("\n"," ")
                 f.close()
                 report += slug +": " + s +"\n"
         
-        f = open(os.path.join(settings.PROJECT_DIR, 'textbook', ".megafile"),"w")
+        f = open(os.path.join(settings.TEXTBOOK_DIR, ".megafile"),"w")
         f.write(report)
         f.close()
         return report

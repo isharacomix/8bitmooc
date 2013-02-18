@@ -122,7 +122,9 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     # My Apps
     'textbook',
+    'lessons',
 )
+TEXTBOOK_DIR = os.path.join(PROJECT_DIR, "textbook")
 
 #AUTH_PROFILE_MODULE = 'lug_people.MemberProfile'
 LOGIN_REDIRECT_URL = '/'
