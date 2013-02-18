@@ -124,10 +124,10 @@ INSTALLED_APPS = (
     'textbook',
     'lessons',
     'students',
+    'badges',
 )
 TEXTBOOK_DIR = os.path.join(PROJECT_DIR, "textbook")
 
-AUTH_PROFILE_MODULE = 'students.Student'
 LOGIN_REDIRECT_URL = '/'
 
 GRAVATAR_DEFAULT_IMAGE = 'identicon'

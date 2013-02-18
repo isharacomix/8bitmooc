@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Milestones are basically achievements for students to get.
 class Milestone(models.Model):
     name        = models.CharField("name", max_length=128,
@@ -20,6 +21,7 @@ class Milestone(models.Model):
     # Unicode representation.
     def __unicode__(self):
         return u"%s" % (self.name)
+
 
 # Modules are the "worlds" that contain lessons. A Module is unlocked when the
 # correct Milestone is reached. Milestones are like achievements, but not as
@@ -43,6 +45,7 @@ class Module(models.Model):
     # Unicode representation.
     def __unicode__(self):
         return u"Module %s (%s)" % (self.shortname, self.name)
+
 
 # If Modules are the "worlds", then lessons are the "stages". The name of the
 # lesson is formatted: "[world.shortname]-[lesson.shortname]: [lesson.name]"
