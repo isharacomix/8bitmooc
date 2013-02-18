@@ -1,17 +1,24 @@
 {% extends "layout_base.html" %}
+{% load static %}
 
 {% block title %}Welcome{% endblock title %}
 
 {% block body %}
 
-    <div class="row">
-        <div class="span12">
-            <div class="hero-unit">
-                <h1>#8bitmooc</h1>
-
-                <p>IT IS UNDER CONSTRUCTION</p>
+    {% for b in badge_list %}
+        <div class="row">
+            <div class="span2">
+                <p><a href="{% url badge_view b.shortname %}">
+                <img src="{% get_static_prefix %}img/{{b.graphic}}.png" />
+                </a>{% if b.check %}<i class="icon-ok"></i>{% endif %}</p>
+            </div>
+            
+            <div class="span10">
+                <h3>{{ b.name }}</h3>
+                
+                <p>{{ b.shortdesc }}</p>
             </div>
         </div>
-    </div>
+    {% endfor %}
 
 {% endblock body %}

@@ -1,20 +1,37 @@
 {% extends "layout_base.html" %}
+{% load static %}
 
 {% block title %}Badge{% endblock title %}
 
 {% block body %}
 
     <div class="row">
-        <div class="span12">
-            Example badge: {{ badge }}<br /><br />
+        <div class="span2">
+            <p><img src="{% get_static_prefix %}img/{{badge.graphic}}.png" /></p>
             
             {% if user.is_authenticated %}
-                <script src="http://beta.openbadges.org/issuer.js"></script>
-                <script type="text/javascript">
+            
+                {% if awarded %}
+                    <script src="http://beta.openbadges.org/issuer.js"></script>
+                    <script type="text/javascript">
+                    function getBadge()
+                    {
+                        OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
+                    }
+                    </script>
+                    
+                    <p><a class="btn" href="#" onclick="getBadge()">Add to Backpack</a></p>
+                {% else %}
+                    When you get this badge, you can add it to your backpack!
+                {% endif %}
                 
-                OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
-                </script>
             {% endif %}
+        </div>
+        
+        <div class="span10">
+            <h2>{{ badge.name }}</h2>
+            
+            Description goes here
         </div>
     </div>
 

@@ -29,3 +29,7 @@ class Badge(models.Model):
     def __unicode__(self):
         return u"%s" % (self.name)
 
+    # Returns True if the specified user has this badge.
+    def held_by(self, user):
+        return user in self.awarded_to.all()
+

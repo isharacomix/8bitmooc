@@ -20,22 +20,29 @@ ISSUER_ORG = "8bitmooc"
 ISSUER_CONTACT = "admin@8bitmooc.org"
 
 
-# This function returns True if the specified User has the Badge.
-def has_badge(badge, user):
-    return user in badge.awarded_to.all()
-
-
 # This prepares a list of all of the badges, displaying them on the badge
 # list template.
 def list_badges(request):
-    return HttpResponse("test")
+    badge_list = Badge.objects.order_by('ordering')
+    for b in badge_list:
+        try: b.check = True if b.held_by( request.user ) else False
+        except: b.check = False
+    
+    return render( request, "badges/list.html", {"badge_list":badge_list} )
 
 
 # This goes to the badge's home page, showing its description and requirements.
 # If the logged-in user has successfully gotten this badge, this is where they
 # go to add it to their badge backpack (handled by template).
 def view_badge(request, badge):
-    badge = Badge.objects.get(shortname=badge)
+    
+    # If the badge doesn't exist, take the user to the list.
+    try: badge = Badge.objects.get(shortname=badge)
+    except: return redirect( reverse("badge_list") )
+    
+    # Determine if the User has the badge.
+    try: awarded = True if badge.held_by(request.user) else False
+    except: awarded = False
     
     # To embed the add-to-backpack button in your model, use the following
     # script: be sure you check to see if the user is authenticated.
@@ -45,17 +52,21 @@ def view_badge(request, badge):
     #   </script>
     
     return render( request, "badges/details.html", {"badge":badge,
+                                                    "awarded":awarded,
                                                     "domain":ISSUER_DOMAIN} )
 
 
 # This returns a JSON string for the badge for the specified user if they
 # have received the badge. This is public in order to support the verifier.
 def assert_badge(request, badge, user):
-    badge = Badge.objects.get(shortname=badge)
-    user = User.objects.get(username=user)
+    try:
+        badge = Badge.objects.get(shortname=badge)
+        user = User.objects.get(username=user)
+    except:
+        raise Http404()
     
     # If they have the badge, start making the JSON thing.
-    if has_badge( badge, user ):
+    if badge.held_by( user ):
         badge_assertion_dict = {
           "recipient": "sha256$"+hashlib.sha256(user.email+BADGE_SALT).hexdigest(),
           "salt": BADGE_SALT,
