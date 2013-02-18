@@ -123,10 +123,11 @@ INSTALLED_APPS = (
     # My Apps
     'textbook',
     'lessons',
+    'students',
 )
 TEXTBOOK_DIR = os.path.join(PROJECT_DIR, "textbook")
 
-#AUTH_PROFILE_MODULE = 'lug_people.MemberProfile'
+AUTH_PROFILE_MODULE = 'students.Student'
 LOGIN_REDIRECT_URL = '/'
 
 GRAVATAR_DEFAULT_IMAGE = 'identicon'
