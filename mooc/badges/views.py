@@ -70,7 +70,7 @@ def assert_badge(request, badge, user):
         badge_assertion_dict = {
           "recipient": "sha256$"+hashlib.sha256(user.email+BADGE_SALT).hexdigest(),
           "salt": BADGE_SALT,
-          "evidence": ISSUER_DOMAIN+"/badges/~"+user.username,
+          "evidence": ISSUER_DOMAIN+"/~"+user.username,
           #"expires": "2013-06-01",
           #"issued_on": "2011-06-01",
           "badge": {
