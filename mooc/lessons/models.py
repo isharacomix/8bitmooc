@@ -49,6 +49,19 @@ class Module(models.Model):
         return u"Module %s (%s)" % (self.shortname, self.name)
 
 
+# This is the abstract Challenge class. Different challenges handle things
+# in different ways.
+class BaseChallenge(models.Model):
+    shortname       = models.SlugField("shortname", unique=True,
+                        help_text="Short name for the challenge")
+    content         = models.TextField("content",
+                            help_text="Challenge content, in wikicreole.")
+    challenge_type  = "None"
+    
+    def __unicode__(self):
+        return u"%s (%s challenge)"%(self.challenge_type, self.shortname)
+
+
 # If Modules are the "worlds", then lessons are the "stages". The name of the
 # lesson is formatted: "[world.shortname]-[lesson.shortname]: [lesson.name]"
 # So it would be like "1-1: Intro to ASM".
@@ -65,9 +78,8 @@ class Lesson(models.Model):
     # These take care of the course-related elements of the lesson.
     tutorial    = models.ForeignKey(Page, verbose_name="tutorial", blank=True,
                             help_text="The wiki page with this lesson's tutorial.")
-    #challenge   = models.CharField("challenge", max_length=64, blank=True,
-    #                        help_text="The challenge for this lesson.")
-    # Not sure how to do challenges yet.
+    challenge   = models.ForeignKey(BaseChallenge, verbose_name="challenge", blank=True,
+                            help_text="The challenge for this lesson.")
     prereq      = models.ManyToManyField("Lesson", blank=True,
                             help_text="If any of the prereqs have been completed,"+
                                       " then the lesson is considered open.")
@@ -93,4 +105,11 @@ class Lesson(models.Model):
     
     def __unicode__(self):
         return u"Lesson %s-%s: %s" % (self.module.shortname, self.shortname, self.name)
-    
+
+
+# Challenge type: Dummy
+class DummyChallenge(BaseChallenge):
+    name            = models.CharField("name", max_length=128,
+                            help_text="Dummy.")
+    challenge_type  = "dummy"
+
