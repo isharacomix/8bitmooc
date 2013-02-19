@@ -29,10 +29,10 @@ class Command(BaseCommand):
                 page.content = data
                 page.save()
                 
-                self.stdout.write('Wrote textbook page: %s'%slug)
+                self.stdout.write('Wrote textbook page: %s\n'%slug)
                 
-            except: self.stderr.write('Skipped textbook page: %s'%slug)
+            except: self.stderr.write('Skipped textbook page: %s\n'%slug)
         
-        self.stdout.write('Successfully compiled textbook pages')
+        self.stdout.write('Successfully compiled textbook pages\n')
     
 
