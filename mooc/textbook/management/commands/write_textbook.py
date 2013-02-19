@@ -4,14 +4,19 @@ from textbook.models import Page
 
 import os
 
+
 # This command updates the textbook database with new textbook pages. It will
 # create new pages and overwrite old ones.
 class Command(BaseCommand):
     args = '<textbook directory>'
     help = 'Adds/updates textbook pages '
     
-    
+    # Handler for 'write_textbook'
     def handle(self, *args, **options):
+        if len(args) < 1:
+            self.stderr.write('Please provide a directory containing the files '+
+                              'relative to PROJECT_DIR.')
+    
         textbook_dir = os.path.join(settings.PROJECT_DIR, '..', args[0])
         listing = os.listdir( textbook_dir )
         
