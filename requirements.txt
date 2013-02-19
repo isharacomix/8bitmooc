@@ -1,0 +1,9 @@
+django>=1.4
+django-bootstrap-toolkit
+django-gravatar
+South>=0.7
+pytz
+django-redis
+Creoleparser
+Pygments
+tweepy

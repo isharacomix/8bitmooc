@@ -1,5 +1,7 @@
 from django.db import models
 
+from textbook.models import Page
+
 
 # Milestones are basically achievements for students to get.
 class Milestone(models.Model):
@@ -61,7 +63,7 @@ class Lesson(models.Model):
                             help_text="Short lesson name, usually a number.")
     
     # These take care of the course-related elements of the lesson.
-    tutorial    = models.SlugField("tutorial", blank=True,
+    tutorial    = models.ForeignKey(Page, verbose_name="tutorial", blank=True,
                             help_text="The wiki page with this lesson's tutorial.")
     #challenge   = models.CharField("challenge", max_length=64, blank=True,
     #                        help_text="The challenge for this lesson.")
