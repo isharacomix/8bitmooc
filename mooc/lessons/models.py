@@ -55,11 +55,12 @@ class BaseChallenge(models.Model):
     shortname       = models.SlugField("shortname", unique=True,
                         help_text="Short name for the challenge")
     content         = models.TextField("content",
-                            help_text="Challenge content, in wikicreole.")
-    challenge_type  = "None"
+                        help_text="Challenge content, in wikicreole.")
+    challenge_type  = models.SlugField("challenge type",
+                        help_text="The type of challenge (auto-filled)")
     
     def __unicode__(self):
-        return u"%s (%s challenge)"%(self.challenge_type, self.shortname)
+        return u"%s challenge: %s"%(self.challenge_type, self.shortname)
 
 
 # If Modules are the "worlds", then lessons are the "stages". The name of the
