@@ -82,7 +82,7 @@ class BaseChallenge(models.Model):
 class Lesson(models.Model):
     name        = models.CharField("name", max_length=128,
                             help_text="Human-readable lesson name.")
-    shortname   = models.SlugField("shortname", max_length=8, unique=True,
+    shortname   = models.SlugField("shortname", max_length=8,
                             help_text="Short lesson name, usually a number.")
     
     # These take care of the course-related elements of the lesson.
