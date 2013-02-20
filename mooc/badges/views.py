@@ -38,7 +38,7 @@ def view_badge(request, badge):
     
     # If the badge doesn't exist, take the user to the list.
     try: badge = Badge.objects.get(shortname=badge)
-    except: return redirect( reverse("badge_list") )
+    except: return redirect( "badge_list" )
     
     # Determine if the User has the badge.
     try: awarded = True if badge.held_by(request.user) else False

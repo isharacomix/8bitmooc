@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
 
     # Apps!
-    url(r'^', include('lesson.urls')),
+    url(r'^', include('lessons.urls')),
     url(r'^textbook/', include('textbook.urls')),
     url(r'^badges/', include('badges.urls')),
 
