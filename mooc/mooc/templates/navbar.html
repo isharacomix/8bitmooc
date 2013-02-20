@@ -7,7 +7,8 @@
                 #8bitmooc
             </a>
             <ul class="nav">
-                <li><a href="http://example.com">Test</a></li>
+                <li><a href="{% url textbook %}">Textbook</a></li>
+                <li><a href="{% url badge_list %}">Badges</a></li>
             </ul>
             <ul class="nav pull-right">
                 <li class="dropdown">
@@ -24,7 +25,8 @@
                         (not logged in) <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="http://example.com">Test</a></li>
+                        <li><a href="http://example.com">Login</a></li>
+                        <li><a href="http://example.com">Register</a></li>
                     </ul>
                     {% endif %}
                 </li>
