@@ -31,7 +31,7 @@ class Milestone(models.Model):
 class Module(models.Model):
     name        = models.CharField("name", max_length=128,
                             help_text="Human-readable module name.")
-    shortname   = models.CharField("shortname", max_length=8, unique=True,
+    shortname   = models.SlugField("shortname", max_length=8, unique=True,
                             help_text="Short world name, usually a number.")
     graphic     = models.SlugField("graphic",
                             help_text="Filename of the glyph in the Module "+
@@ -40,7 +40,7 @@ class Module(models.Model):
                             blank=True, null=True,
                             help_text="Which prerequisite is needed to start "+
                                       "this module?")
-    ordering    = models.IntegerField("ordering", blank=True,
+    ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Modules are ordered from lowest to "+
                                       "to highest when displayed in lists.")
     
@@ -50,17 +50,26 @@ class Module(models.Model):
 
 
 # This is the abstract Challenge class. Different challenges handle things
-# in different ways.
+# in different ways. In order to make the code decent, I've decided to allow
+# hard-coding here, so the challenge types need to be manually added in your
+# code.
 class BaseChallenge(models.Model):
     shortname       = models.SlugField("shortname", unique=True,
                         help_text="Short name for the challenge")
     content         = models.TextField("content",
                         help_text="Challenge content, in wikicreole.")
-    challenge_type  = models.SlugField("challenge type",
-                        help_text="The type of challenge (auto-filled)")
     
+    # Put all of your challenge types in here. It's ugly, but it works.
+    def challenge_type(self):
+        c  = "none"
+        for t in ["quizchallenge"]:
+            if hasattr(self, t): c = t
+        return c
+    
+    # Unicode baby!
     def __unicode__(self):
-        return u"%s challenge: %s"%(self.challenge_type, self.shortname)
+        return u"%s: %s"%(self.challenge_type(), self.shortname)
+
 
 
 # If Modules are the "worlds", then lessons are the "stages". The name of the
@@ -73,14 +82,14 @@ class BaseChallenge(models.Model):
 class Lesson(models.Model):
     name        = models.CharField("name", max_length=128,
                             help_text="Human-readable lesson name.")
-    shortname   = models.CharField("shortname", max_length=8, unique=True,
+    shortname   = models.SlugField("shortname", max_length=8,
                             help_text="Short lesson name, usually a number.")
     
     # These take care of the course-related elements of the lesson.
-    tutorial    = models.ForeignKey(Page, verbose_name="tutorial", blank=True,
+    tutorial    = models.ForeignKey(Page, verbose_name="tutorial", blank=True, null=True,
                             help_text="The wiki page with this lesson's tutorial.")
     challenge   = models.ForeignKey(BaseChallenge, verbose_name="challenge", blank=True,
-                            help_text="The challenge for this lesson.")
+                            null=True, help_text="The challenge for this lesson.")
     prereq      = models.ManyToManyField("Lesson", blank=True,
                             help_text="If any of the prereqs have been completed,"+
                                       " then the lesson is considered open.")
@@ -100,7 +109,7 @@ class Lesson(models.Model):
     graphic     = models.SlugField("graphic",
                             help_text="Filename of the glyph in the Lesson "+
                                       "img directory.")
-    ordering    = models.IntegerField("ordering", blank=True,
+    ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Lessons are ordered from lowest to "+
                                       "to highest when displayed in lists.")
     
@@ -108,9 +117,47 @@ class Lesson(models.Model):
         return u"Lesson %s-%s: %s" % (self.module.shortname, self.shortname, self.name)
 
 
-# Challenge type: Dummy
-class DummyChallenge(BaseChallenge):
-    name            = models.CharField("name", max_length=128,
-                            help_text="Dummy.")
-    challenge_type  = "dummy"
+# Questions for the QuizChallenge type. There are two forms of questions,
+# radio buttons (where selecting any correct answer wins) and checkboxes
+# (where selecting them all wins).
+class QuizQuestion(models.Model):
+    shortname   = models.SlugField("shortname",
+                        help_text="Short codename for the question.")
+    question    = models.TextField("question",
+                        help_text="The question in wiki-creole format.")
+    choiceA     = models.TextField("choice A" )
+    choiceB     = models.TextField("choice B", blank=True)
+    choiceC     = models.TextField("choice C", blank=True )
+    choiceD     = models.TextField("choice D", blank=True )
+    choiceE     = models.TextField("choice E", blank=True )
+    random_ok   = models.BooleanField("random ok?", default=False,
+                        help_text="If this is set, then the choices will be "+
+                                  "randomized each time they are seen. Don't "+
+                                  "check this if you have a 'none of the above' "+
+                                  "or 'all of the above' choice?")
+    multiple_ok = models.BooleanField("multiple ok?", default=False,
+                        help_text="If this is set, then the choices will be "+
+                                  "selected via a check box rather than a radio "+
+                                  "button.")
+    correctA    = models.BooleanField("A is correct", default=False )
+    correctB    = models.BooleanField("B is correct", default=False )
+    correctC    = models.BooleanField("C is correct", default=False )
+    correctD    = models.BooleanField("D is correct", default=False )
+    correctE    = models.BooleanField("E is correct", default=False )
+    ordering    = models.IntegerField("ordering", blank=True, null=True,
+                            help_text="Questions are ordered from lowest to "+
+                                      "to highest when displayed in lists.")
+    
+    def __unicode__(self):
+        return u"%s: %s..." % (self.shortname, self.question[:64])
+
+
+# Challenge type: Multiple Choice Quiz
+class QuizChallenge(BaseChallenge):
+    questions   = models.ManyToManyField(QuizQuestion, blank=True,
+                        verbose_name="questions",
+                        help_text="The questions for this quiz.")
+    randomize   = models.BooleanField("random ok?", default=False,
+                        help_text="If this is set, then the questions will be "+
+                                  "randomized each time they are seen")
 

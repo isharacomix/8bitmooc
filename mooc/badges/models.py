@@ -18,7 +18,7 @@ class Badge(models.Model):
     graphic     = models.SlugField("graphic",
                         help_text="Filename of the glyph in the Badge "+
                                   "img directory.")
-    ordering    = models.IntegerField("ordering", blank=True,
+    ordering    = models.IntegerField("ordering", blank=True, null=True,
                         help_text="Badges are ordered from lowest to "+
                                   "to highest when displayed in lists.")
     awarded_to  = models.ManyToManyField(User, blank=True,
