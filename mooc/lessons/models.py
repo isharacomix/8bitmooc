@@ -31,6 +31,9 @@ class Milestone(models.Model):
                             help_text="Milestones are ordered from lowest to "+
                                       "to highest when displayed in lists.")
 
+    class Meta:
+            ordering = ('ordering',)
+
     # Unicode representation.
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -54,6 +57,9 @@ class Module(models.Model):
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Modules are ordered from lowest to "+
                                       "to highest when displayed in lists.")
+    
+    class Meta:
+            ordering = ('ordering',)
     
     # Unicode representation.
     def __unicode__(self):
@@ -123,6 +129,9 @@ class Lesson(models.Model):
                             help_text="Lessons are ordered from lowest to "+
                                       "to highest when displayed in lists.")
     
+    class Meta:
+            ordering = ('ordering',)
+    
     def __unicode__(self):
         return u"Lesson %s-%s: %s" % (self.module.shortname, self.shortname, self.name)
 
@@ -157,6 +166,9 @@ class QuizQuestion(models.Model):
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Questions are ordered from lowest to "+
                                       "to highest when displayed in lists.")
+    
+    class Meta:
+            ordering = ('ordering',)
     
     def __unicode__(self):
         return u"%s: %s..." % (self.shortname, self.question[:64])

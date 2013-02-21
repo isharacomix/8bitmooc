@@ -25,6 +25,9 @@ class Badge(models.Model):
                             help_text="Who has this badge? This relation has "+
                                       "to be set out-of-band.")
 
+    class Meta:
+            ordering = ('ordering',)
+
     # Unicode representation.
     def __unicode__(self):
         return u"%s" % (self.name)

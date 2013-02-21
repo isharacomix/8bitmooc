@@ -8,7 +8,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from textbook.models import Page
-from lessons.models import Lesson, Module
+from lessons.models import Lesson, Module, QuizAnswer, QuizChallengeResponse
 
 import random
 
@@ -58,23 +58,14 @@ def view_challenge(request, module, lesson):
     raise Http404()
 
 
-# This processes the quizchallenge and creates a QuizChallengeResponse for the
-# user.
-def process_quizchallenge( request, module, lesson, challenge ):
-    les = get_lesson(module, lesson)
-    if not les.challenge:
-        if les.tutorial: return redirect( "lesson", module = module, lesson =lesson )
-        else: raise Http404()
-
-
 # This is a quizchallenge. This is pretty tricky to do since we have to be able
 # to randomize the quizzes for the user without revealing any of the internal
 # structure. To do so, we keep all of the models in the session parameter
 # so we can map between the users choices to what they 'really are'.
 def view_quizchallenge( request, module, lesson, challenge ):
     if request.method == 'POST':
-        if verify_quizchallenge(request, module, lesson, challenge):
-            return redirect("challenge", module = module, lesson = lesson)
+        return do_quizchallenge(request, module, lesson, challenge)
+        return redirect("challenge", module = module, lesson = lesson)
     
     # Questions is a list of tuples containing
     # (question, multi-choice?, [choiceA, choiceB...])
@@ -82,7 +73,6 @@ def view_quizchallenge( request, module, lesson, challenge ):
     question_map = {}
     i = 0
     for q in challenge.questions.order_by('ordering'):
-        content = q.question
         choice_map = {}
         choice_map["a"] = q.choiceA
         choice_map["b"] = q.choiceB
@@ -113,8 +103,8 @@ def view_quizchallenge( request, module, lesson, challenge ):
         choice_map["e"] = choices[4]
         
         # Save this in the answer map and increment the counter.
-        answer_map[i] = (q.question, choice_map)
-        question_map[i] = (content, i, q.multiple_ok, choice_content)
+        answer_map[i] = (q, choice_map)
+        question_map[i] = (q.question, i, q.multiple_ok, choice_content)
         i += 1
         
     # Now the answer_map has been built, we decide whether or not we shuffle it.
@@ -128,8 +118,8 @@ def view_quizchallenge( request, module, lesson, challenge ):
     
     # Store the answer_map in a session parameter. The session parameter will
     # be passed back with the quiz so that we can 
-    formID = "quiz%d"%random.randint(1,1000000)
-    request.session[formID] = answer_map
+    quizID = "quiz%d"%random.randint(1,1000000)
+    request.session[quizID] = answer_map
 
     # Phew! Now render that bad boy!
     return render( request, "lessons/quiz_challenge.html",
@@ -137,5 +127,62 @@ def view_quizchallenge( request, module, lesson, challenge ):
                     'questions': questions,
                     'module': module,
                     'lesson': lesson,
-                    'formID': formID } )
+                    'quizID': quizID } )
+
+
+# This processes the quizchallenge and creates a QuizChallengeResponse for the
+# user. The request.POST here should contain the "quizID" (which should be a
+# session parameter), it should contain "q<N>" where N is the number of
+# questions with values "A-E". We create a QuizAnswer for each question
+# in the list, and then create a QuizChallengeResponse to hold them all.
+def do_quizchallenge( request, module, lesson, challenge ):
+    les = get_lesson(module, lesson)
+    if not les.challenge:
+        if les.tutorial: return redirect( "lesson", module = module, lesson =lesson )
+        else: raise Http404()
+    quizID = request.POST.get("quizID")
+    answer_map = request.session.get(quizID)
+    
+    if answer_map is None: pass # raise shenanigans.
+    
+    # First we extract all of the responses from the form.
+    responses = []
+    q = 0
+    while "q%d"%q in request.POST:
+        responses.append( request.POST.getlist("q%d"%q) )
+        q += 1
+    
+    # For each of the questions, we create a QuizAnswer and store it in the
+    # answers list. Assuming we get all the way through without any shenanigans,
+    # we'll save all of those models, then create a single QuizChallengeResponse
+    # to hold them.
+    answers = []
+    for q in range(len(responses)):
+        if q not in answer_map: pass # raise shenanigans.
+        QA = QuizAnswer()
+        raw_response_list = responses[q]
+        QA.question, choice_map = answer_map[q]
+        response_list = []
+        for r in raw_response_list:
+            if r in answer_map: response_list.append( answer_map[r] )
+        if 'A' in response_list: QA.selectedA = True
+        if 'B' in response_list: QA.selectedB = True
+        if 'C' in response_list: QA.selectedC = True
+        if 'D' in response_list: QA.selectedD = True
+        if 'E' in response_list: QA.selectedE = True
+        answers.append(QA)
+    
+    # We made it through safely! Now we save the response in the DB.
+    for QA in answers: QA.save()
+    QCR = QuizChallengeResponse()
+    QCR.student = request.user
+    QCR.save()  # Can't do many-to-many until we save it once.
+    for QA in answers: QCR.answers.add(QA)
+    QCR.save()
+    
+    # Last, but not least, calculate the user's score. We'll display this in
+    # the sidebar for them.
+    
+    
+    return HttpResponse( str(responses) )
 
