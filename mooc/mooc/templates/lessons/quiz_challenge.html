@@ -1,0 +1,47 @@
+{% extends "layout_base.html" %}
+{% load textbook %}
+
+{% block title %}Challenge {{ module }}-{{ lesson }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8">
+            <form name="input" action="{% url challenge module=module lesson=lesson %}" method="post">
+            <input type="hidden" name="quizID" value="{{ formID }}">
+            <div>
+
+                {{ content|wikitext }}
+
+            </div>
+        
+            {% for text, number, multi, choices in questions %}
+                <hr />
+                    {{ text|wikitext }}
+                    
+                    {% for l, c in choices %}
+                    <div class="row">
+                        <div class="span1">
+                            {% if multi %}
+                                <input type="checkbox" name="q{{ number }}" value="{{ l }}" />
+                            {% else %}
+                                <input type="radio" name="q{{ number }}" value="{{ l }}" />
+                            {% endif %}
+                        </div>
+                        <div class="span7">
+                            {{ c|wikitext }}
+                        </div>
+                    </div>
+                    {% endfor %}
+            {% endfor %}
+            <input type="submit" value="Submit Answers" />
+            </form>
+        </div>
+        <div class="span4">
+            <div class="hero-unit">
+                <p>answers goes here</p>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

@@ -1,0 +1,24 @@
+{% extends "layout_base.html" %}
+{% load textbook %}
+
+{% block title %}Lesson {{ module }}-{{ lesson }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8">
+            <article class="article">
+
+                {{ content|wikitext }}
+
+            </article>
+        </div>
+        <div class="span4">
+            <div class="hero-unit">
+                <p>Social goes here</p>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+

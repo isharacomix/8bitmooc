@@ -1,6 +1,17 @@
 from django.db import models
 
+from django.contrib.auth.models import User
 from textbook.models import Page
+
+# There are a pile of models here.
+# WORLD MODELS: Handle the structure of the system
+#   Milestone
+#   Lesson
+#   BaseChallenge
+# CHALLENGE MODELS
+#   QuizChallenge (made up of QuizQuestions)
+# RESPONSE MODELS
+#   QuizChallengeResponse (made up of QuizAnswers)
 
 
 # Milestones are basically achievements for students to get.
@@ -69,7 +80,6 @@ class BaseChallenge(models.Model):
     # Unicode baby!
     def __unicode__(self):
         return u"%s: %s"%(self.challenge_type(), self.shortname)
-
 
 
 # If Modules are the "worlds", then lessons are the "stages". The name of the
@@ -160,4 +170,26 @@ class QuizChallenge(BaseChallenge):
     randomize   = models.BooleanField("random ok?", default=False,
                         help_text="If this is set, then the questions will be "+
                                   "randomized each time they are seen")
+
+
+# An answer to a single quiz question.
+class QuizAnswer(models.Model):
+    question = models.ForeignKey(QuizQuestion, verbose_name="question")
+    selectedA = models.BooleanField("A was selected", default=False )
+    selectedB = models.BooleanField("B was selected", default=False )
+    selectedC = models.BooleanField("C was selected", default=False )
+    selectedD = models.BooleanField("D was selected", default=False )
+    selectedE = models.BooleanField("E was selected", default=False )
+    
+    def __unicode__(self):
+        return u'QuizAnswer %d'%self.id
+
+
+# The form submitted when a multiple-choice quiz is completed.
+class QuizChallengeResponse(models.Model):
+    answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
+    student   = models.ForeignKey(User, verbose_name="student")
+    
+    def __unicode__(self):
+        return u'QuizResponse %d from %s'%(self.id,self.student.username)
 
