@@ -13,7 +13,6 @@ import os
 
 
 # Here are the constants needed to do things.
-BADGE_SALT = "8bitmoocbadges"
 ISSUER_DOMAIN = "http://8bitmooc.org"
 ISSUER_NAME = "8bitmooc"
 ISSUER_ORG = "8bitmooc"
@@ -69,7 +68,7 @@ def assert_badge(request, badge, user):
     if badge.held_by( user ):
         badge_assertion_dict = {
           "recipient": "sha256$"+hashlib.sha256(user.email+BADGE_SALT).hexdigest(),
-          "salt": BADGE_SALT,
+          "salt": settings.BADGE_SALT + badge.shortname,
           "evidence": ISSUER_DOMAIN+"/~"+user.username,
           #"expires": "2013-06-01",
           #"issued_on": "2011-06-01",
