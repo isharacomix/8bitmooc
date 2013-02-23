@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from lessons.models import Achievement, Stage
+
 
 # The student represents each user in the Database. We use their username and
 # e-mail from the User model, and don't worry so much about their real name
@@ -38,6 +40,12 @@ class Student(models.Model):
                         help_text="Display E-mail publicly?")
     twitter         = models.CharField("twitter", max_length=32, blank=True,
                         help_text="Twitter handle.")
+    
+    # This shows the stages that the student has completed.
+    complete_stages = models.ManyToManyField(Stage, blank=True,
+                        help_text="What stages have been completed?")    
+    achievements    = models.ManyToManyField(Achievement, blank=True,
+                        help_text="Which achievements have been obtained?")    
     
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.

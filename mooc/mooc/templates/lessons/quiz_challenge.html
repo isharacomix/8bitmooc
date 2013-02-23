@@ -11,13 +11,13 @@
             <input type="hidden" name="quizID" value="{{ quizID }}">
             <div>
 
-                {{ challenge.content|wikitext }}
+                {{ challenge.content|creole }}
 
             </div>
         
             {% for text, number, multi, choices in questions %}
                 <hr />
-                    {{ text|wikitext }}
+                    {{ text|creole }}
                     
                     {% for l, c in choices %}
                     <div class="row">
@@ -29,7 +29,7 @@
                             {% endif %}
                         </div>
                         <div class="span7">
-                            {{ c|wikitext }}
+                            {{ c|creole }}
                         </div>
                     </div>
                     {% endfor %}

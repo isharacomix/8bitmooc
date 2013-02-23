@@ -108,7 +108,7 @@ class Stage(models.Model):
                             help_text="The wiki page with this lesson's lesson.")
     challenge   = models.ForeignKey(BaseChallenge, verbose_name="challenge", blank=True,
                             null=True, help_text="The challenge for this lesson.")
-    prereq      = models.ManyToManyField("Stage", blank=True,
+    prereqs     = models.ManyToManyField("Stage", blank=True,
                             help_text="If any of the prereqs have been completed,"+
                                       " then the lesson is considered open.")
     world       = models.ForeignKey(World, verbose_name="world",
@@ -202,7 +202,7 @@ class QuizAnswer(models.Model):
 # The form submitted when a multiple-choice quiz is completed.
 class QuizChallengeResponse(models.Model):
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
-    student   = models.ForeignKey(User, verbose_name="student")
+    student   = models.ForeignKey('students.Student', verbose_name="student")
     timestamp = models.DateTimeField("timestamp", auto_now=True)
     
     def __unicode__(self):

@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from textbook.models import Page
 from lessons.models import Stage, World
 from lessons.models import QuizAnswer, QuizChallengeResponse
+from students.models import Student
 
 import random
 
@@ -28,15 +29,36 @@ def get_stage(world, stage):
 # This displays the world map.
 # TODO Trying to figure out how to specify between text mode and graphical mode.
 def world_map(request, world):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
     try: world = World.objects.get(shortname=world)
     except exceptions.ObjectDoesNotExist: raise Http404()
     
-    return render( request, "lessons/map.html", {'world': world} )
+    # Here, we go through all of the stages and find out which ones we can see,
+    # which one we can load, and which ones we've completed.
+    stages = [] 
+    completed = student.complete_stages.all()
+    for s in world.stage_set.all():
+        available = True
+        for p in s.prereqs.all():
+            if p not in completed:
+                available = False
+        if available or (not s.hidden):
+            stages.append( {'stage':s,
+                            'available':available,
+                            'complete':s in completed} )
+    
+    return render( request, 'lessons/map.html', {'world': world,
+                                                 'stages': stages} )
 
 
 # This loads the stage based on whether the logged in user is in the "challenge
 # first" or "lesson first" group.
 def view_stage(request, world, stage):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
     here = get_stage(world, stage)
     go = "lesson"
     # if in challenge-first group: go = "challenge"
@@ -51,20 +73,25 @@ def view_stage(request, world, stage):
 # chat stream (or other social tools) on the right. If no tutorial page exists,
 # then we redirect to the challenge.
 def view_lesson(request, world, stage):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
     here = get_stage(world, stage)
     if not here.lesson:
         if here.challenge: return redirect( "challenge", world = world, stage = stage )
         else: raise Http404()
         
     #TODO log this as read.
-    return render( request, "lessons/lesson.html",
-                   {'world': here.world,
-                    'stage': here } )
+    return render( request, "lessons/lesson.html", {'world': here.world,
+                                                    'stage': here } )
 
 
 # We load the challenge which looks different depending on which challenge
 # family we're dealing with (hard-coded).
 def view_challenge(request, world, stage):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
     here = get_stage(world, stage)
     if not here.challenge:
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
@@ -198,7 +225,7 @@ def do_quizchallenge( request, world, stage, challenge ):
     # We made it through safely! Now we save the response in the DB.
     for QA in answers: QA.save()
     QCR = QuizChallengeResponse()
-    QCR.student = request.user
+    QCR.student = request.user.student
     QCR.save()  # Can't do many-to-many until we save it once.
     for QA in answers: QCR.answers.add(QA)
     QCR.save()
