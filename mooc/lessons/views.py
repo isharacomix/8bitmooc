@@ -50,7 +50,7 @@ def world_map(request, world):
                             'complete':s in completed} )
     
     return render( request, 'lessons/map.html', {'world': world,
-                                                 'stages': stages} )
+                                                 'stage_list': stages} )
 
 
 # This loads the stage based on whether the logged in user is in the "challenge

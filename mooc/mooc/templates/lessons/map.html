@@ -6,18 +6,16 @@
 
 {% block body %}
 
-    {% for b in badge_list %}
+    {% for s in stage_list %}
         <div class="row">
             <div class="span2">
-                <p><a href="{% url badge_view b.shortname %}">
-                <img src="{% get_static_prefix %}img/{{b.graphic}}.png" />
-                </a>{% if b.check %}<i class="icon-ok"></i>{% endif %}</p>
+                <p><a href="{% url stage world=world.shortname stage=s.stage.shortname %}">
+                World {{ world.shortname }}-{{ s.stage.shortname }}
+                </a>{% if s.complete %}<i class="icon-ok"></i>{% endif %}</p>
             </div>
             
             <div class="span10">
-                <h3>{{ b.name }}</h3>
-                
-                <p>{{ b.shortdesc }}</p>
+                <h3>{{ s.stage.name }}</h3>
             </div>
         </div>
     {% endfor %}
