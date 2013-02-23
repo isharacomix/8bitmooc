@@ -25,6 +25,27 @@ def get_stage(world, stage):
     except exceptions.ObjectDoesNotExist: raise Http404()
 
 
+# This displays the world map.
+def world_map(request, world):
+    try: world = World.objects.get(shortname=world)
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    #
+
+
+# This loads the stage based on whether the logged in user is in the "challenge
+# first" or "lesson first" group.
+def view_lesson(request, world, stage):
+    here = get_stage(world, stage)
+    go = "lesson"
+    # if in challenge-first group: go = "challenge"
+    
+    # If there is only one choice, then go to that one.
+    if not here.lesson and here.challenge: go = "challenge"
+    if not here.challenge and here.lesson: go = "lesson"
+    return redirect( go, world = world, stage = stage )
+    
+
 # We load the lesson which shows the tutorial page in the left column and the
 # chat stream (or other social tools) on the right. If no tutorial page exists,
 # then we redirect to the challenge.
