@@ -26,16 +26,17 @@ def get_stage(world, stage):
 
 
 # This displays the world map.
+# TODO Trying to figure out how to specify between text mode and graphical mode.
 def world_map(request, world):
     try: world = World.objects.get(shortname=world)
     except exceptions.ObjectDoesNotExist: raise Http404()
     
-    #
+    return render( request, "lessons/map.html", {'world': world} )
 
 
 # This loads the stage based on whether the logged in user is in the "challenge
 # first" or "lesson first" group.
-def view_lesson(request, world, stage):
+def view_stage(request, world, stage):
     here = get_stage(world, stage)
     go = "lesson"
     # if in challenge-first group: go = "challenge"
@@ -57,9 +58,8 @@ def view_lesson(request, world, stage):
         
     #TODO log this as read.
     return render( request, "lessons/lesson.html",
-                   {'content': here.lesson.content,
-                    'world': world,
-                    'stage': stage } )
+                   {'world': here.world,
+                    'stage': here } )
 
 
 # We load the challenge which looks different depending on which challenge
@@ -86,6 +86,7 @@ def view_challenge(request, world, stage):
 # structure. To do so, we keep all of the models in the session parameter
 # so we can map between the users choices to what they 'really are'.
 def view_quizchallenge( request, world, stage, challenge ):
+    here = get_stage(world, stage)
     if request.method == 'POST':
         return do_quizchallenge(request, world, stage, challenge)
         return redirect("challenge", world = world, stage = stage)
@@ -146,10 +147,9 @@ def view_quizchallenge( request, world, stage, challenge ):
 
     # Phew! Now render that bad boy!
     return render( request, "lessons/quiz_challenge.html",
-                   {'content': challenge.content,
-                    'questions': questions,
-                    'world': world,
-                    'stage': stage,
+                   {'questions': questions,
+                    'world': here.world,
+                    'stage': here,
                     'quizID': quizID } )
 
 

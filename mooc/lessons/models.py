@@ -111,7 +111,7 @@ class Stage(models.Model):
     prereq      = models.ManyToManyField("Stage", blank=True,
                             help_text="If any of the prereqs have been completed,"+
                                       " then the lesson is considered open.")
-    world       = models.ForeignKey(World, verbose_name="module",
+    world       = models.ForeignKey(World, verbose_name="world",
                             help_text="Which module is this lesson in?")
     hidden      = models.BooleanField("hidden", default=False,
                         help_text="If this is set, then the student can only "+
