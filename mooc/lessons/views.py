@@ -3,6 +3,7 @@
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
@@ -21,7 +22,7 @@ def get_stage(world, stage):
         world = World.objects.get(shortname=world)
         stage = Stage.objects.get(world=world, shortname=stage)
         return stage
-    except: raise Http404()
+    except exceptions.ObjectDoesNotExist: raise Http404()
 
 
 # We load the lesson which shows the tutorial page in the left column and the
