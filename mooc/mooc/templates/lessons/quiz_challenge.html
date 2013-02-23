@@ -1,13 +1,13 @@
 {% extends "layout_base.html" %}
 {% load textbook %}
 
-{% block title %}Challenge {{ module }}-{{ lesson }}{% endblock title %}
+{% block title %}Challenge {{ world }}-{{ stage }}{% endblock title %}
 
 {% block body %}
 
     <div class="row">
         <div class="span8">
-            <form name="input" action="{% url challenge module=module lesson=lesson %}" method="post">{% csrf_token %}
+            <form name="input" action="{% url challenge world=world stage=stage %}" method="post">{% csrf_token %}
             <input type="hidden" name="quizID" value="{{ quizID }}">
             <div>
 

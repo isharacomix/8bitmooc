@@ -5,9 +5,9 @@ from lessons import views
 
 # Textbook URL pattern.
 urlpatterns = patterns('',
-    url(r'^lesson/(?P<module>[\w-]+)/(?P<lesson>[\w-]+)/$', views.view_lesson,
-                                                            name='lesson'),
-    url(r'^challenge/(?P<module>[\w-]+)/(?P<lesson>[\w-]+)/$', views.view_challenge,
-                                                               name='challenge'),
+    url(r'^(?P<world>[\w-]+)/(?P<stage>[\w-]+)/lesson/$', views.view_lesson,
+                                                          name='lesson'),
+    url(r'^(?P<world>[\w-]+)/(?P<stage>[\w-]+)/challenge/$', views.view_challenge,
+                                                             name='challenge'),
 )
 
