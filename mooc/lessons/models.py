@@ -201,6 +201,7 @@ class QuizAnswer(models.Model):
 class QuizChallengeResponse(models.Model):
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
     student   = models.ForeignKey(User, verbose_name="student")
+    timestamp = models.DateTimeField("timestamp", auto_now=True)
     
     def __unicode__(self):
         return u'QuizResponse %d from %s'%(self.id,self.student.username)
