@@ -5,6 +5,6 @@ from ..markup import render_markup
 register = template.Library()
 
 @register.filter
-def wikitext(text):
+def creole(text):
     return render_markup(text)
 
