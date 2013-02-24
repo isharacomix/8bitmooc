@@ -6,6 +6,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from badges.models import Badge
+from students.models import Student
 from django.contrib.auth.models import User
 
 import hashlib
@@ -28,7 +29,7 @@ def list_badges(request):
         try: b.check = True if b.held_by( request.user.student ) else False
         except: b.check = False
     
-    return render( request, "badges/list.html", {"badge_list":badge_list} )
+    return render( request, "badge_list.html", {"badge_list":badge_list} )
 
 
 # This goes to the badge's home page, showing its description and requirements.
@@ -41,7 +42,8 @@ def view_badge(request, badge):
     except exceptions.ObjectDoesNotExist: return redirect( "badge_list" )
     
     # Determine if the User has the badge.
-    awarded = True if badge.held_by(request.user.student) else False
+    try: awarded = True if badge.held_by(Student.from_request(request)) else False
+    except exceptions.ObjectDoesNotExist: awarded = False
     
     # To embed the add-to-backpack button in your model, use the following
     # script: be sure you check to see if the user is authenticated.
@@ -50,9 +52,9 @@ def view_badge(request, badge):
     #   OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"],function(errors, successes) {});
     #   </script>
     
-    return render( request, "badges/details.html", {"badge":badge,
-                                                    "awarded":awarded,
-                                                    "domain":ISSUER_DOMAIN} )
+    return render( request, "badge_details.html", {"badge":badge,
+                                                   "awarded":awarded,
+                                                   "domain":ISSUER_DOMAIN} )
 
 
 # This returns a JSON string for the badge for the specified user if they
@@ -60,14 +62,15 @@ def view_badge(request, badge):
 def assert_badge(request, badge, user):
     try:
         badge = Badge.objects.get(shortname=badge)
-        student = User.objects.get(username=user).student
+        student = Student.objects.get( user=User.objects.get(username=user) )
     except exceptions.ObjectDoesNotExist: raise Http404()
     
     # If they have the badge, start making the JSON thing.
+    salt = settings.BADGE_SALT + '.' + badge.shortname
     if badge.held_by( student ):
         badge_assertion_dict = {
-          "recipient": "sha256$"+hashlib.sha256(student.user.email+BADGE_SALT).hexdigest(),
-          "salt": settings.BADGE_SALT + badge.shortname,
+          "recipient": "sha256$"+hashlib.sha256(student.user.email+salt).hexdigest(),
+          "salt": salt,
           "evidence": ISSUER_DOMAIN+"/~"+student.user.username,
           #"expires": "2013-06-01",
           #"issued_on": "2011-06-01",

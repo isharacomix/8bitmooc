@@ -29,7 +29,7 @@ def get_stage(world, stage):
 # This displays the world map.
 # TODO Trying to figure out how to specify between text mode and graphical mode.
 def world_map(request, world):
-    try: student = request.user.student
+    try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
     
     try: world = World.objects.get(shortname=world)
@@ -47,14 +47,14 @@ def world_map(request, world):
         if available or (not s.hidden):
             stages.append( ( s, available, s in completed ) )
     
-    return render( request, 'lessons/map.html', {'world': world,
+    return render( request, 'lessons_map.html', {'world': world,
                                                  'stage_list': stages} )
 
 
 # This loads the stage based on whether the logged in user is in the "challenge
 # first" or "lesson first" group.
 def view_stage(request, world, stage):
-    try: student = request.user.student
+    try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
     
     here = get_stage(world, stage)
@@ -71,7 +71,7 @@ def view_stage(request, world, stage):
 # chat stream (or other social tools) on the right. If no tutorial page exists,
 # then we redirect to the challenge.
 def view_lesson(request, world, stage):
-    try: student = request.user.student
+    try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
     
     here = get_stage(world, stage)
@@ -80,14 +80,14 @@ def view_lesson(request, world, stage):
         else: raise Http404()
         
     #TODO log this as read.
-    return render( request, "lessons/lesson.html", {'world': here.world,
+    return render( request, "lessons_lesson.html", {'world': here.world,
                                                     'stage': here } )
 
 
 # We load the challenge which looks different depending on which challenge
 # family we're dealing with (hard-coded).
 def view_challenge(request, world, stage):
-    try: student = request.user.student
+    try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
     
     here = get_stage(world, stage)
@@ -171,7 +171,7 @@ def view_quizchallenge( request, world, stage, challenge ):
     request.session[quizID] = answer_map
 
     # Phew! Now render that bad boy!
-    return render( request, "lessons/quiz_challenge.html",
+    return render( request, "lessons_quiz_challenge.html",
                    {'questions': questions,
                     'world': here.world,
                     'stage': here,

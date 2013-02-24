@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core import exceptions
 
 from lessons.models import Achievement, Stage
 
@@ -57,4 +58,13 @@ class Student(models.Model):
     @property
     def email(self):
         return self.user.email
+    
+    # Grab the Student out of the request. Raises exceptions.ObjectDoesNotExist
+    # if the student does not exist.
+    @staticmethod
+    def from_request(request):
+        if request.user.is_authenticated():
+            return request.user.student
+        else:
+            raise exceptions.ObjectDoesNotExist()
 

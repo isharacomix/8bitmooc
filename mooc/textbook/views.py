@@ -27,11 +27,11 @@ Please either hit the back button or return to the [[index|front page]].
 def view_page(request, page='index'):
     try:
         p = Page.objects.get(title=page)
-        return render(request, "textbook/page.html", {
+        return render(request, "textbook_page.html", {
                                'content': p.content, 'title': p.title
                                })
     except:
-        return render(request, "textbook/page.html",
+        return render(request, "textbook_page.html",
                       {'content': NO_PAGE, 'title': 'MISSING-PAGE'},
                       status=404)
 
@@ -46,7 +46,7 @@ def find_pages(request, query):
     data = {}
     results = data
     
-    return render(request, "textbook/results.html",
+    return render(request, "textbook_search.html",
                           {'results': results, 'query': query })
 
 
