@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from students.models import Student
+
 
 # Badges are major achievements that implement the Mozilla Open Badges API.
 # Unlike milestones, which are internal achievements, Badges can be taken out
@@ -21,7 +23,7 @@ class Badge(models.Model):
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                         help_text="Badges are ordered from lowest to "+
                                   "to highest when displayed in lists.")
-    awarded_to  = models.ManyToManyField(User, blank=True,
+    awarded_to  = models.ManyToManyField(Student, blank=True,
                             help_text="Who has this badge? This relation has "+
                                       "to be set out-of-band.")
 
@@ -33,6 +35,6 @@ class Badge(models.Model):
         return u"%s" % (self.name)
 
     # Returns True if the specified user has this badge.
-    def held_by(self, user):
-        return user in self.awarded_to.all()
+    def held_by(self, student):
+        return student in self.awarded_to.all()
 
