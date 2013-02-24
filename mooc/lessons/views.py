@@ -3,57 +3,105 @@
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
 from textbook.models import Page
-from lessons.models import Lesson, Module, QuizAnswer, QuizChallengeResponse
+from lessons.models import Stage, World
+from lessons.models import QuizAnswer, QuizChallengeResponse
+from students.models import Student
 
 import random
 
 
 # This handles the error handling and getting the proper module and lesson
 # from the shortnames.
-def get_lesson(module, lesson):
+def get_stage(world, stage):
     try:
-        mod = Module.objects.get(shortname=module)
-        les = Lesson.objects.get(module=mod, shortname=lesson)
-        return les
-    except: raise Http404()
+        world = World.objects.get(shortname=world)
+        stage = Stage.objects.get(world=world, shortname=stage)
+        return stage
+    except exceptions.ObjectDoesNotExist: raise Http404()
 
+
+# This displays the world map.
+# TODO Trying to figure out how to specify between text mode and graphical mode.
+def world_map(request, world):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
+    try: world = World.objects.get(shortname=world)
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    # Here, we go through all of the stages and find out which ones we can see,
+    # which one we can load, and which ones we've completed.
+    stages = [] 
+    completed = student.complete_stages.all()
+    for s in world.stage_set.all():
+        available = True
+        for p in s.prereqs.all():
+            if p not in completed:
+                available = False
+        if available or (not s.hidden):
+            stages.append( ( s, available, s in completed ) )
+    
+    return render( request, 'lessons/map.html', {'world': world,
+                                                 'stage_list': stages} )
+
+
+# This loads the stage based on whether the logged in user is in the "challenge
+# first" or "lesson first" group.
+def view_stage(request, world, stage):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
+    here = get_stage(world, stage)
+    go = "lesson"
+    # if in challenge-first group: go = "challenge"
+    
+    # If there is only one choice, then go to that one.
+    if not here.lesson and here.challenge: go = "challenge"
+    if not here.challenge and here.lesson: go = "lesson"
+    return redirect( go, world = world, stage = stage )
+    
 
 # We load the lesson which shows the tutorial page in the left column and the
 # chat stream (or other social tools) on the right. If no tutorial page exists,
 # then we redirect to the challenge.
-def view_lesson(request, module, lesson):
-    les = get_lesson(module, lesson)
-    if not les.tutorial:
-        if les.challenge: return redirect( "challenge", module = module, lesson =lesson )
+def view_lesson(request, world, stage):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
+    here = get_stage(world, stage)
+    if not here.lesson:
+        if here.challenge: return redirect( "challenge", world = world, stage = stage )
         else: raise Http404()
         
     #TODO log this as read.
-    return render( request, "lessons/tutorial.html",
-                   {'content': les.tutorial.content,
-                    'module': module,
-                    'lesson': lesson } )
+    return render( request, "lessons/lesson.html", {'world': here.world,
+                                                    'stage': here } )
 
 
 # We load the challenge which looks different depending on which challenge
 # family we're dealing with (hard-coded).
-def view_challenge(request, module, lesson):
-    les = get_lesson(module, lesson)
-    if not les.challenge:
-        if les.tutorial: return redirect( "lesson", module = module, lesson =lesson )
+def view_challenge(request, world, stage):
+    try: student = request.user.student
+    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    
+    here = get_stage(world, stage)
+    if not here.challenge:
+        if here.lesson: return redirect( "lesson", world = world, stage = stage )
         else: raise Http404()
     
     # TODO log the view
     
     # These are all of the types of challenges.
-    c = les.challenge
+    c = here.challenge
     if hasattr(c, "quizchallenge"): return view_quizchallenge(request,
-                                                              module,
-                                                              lesson,
+                                                              world,
+                                                              stage,
                                                               c.quizchallenge)
     raise Http404()
 
@@ -62,10 +110,11 @@ def view_challenge(request, module, lesson):
 # to randomize the quizzes for the user without revealing any of the internal
 # structure. To do so, we keep all of the models in the session parameter
 # so we can map between the users choices to what they 'really are'.
-def view_quizchallenge( request, module, lesson, challenge ):
+def view_quizchallenge( request, world, stage, challenge ):
+    here = get_stage(world, stage)
     if request.method == 'POST':
-        return do_quizchallenge(request, module, lesson, challenge)
-        return redirect("challenge", module = module, lesson = lesson)
+        return do_quizchallenge(request, world, stage, challenge)
+        return redirect("challenge", world = world, stage = stage)
     
     # Questions is a list of tuples containing
     # (question, multi-choice?, [choiceA, choiceB...])
@@ -123,10 +172,9 @@ def view_quizchallenge( request, module, lesson, challenge ):
 
     # Phew! Now render that bad boy!
     return render( request, "lessons/quiz_challenge.html",
-                   {'content': challenge.content,
-                    'questions': questions,
-                    'module': module,
-                    'lesson': lesson,
+                   {'questions': questions,
+                    'world': here.world,
+                    'stage': here,
                     'quizID': quizID } )
 
 
@@ -135,10 +183,10 @@ def view_quizchallenge( request, module, lesson, challenge ):
 # session parameter), it should contain "q<N>" where N is the number of
 # questions with values "A-E". We create a QuizAnswer for each question
 # in the list, and then create a QuizChallengeResponse to hold them all.
-def do_quizchallenge( request, module, lesson, challenge ):
-    les = get_lesson(module, lesson)
-    if not les.challenge:
-        if les.tutorial: return redirect( "lesson", module = module, lesson =lesson )
+def do_quizchallenge( request, world, stage, challenge ):
+    here = get_stage(world, stage)
+    if not here.challenge:
+        if here.tutorial: return redirect( "lesson", world = world, stage =stage )
         else: raise Http404()
     quizID = request.POST.get("quizID")
     answer_map = request.session.get(quizID)
@@ -175,7 +223,7 @@ def do_quizchallenge( request, module, lesson, challenge ):
     # We made it through safely! Now we save the response in the DB.
     for QA in answers: QA.save()
     QCR = QuizChallengeResponse()
-    QCR.student = request.user
+    QCR.student = request.user.student
     QCR.save()  # Can't do many-to-many until we save it once.
     for QA in answers: QCR.answers.add(QA)
     QCR.save()

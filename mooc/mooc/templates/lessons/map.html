@@ -1,0 +1,23 @@
+{% extends "layout_base.html" %}
+{% load static %}
+{% load textbook %}
+
+{% block title %}World {{ world.shortname }}: {{ world.name }}{% endblock title %}
+
+{% block body %}
+
+    {% for stage, available, complete in stage_list %}
+        <div class="row">
+            <div class="span2">
+                <p><a href="{% url stage world=world.shortname stage=stage.shortname %}">
+                World {{ world.shortname }}-{{ stage.shortname }}: {{ stage.name }}
+                </a>{% if complete %}<i class="icon-ok"></i>{% endif %}</p>
+            </div>
+            
+            <div class="span10">
+                STUFF GOES HERE SON
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock body %}

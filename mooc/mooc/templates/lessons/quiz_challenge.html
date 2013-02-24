@@ -1,23 +1,23 @@
 {% extends "layout_base.html" %}
 {% load textbook %}
 
-{% block title %}Challenge {{ module }}-{{ lesson }}{% endblock title %}
+{% block title %}Challenge {{ world.shortname }}-{{ stage.shortname }}{% endblock title %}
 
 {% block body %}
 
     <div class="row">
         <div class="span8">
-            <form name="input" action="{% url challenge module=module lesson=lesson %}" method="post">{% csrf_token %}
+            <form name="input" action="{% url challenge world=world.shortname stage=stage.shortname %}" method="post">{% csrf_token %}
             <input type="hidden" name="quizID" value="{{ quizID }}">
             <div>
 
-                {{ content|wikitext }}
+                {{ challenge.content|creole }}
 
             </div>
         
             {% for text, number, multi, choices in questions %}
                 <hr />
-                    {{ text|wikitext }}
+                    {{ text|creole }}
                     
                     {% for l, c in choices %}
                     <div class="row">
@@ -29,7 +29,7 @@
                             {% endif %}
                         </div>
                         <div class="span7">
-                            {{ c|wikitext }}
+                            {{ c|creole }}
                         </div>
                     </div>
                     {% endfor %}

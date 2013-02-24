@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core import exceptions
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
@@ -22,9 +23,9 @@ ISSUER_CONTACT = "admin@8bitmooc.org"
 # This prepares a list of all of the badges, displaying them on the badge
 # list template.
 def list_badges(request):
-    badge_list = Badge.objects.order_by('ordering')
+    badge_list = Badge.objects.all()
     for b in badge_list:
-        try: b.check = True if b.held_by( request.user ) else False
+        try: b.check = True if b.held_by( request.user.student ) else False
         except: b.check = False
     
     return render( request, "badges/list.html", {"badge_list":badge_list} )
@@ -37,11 +38,10 @@ def view_badge(request, badge):
     
     # If the badge doesn't exist, take the user to the list.
     try: badge = Badge.objects.get(shortname=badge)
-    except: return redirect( "badge_list" )
+    except exceptions.ObjectDoesNotExist: return redirect( "badge_list" )
     
     # Determine if the User has the badge.
-    try: awarded = True if badge.held_by(request.user) else False
-    except: awarded = False
+    awarded = True if badge.held_by(request.user.student) else False
     
     # To embed the add-to-backpack button in your model, use the following
     # script: be sure you check to see if the user is authenticated.
@@ -60,16 +60,15 @@ def view_badge(request, badge):
 def assert_badge(request, badge, user):
     try:
         badge = Badge.objects.get(shortname=badge)
-        user = User.objects.get(username=user)
-    except:
-        raise Http404()
+        student = User.objects.get(username=user).student
+    except exceptions.ObjectDoesNotExist: raise Http404()
     
     # If they have the badge, start making the JSON thing.
-    if badge.held_by( user ):
+    if badge.held_by( student ):
         badge_assertion_dict = {
-          "recipient": "sha256$"+hashlib.sha256(user.email+BADGE_SALT).hexdigest(),
+          "recipient": "sha256$"+hashlib.sha256(student.user.email+BADGE_SALT).hexdigest(),
           "salt": settings.BADGE_SALT + badge.shortname,
-          "evidence": ISSUER_DOMAIN+"/~"+user.username,
+          "evidence": ISSUER_DOMAIN+"/~"+student.user.username,
           #"expires": "2013-06-01",
           #"issued_on": "2011-06-01",
           "badge": {
