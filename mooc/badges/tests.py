@@ -57,9 +57,8 @@ class BadgeTests(TestCase):
     # When you go to a badge that doesn't exist, you get redirected back to
     # '/badges'.
     def test_badge_redirect(self):
-        response = self.c.get('/badges/fakebadge', follow=True)
-        self.assertEqual(response.redirect_chain, [(u'http://testserver/badges/fakebadge/', 301),
-                                                   (u'http://testserver/badges/', 302)])
+        response = self.c.get('/badges/fakebadge/', follow=True)
+        self.assertEqual(response.redirect_chain, [(u'http://testserver/badges/', 302)])
 
     # When Alexis visits the badge list, she sees a check mark next to
     # the superbadge.
@@ -76,6 +75,22 @@ class BadgeTests(TestCase):
         response = self.c.get('/badges/')
         self.assertEqual(response.status_code, 200)
         self.assertFalse( '<i class="icon-ok"></i>' in response.content )
+    
+    # When Alexis visits the badge information, she can add the badge to her
+    # backpack.
+    def test_badge_backpack_button(self):
+        self.c.login(username="alexis", password="alexisrulz")
+        response = self.c.get('/badges/superbadge/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue( 'http://beta.openbadges.org/issuer.js' in response.content )
+
+    # When Ishara visits the badge information, he can not add the badge to his
+    # backpack.
+    def test_view_badge_list_nocheck(self):
+        self.c.login(username="ishara", password="ishararulz")
+        response = self.c.get('/badges/superbadge/')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse( 'http://beta.openbadges.org/issuer.js' in response.content )    
     
     # Check to ensure that you get a 404 for the assertion for Ishara and a
     # JSON string for Alexis.

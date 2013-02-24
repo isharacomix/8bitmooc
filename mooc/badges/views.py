@@ -26,8 +26,8 @@ ISSUER_CONTACT = "admin@8bitmooc.org"
 def list_badges(request):
     badge_list = Badge.objects.all()
     for b in badge_list:
-        try: b.check = True if b.held_by( request.user.student ) else False
-        except: b.check = False
+        try: b.check = True if b.held_by( Student.from_request(request) ) else False
+        except exceptions.ObjectDoesNotExist: b.check = False
     
     return render( request, "badge_list.html", {"badge_list":badge_list} )
 

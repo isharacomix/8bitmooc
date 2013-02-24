@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
@@ -24,13 +25,14 @@ Please either hit the back button or return to the [[index|front page]].
 
 # This method simply passes the string to the appropriate template and renders
 # it in wiki creole.
-def view_page(request, page='index'):
+def view_page(request, page=None):
+    if page is None: return redirect( "textbook_page", page="index" )
     try:
         p = Page.objects.get(title=page)
         return render(request, "textbook_page.html", {
                                'content': p.content, 'title': p.title
                                })
-    except:
+    except exceptions.ObjectDoesNotExist:
         return render(request, "textbook_page.html",
                       {'content': NO_PAGE, 'title': 'MISSING-PAGE'},
                       status=404)

@@ -34,7 +34,7 @@ class Achievement(models.Model):
                                       "to highest when displayed in lists.")
 
     class Meta:
-            ordering = ('ordering',)
+        ordering = ('ordering',)
 
     # Unicode representation.
     def __unicode__(self):
@@ -61,7 +61,7 @@ class World(models.Model):
                                       "to highest when displayed in lists.")
     
     class Meta:
-            ordering = ('ordering',)
+        ordering = ('ordering',)
     
     # Unicode representation.
     def __unicode__(self):
@@ -132,7 +132,7 @@ class Stage(models.Model):
                                       "to highest when displayed in lists.")
     
     class Meta:
-            ordering = ('ordering',)
+        ordering = ('ordering',)
     
     def __unicode__(self):
         return u"Lesson %s-%s: %s" % (self.world.shortname, self.shortname, self.name)
@@ -170,7 +170,7 @@ class QuizQuestion(models.Model):
                                       "to highest when displayed in lists.")
     
     class Meta:
-            ordering = ('ordering',)
+        ordering = ('ordering',)
     
     def __unicode__(self):
         return u"%s: %s..." % (self.shortname, self.question[:64])
