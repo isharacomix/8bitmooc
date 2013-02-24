@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView
 
 from lessons import views
 
+
 # Textbook URL pattern.
 urlpatterns = patterns('',
     url(r'^(?P<world>[\w-]+)/$', views.world_map, name='world_map'),

@@ -6,16 +6,16 @@
 
 {% block body %}
 
-    {% for s in stage_list %}
+    {% for stage, available, complete in stage_list %}
         <div class="row">
             <div class="span2">
-                <p><a href="{% url stage world=world.shortname stage=s.stage.shortname %}">
-                World {{ world.shortname }}-{{ s.stage.shortname }}
-                </a>{% if s.complete %}<i class="icon-ok"></i>{% endif %}</p>
+                <p><a href="{% url stage world=world.shortname stage=stage.shortname %}">
+                World {{ world.shortname }}-{{ stage.shortname }}: {{ stage.name }}
+                </a>{% if complete %}<i class="icon-ok"></i>{% endif %}</p>
             </div>
             
             <div class="span10">
-                <h3>{{ s.stage.name }}</h3>
+                STUFF GOES HERE SON
             </div>
         </div>
     {% endfor %}

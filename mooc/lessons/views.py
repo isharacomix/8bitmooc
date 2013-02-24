@@ -45,9 +45,7 @@ def world_map(request, world):
             if p not in completed:
                 available = False
         if available or (not s.hidden):
-            stages.append( {'stage':s,
-                            'available':available,
-                            'complete':s in completed} )
+            stages.append( ( s, available, s in completed ) )
     
     return render( request, 'lessons/map.html', {'world': world,
                                                  'stage_list': stages} )

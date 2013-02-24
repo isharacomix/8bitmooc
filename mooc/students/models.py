@@ -32,8 +32,6 @@ class Student(models.Model):
                         help_text="This is set if the student is actually a TA.")
     
     # Personal profile settings (all of which are optional for the student).
-    # In order to protect privacy, I will not support any 3rd-party connections
-    # except for Persona for OpenBadges.
     bio             = models.TextField("bio", blank=True,
                         help_text="The user's bio.")
     display_email   = models.BooleanField("display e-mail", default=False,
