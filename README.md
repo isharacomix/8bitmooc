@@ -1,7 +1,7 @@
 8bitmooc
 ========
 
-So, #8bitmooc is an 8-bit MOOC.
+So, #8bitmooc is an 8-bit MOOC. 
 
 ##What is a MOOC?
 A MOOC is a Massively Open Online Course, a course open to anyone in the
