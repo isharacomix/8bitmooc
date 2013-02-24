@@ -23,7 +23,7 @@ ISSUER_CONTACT = "admin@8bitmooc.org"
 # This prepares a list of all of the badges, displaying them on the badge
 # list template.
 def list_badges(request):
-    badge_list = Badge.objects.order_by('ordering')
+    badge_list = Badge.objects.all()
     for b in badge_list:
         try: b.check = True if b.held_by( request.user.student ) else False
         except: b.check = False
