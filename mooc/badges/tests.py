@@ -1,7 +1,3 @@
-"""
-Tests for the badges.
-"""
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 from badges.models import Badge
