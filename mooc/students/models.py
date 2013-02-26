@@ -2,13 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core import exceptions
 
-from lessons.models import Achievement, Stage
-
 
 # The student represents each user in the Database. We use their username and
 # e-mail from the User model, and don't worry so much about their real name
-# and such. The primary purpose of the User is to manage submissions for
-# assignments, to assign authorship of contain, and to keep track of "friends".
+# and such. The primary purpose of the Student profile is to be associated with
+# assignments, badges, and other submissions.
 # Technically, teachers are also "students" in the course.
 class Student(models.Model):
     user            = models.OneToOneField(User, verbose_name="user")
@@ -38,13 +36,7 @@ class Student(models.Model):
     display_email   = models.BooleanField("display e-mail", default=False,
                         help_text="Display E-mail publicly?")
     twitter         = models.CharField("twitter", max_length=32, blank=True,
-                        help_text="Twitter handle.")
-    
-    # This shows the stages that the student has completed.
-    complete_stages = models.ManyToManyField(Stage, blank=True,
-                        help_text="What stages have been completed?")    
-    achievements    = models.ManyToManyField(Achievement, blank=True,
-                        help_text="Which achievements have been obtained?")    
+                        help_text="Twitter handle.")   
     
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.

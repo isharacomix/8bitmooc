@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from textbook.models import Page
+from students.models import Student
+
 
 # There are a pile of models here.
 # WORLD MODELS: Handle the structure of the system
@@ -32,6 +34,8 @@ class Achievement(models.Model):
     ordering    = models.IntegerField("ordering", blank=True,
                             help_text="Milestones are ordered from lowest to "+
                                       "to highest when displayed in lists.")
+    awarded_to  = models.ManyToManyField(Student, blank=True,
+                            help_text="Who has obtained this achievement?")   
 
     class Meta:
         ordering = ('ordering',)
@@ -130,6 +134,8 @@ class Stage(models.Model):
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Lessons are ordered from lowest to "+
                                       "to highest when displayed in lists.")
+    completed_by= models.ManyToManyField(Student, blank=True,
+                            help_text="Who has completed this stage?")
     
     class Meta:
         ordering = ('ordering',)
@@ -202,7 +208,7 @@ class QuizAnswer(models.Model):
 # The form submitted when a multiple-choice quiz is completed.
 class QuizChallengeResponse(models.Model):
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
-    student   = models.ForeignKey('students.Student', verbose_name="student")
+    student   = models.ForeignKey(Student, verbose_name="student")
     timestamp = models.DateTimeField("timestamp", auto_now=True)
     
     def __unicode__(self):

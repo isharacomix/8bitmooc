@@ -38,7 +38,7 @@ def world_map(request, world):
     # Here, we go through all of the stages and find out which ones we can see,
     # which one we can load, and which ones we've completed.
     stages = [] 
-    completed = student.complete_stages.all()
+    completed = student.stage_set.all()
     for s in world.stage_set.all():
         available = True
         for p in s.prereqs.all():

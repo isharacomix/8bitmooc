@@ -84,6 +84,9 @@ class LessonTests(TestCase):
         # Give the test users memorable names.
         self.ishara = self.s1
         self.alexis = self.s2
+        
+        self.l1.completed_by.add(self.alexis)
+        self.l1.save()
        
     # Anonymous viewers can not access the pages - they will be redirected
     # to the log-in/sign-up page. 
@@ -107,6 +110,17 @@ class LessonTests(TestCase):
         self.assertEqual(response.redirect_chain, [(u'http://testserver/world/1/2/lesson/', 302)])
         response = self.c.get("/world/1/2/challenge/", follow=True)
         self.assertEqual(response.redirect_chain, [(u'http://testserver/world/1/2/lesson/', 302)])
-
+    
+    # Test the world map. Ishara will see two stages, while Alexis will see 3.
+    def test_world_map(self):
+        self.c.login(username="alexis", password="alexisrulz")
+        response = self.c.get("/world/1/")
+        self.assertTrue( "Fun Level 3" in response.content )
+        self.c.logout()
+        self.c.login(username="ishara", password="ishararulz")
+        response = self.c.get("/world/1/")
+        self.assertFalse( "Fun Level 3" in response.content )
+    
+    
     # TODO test the quizzes and stuff
 
