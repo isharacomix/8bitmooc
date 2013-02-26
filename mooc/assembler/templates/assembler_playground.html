@@ -1,5 +1,6 @@
 {% extends "layout_base.html" %}
 {% load textbook %}
+{% load static from staticfiles %}
 
 {% block title %}Playground{% endblock title %}
 
@@ -16,9 +17,11 @@
         </div>
         
         <div class="span4">
-            <div class="hero-unit">
-                <p>emulator goes here.</p>
-            </div>
+    
+        
+    <div id="emulator"></div>
+    
+        
             <input type="submit" name="run" value="Run in Emulator" />
             <input type="submit" name="assemble" value="Assemble" />
         </div>
@@ -26,3 +29,28 @@
     </div>
 
 {% endblock body %}
+
+
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="{% static "js/bootstrap.js" %}"></script>
+    <script src="{% static "js/dynamicaudio-min.js"%}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static "js/jsnes-src.js"%}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+        var nes;
+        $(function() {
+            nes = new JSNES({
+                'ui': $('#emulator').JSNESUI({
+                    "Homebrew": [
+                        ['Concentration Room', 'roms/croom/croom.nes'],
+                        ['LJ65', 'roms/lj65/lj65.nes'],
+                    ]
+                })
+            });
+        });
+    </script>
+    <!--[if IE]>
+        <script type="text/vbscript" src="source/jsnes-ie-hacks.vbscript"></script>
+    <![endif]-->
+{% endblock scripts %}
+

@@ -13,14 +13,6 @@
             {% if user.is_authenticated %}
             
                 {% if awarded %}
-                    <script src="http://beta.openbadges.org/issuer.js"></script>
-                    <script type="text/javascript">
-                    function getBadge()
-                    {
-                        OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
-                    }
-                    </script>
-                    
                     <p><a class="btn" href="#" onclick="getBadge()">Add to Backpack</a></p>
                 {% else %}
                     When you get this badge, you can add it to your backpack!
@@ -41,3 +33,18 @@
     </div>
 
 {% endblock body %}
+
+
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="{% static "js/bootstrap.js" %}"></script>
+    <script src="http://beta.openbadges.org/issuer.js"></script>
+    <script type="text/javascript">
+    function getBadge()
+    {
+        OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
+    }
+    </script>
+
+{% endblock scripts %}
+
