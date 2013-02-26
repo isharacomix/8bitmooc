@@ -23,3 +23,8 @@ class StudentTests(TestCase):
         self.assertEquals(self.s1.username, self.u1.username)
         self.assertEquals(self.s1.email, self.u1.email)
 
+    # Test the Profile page.
+    def test_profile_page(self):
+        response = self.c.get("/~ishara")
+        self.assertEqual(response.status_code, 200)
+
