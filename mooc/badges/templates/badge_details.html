@@ -38,13 +38,15 @@
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="{% static "js/bootstrap.js" %}"></script>
-    <script src="http://beta.openbadges.org/issuer.js"></script>
-    <script type="text/javascript">
-    function getBadge()
-    {
-        OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
-    }
-    </script>
+    {% if awarded %}
+        <script src="http://beta.openbadges.org/issuer.js"></script>
+        <script type="text/javascript">
+        function getBadge()
+        {
+            OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
+        }
+        </script>
+    {% endif %}
 
 {% endblock scripts %}
 

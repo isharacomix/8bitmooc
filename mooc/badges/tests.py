@@ -51,8 +51,8 @@ class BadgeTests(TestCase):
     def test_view_badge_list(self):
         response = self.c.get('/badges/')
         self.assertEqual(response.status_code, 200)
-        #response = self.c.get('/badges/superbadge/')
-        #self.assertEqual(response.status_code, 200)
+        response = self.c.get('/badges/superbadge/')
+        self.assertEqual(response.status_code, 200)
     
     # When you go to a badge that doesn't exist, you get redirected back to
     # '/badges'.
@@ -90,7 +90,7 @@ class BadgeTests(TestCase):
         self.c.login(username="ishara", password="ishararulz")
         response = self.c.get('/badges/superbadge/')
         self.assertEqual(response.status_code, 200)
-        #self.assertFalse( 'http://beta.openbadges.org/issuer.js' in response.content )    
+        self.assertFalse( 'http://beta.openbadges.org/issuer.js' in response.content )    
     
     # Check to ensure that you get a 404 for the assertion for Ishara and a
     # JSON string for Alexis.
