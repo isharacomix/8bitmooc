@@ -1,0 +1,28 @@
+{% extends "layout_base.html" %}
+{% load textbook %}
+
+{% block title %}Playground{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <form name="input" action="URL HERE" method="post">{% csrf_token %}
+        <div class="span8">
+            <div>
+
+<textarea class="input-block-level code-input" rows="30" name="code" wrap="physical"></textarea>
+
+            </div>
+        </div>
+        
+        <div class="span4">
+            <div class="hero-unit">
+                <p>emulator goes here.</p>
+            </div>
+            <input type="submit" name="run" value="Run in Emulator" />
+            <input type="submit" name="assemble" value="Assemble" />
+        </div>
+        </form>
+    </div>
+
+{% endblock body %}

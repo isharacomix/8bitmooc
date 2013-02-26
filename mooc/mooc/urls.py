@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 
     # Apps!
     url(r'^', include('students.urls')),            # /~<user>/     # /profile/
+    url(r'^', include('assembler.urls')),           # /playground/
     url(r'^world/', include('lessons.urls')),       # /world/
     url(r'^textbook/', include('textbook.urls')),   # /textbook/
     url(r'^badges/', include('badges.urls')),       # /badges/
