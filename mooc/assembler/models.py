@@ -22,7 +22,8 @@ class AssemblyChallenge(BaseChallenge):
 class AssemblyChallengeResponse(models.Model):
     challenge = models.ForeignKey(AssemblyChallenge, verbose_name="challenge",
                                   blank=True, null=True)
-    student   = models.ForeignKey(Student, verbose_name="student")
+    student   = models.ForeignKey(Student, verbose_name="student", blank=True,
+                                  null=True)
     code      = models.TextField("code", blank=True)
     timestamp = models.DateTimeField("timestamp", auto_now=True)
     

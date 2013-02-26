@@ -6,11 +6,11 @@
 {% block body %}
 
     <div class="row">
-        <form name="input" action="URL HERE" method="post">{% csrf_token %}
+        <form name="input" action="{% url playground %}" method="post">{% csrf_token %}
         <div class="span8">
             <div>
 
-<textarea class="input-block-level code-input" rows="30" name="code" wrap="physical"></textarea>
+<textarea class="input-block-level code-input" rows="20" name="code" wrap="physical">{{ source_code }}</textarea>
 
             </div>
         </div>

@@ -90,7 +90,7 @@ def assert_badge(request, badge, user):
         }
         
         badge_assertion_json = json.dumps(badge_assertion_dict)
-        return HttpResponse(badge_assertion_json, mimetype='application/json')
+        return HttpResponse(badge_assertion_json, content_type='application/json')
     
     # Otherwise return an empty page. This is not a page for humans, so no need
     # to make it pretty.
