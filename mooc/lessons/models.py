@@ -85,7 +85,7 @@ class BaseChallenge(models.Model):
     # Put all of your challenge types in here. It's ugly, but it works.
     def challenge_type(self):
         c  = "none"
-        for t in ["quizchallenge"]:
+        for t in ["quizchallenge", "assemblychallenge"]:
             if hasattr(self, t): c = t
         return c
     
@@ -207,6 +207,7 @@ class QuizAnswer(models.Model):
 
 # The form submitted when a multiple-choice quiz is completed.
 class QuizChallengeResponse(models.Model):
+    challenge = models.ForeignKey(QuizChallenge, verbose_name="challenge")
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
     student   = models.ForeignKey(Student, verbose_name="student")
     timestamp = models.DateTimeField("timestamp", auto_now=True)

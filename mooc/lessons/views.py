@@ -168,7 +168,7 @@ def view_quizchallenge( request, world, stage, challenge ):
     # Store the answer_map in a session parameter. The session parameter will
     # be passed back with the quiz so that we can 
     quizID = "quiz%d"%random.randint(1,1000000)
-    request.session[quizID] = answer_map
+    request.session[quizID] = challenge, answer_map
 
     # Phew! Now render that bad boy!
     return render( request, "lessons_quiz_challenge.html",
@@ -189,9 +189,9 @@ def do_quizchallenge( request, world, stage, challenge ):
         if here.tutorial: return redirect( "lesson", world = world, stage =stage )
         else: raise Http404()
     quizID = request.POST.get("quizID")
-    answer_map = request.session.get(quizID)
+    challenge, answer_map = request.session.get(quizID)
     
-    if answer_map is None: pass # raise shenanigans.
+    if challenge is None or answer_map is None: pass # raise shenanigans.
     
     # First we extract all of the responses from the form.
     responses = []
@@ -223,6 +223,7 @@ def do_quizchallenge( request, world, stage, challenge ):
     # We made it through safely! Now we save the response in the DB.
     for QA in answers: QA.save()
     QCR = QuizChallengeResponse()
+    QCR.quiz = challenge
     QCR.student = request.user.student
     QCR.save()  # Can't do many-to-many until we save it once.
     for QA in answers: QCR.answers.add(QA)
