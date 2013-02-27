@@ -93,6 +93,11 @@ JSNES.prototype = {
     start: function() {
         var self = this;
         
+        $(document).
+            bind('keydown', window.keydownevt).
+            bind('keyup', window.keyupevt).
+            bind('keypress', window.keypressevt);
+        
         if (this.rom !== null && this.rom.valid) {
             if (!this.isRunning) {
                 this.isRunning = true;
@@ -197,6 +202,11 @@ JSNES.prototype = {
         clearInterval(this.frameInterval);
         clearInterval(this.fpsInterval);
         this.isRunning = false;
+        
+        $(document).
+            unbind('keydown', window.keydownevt).
+            unbind('keyup', window.keyupevt).
+            unbind('keypress', window.keypressevt);
     },
     
     reloadRom: function() {
@@ -7017,16 +7027,17 @@ if (typeof jQuery !== 'undefined') {
                 /*
                  * Keyboard
                  */
-                $(document).
-                    bind('keydown', function(evt) {
-                        self.nes.keyboard.keyDown(evt); 
-                    }).
-                    bind('keyup', function(evt) {
-                        self.nes.keyboard.keyUp(evt); 
-                    }).
-                    bind('keypress', function(evt) {
-                        self.nes.keyboard.keyPress(evt);
-                    });
+                window.keydownevt = function(evt) {
+                    self.nes.keyboard.keyDown(evt); 
+                }
+                
+                window.keyupevt = function(evt) {
+                    self.nes.keyboard.keyUp(evt); 
+                }
+                
+                window.keypressevt = function(evt) {
+                    self.nes.keyboard.keyPress(evt);
+                }
             
                 /*
                  * Sound
