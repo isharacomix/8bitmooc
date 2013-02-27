@@ -32,9 +32,8 @@ def do_playground(request):
     if "run" in request.POST:
         return render( request, "assembler_playground.html", {"source_code": request.POST["code"]})
     else:
-        response = get_rom(request)
-        response['Content-Disposition'] = 'attachment; filename="rom.nes"'
-        return response
+        return get_rom(request)
+
     
     
 # The get_rom view simply returns the current ROM that is in the session
@@ -42,7 +41,9 @@ def do_playground(request):
 def get_rom(request):
     rom = request.session.get("rom")
     if rom:
-        return HttpResponse(rom, content_type='application/octet-stream')
+        response = HttpResponse(rom, content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="rom.nes"'
+        return response 
     else:
         raise Http404()
 

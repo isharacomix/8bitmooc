@@ -40,12 +40,8 @@
         var nes;
         $(function() {
             nes = new JSNES({
-                'ui': $('#emulator').JSNESUI({
-                    "Homebrew": [
-                        ['Concentration Room', 'roms/croom/croom.nes'],
-                        ['LJ65', 'roms/lj65/lj65.nes'],
-                    ]
-                })
+                'swfPath': '{% static "js/" %}',
+                'ui': $('#emulator').JSNESUI("/rom/")
             });
         });
     </script>

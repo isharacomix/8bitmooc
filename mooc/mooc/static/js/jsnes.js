@@ -2081,20 +2081,31 @@ JSNES.Keyboard.prototype = {
         return false; // preventDefault
     },
 
+    //keyDown: function(evt) {
+    //    if (!this.setKey(evt.keyCode, 0x41) && evt.preventDefault) {
+    //        evt.preventDefault();
+    //    }
+    //},
+    
+    //keyUp: function(evt) {
+    //    if (!this.setKey(evt.keyCode, 0x40) && evt.preventDefault) {
+    //        evt.preventDefault();
+    //    }
+    //},
+    
+    //keyPress: function(evt) {
+    //    evt.preventDefault();
+    //}
+    
     keyDown: function(evt) {
-        if (!this.setKey(evt.keyCode, 0x41) && evt.preventDefault) {
-            evt.preventDefault();
-        }
+        this.setKey(evt.keyCode, 0x41);
     },
     
     keyUp: function(evt) {
-        if (!this.setKey(evt.keyCode, 0x40) && evt.preventDefault) {
-            evt.preventDefault();
-        }
+        this.setKey(evt.keyCode, 0x40);
     },
     
     keyPress: function(evt) {
-        evt.preventDefault();
     }
 };
 
@@ -6893,7 +6904,7 @@ if (typeof jQuery !== 'undefined') {
                 }
                 
                 self.romContainer = $('<div class="nes-roms"></div>').appendTo(self.root);
-                self.romSelect = $('<select></select>').appendTo(self.romContainer);
+                //self.romSelect = $('<select></select>').appendTo(self.romContainer);
                 
                 self.controls = $('<div class="nes-controls"></div>').appendTo(self.root);
                 self.buttons = {
@@ -6908,9 +6919,9 @@ if (typeof jQuery !== 'undefined') {
                 /*
                  * ROM loading
                  */
-                self.romSelect.change(function() {
+                //self.romSelect.change(function() {
                     self.loadROM();
-                });
+                //});
                 
                 /*
                  * Buttons
@@ -6986,9 +6997,9 @@ if (typeof jQuery !== 'undefined') {
                     });
                 }
             
-                if (typeof roms != 'undefined') {
-                    self.setRoms(roms);
-                }
+                //if (typeof roms != 'undefined') {
+                //    self.setRoms(roms);
+                //}
             
                 /*
                  * Canvas
@@ -7030,7 +7041,8 @@ if (typeof jQuery !== 'undefined') {
                     var self = this;
                     self.updateStatus("Downloading...");
                     $.ajax({
-                        url: escape(self.romSelect.val()),
+                        //url: escape(self.romSelect.val()),
+                        url: escape(roms),
                         xhr: function() {
                             var xhr = $.ajaxSettings.xhr();
                             if (typeof xhr.overrideMimeType !== 'undefined') {
