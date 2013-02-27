@@ -11,6 +11,8 @@ from django.shortcuts import render, redirect
 from textbook.models import Page
 from students.models import Student
 
+from assembler.asm import assemble
+
 import random
 
 
@@ -26,22 +28,22 @@ def view_playground(request):
 # in the request.session. Whether it reloads the same page or passes the
 # file for download 
 def do_playground(request):
-    request.session["rom"] = "0000"
+    code = request.POST["code"]
+    rom, errors = assemble( code )
     
-    # Either run the game in the 
+    # Either run the game in the browser or download it.
+    request.session["rom"] = rom
     if "run" in request.POST:
         return render( request, "assembler_playground.html", {"source_code": request.POST["code"]})
     else:
         return get_rom(request)
 
-    
-    
+
 # The get_rom view simply returns the current ROM that is in the session
 # variables.
 def get_rom(request):
-    rom = request.session.get("rom")
-    if rom:
-        response = HttpResponse(rom, content_type='application/octet-stream')
+    if "rom" in request.session:
+        response = HttpResponse(request.session["rom"], content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename="rom.nes"'
         return response 
     else:
