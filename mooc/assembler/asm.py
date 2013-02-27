@@ -7,45 +7,63 @@
 #   .error  Which contains a list of all errors and warnings.
 #
 # If there was an error, we return a binary of length 0.
-def assemble(source):
+def assemble(code):
+    elements = parse(code)
+    
     # Handle includes.
     # handle incbins (basically add '.bytes' directives in the code)
-    source = [uncomment(l.lower()).strip() for l in source.splitlines() if l]
-    
-    # Return values
-    rom = ""
-    errors = []
-    rombanks = ["\x00"*0x2000,"\x00"*0x2000,"\x00"*0x2000]
-    orgbanks = [0xC000,0xE000,0]
     
     # First pass: Identify the values of labels by counting the size of the
-    # operations and identifying the .org directives.
+    # operations based on addressing modes and identifying the .org directives.
     labels = {}
     org = 0
-    for l in source:
-        if l[-1] == ":" and l[:-1].isalpha: labels[l[:-1]] = org
-        elif l[0] != '.': org += size(l)
-        elif l.startswith(".org"): org = num(l.split()[1])
-        elif l.startswith(".byte"): org += 1
-        elif l.startswith(".bytes"): org += 5
-        elif l.startswith(".ascii"): org += 5
-        elif l.startswith(".ascii"): org += 5
-        
-    # Iterate over every line and generate the binary.
-    org = 0
-    bank = 0
-    for l in source:
-        if l[-1] == ":": pass
-        if l[0] == '.':
-            pass #do directives
-        op = l.split(None,1)
-        
-            
+    for label, op, arg, original in elements:
+        if label:
+            labels[label] = org
+        if op:
+            if op[0] != '.': org += size(op, arg)
+            elif op == ".org": org = num(arg)
+            elif op == ".byte": org += 1
+            elif op == ".bytes": org += 5
+            elif op == ".ascii": org += 5
+            elif op == ".ascii": org += 5
     
+    # Second pass, iterate over each element and generate the binary.
+    rom = ""
+    errors = []
+    warnings = []
+    for label, op, arg, original in elements:
+        pass
     
+    # If there are any errors, nothing is assembled.
+    if len(errors) > 0:
+        return "", warnings
+    else:
+        return rom, warnings
+
+
+# This takes a string of sourcecode (seperated by newlines) and then breaks
+# it into four-tuples: label, opcode, arg, original line w/ line number.
+def parse( code, source="code" ):
+    # Strip the comments and whitespace.
+    code = [uncomment(l.lower()).strip() for l in code.splitlines()]
     
-    
-    return rom, errors
+    # Break the code into four-tuples: label, opcode, arg, and original string.
+    elements = []
+    for i in range(len(source)):
+        line = code[i]
+        label = None
+        op = None
+        data = None
+        if ":" in line:
+            label, line = line.split(':',1)
+            label = label.strip()
+            line = line.strip()
+        items = line.split(None,1)
+        op = items[0]
+        if len(items) == 2: data = items[1]
+        elements.append(label,op,data,"("+source+") Line "+str(i)+": "+code[i])
+    return elements
 
 
 # This takes a line and gets rid of the comments.
