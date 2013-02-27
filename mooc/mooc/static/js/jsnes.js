@@ -93,11 +93,6 @@ JSNES.prototype = {
     start: function() {
         var self = this;
         
-        $(document).
-            bind('keydown', window.keydownevt).
-            bind('keyup', window.keyupevt).
-            bind('keypress', window.keypressevt);
-        
         if (this.rom !== null && this.rom.valid) {
             if (!this.isRunning) {
                 this.isRunning = true;
@@ -110,7 +105,12 @@ JSNES.prototype = {
                 this.fpsInterval = setInterval(function() {
                     self.printFps();
                 }, this.opts.fpsInterval);
-            }
+                
+            $(document).
+                bind('keydown', window.keydownevt).
+                bind('keyup', window.keyupevt).
+                bind('keypress', window.keypressevt);
+                }
         }
         else {
             this.ui.updateStatus("There is no ROM loaded, or it is invalid.");
