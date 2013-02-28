@@ -3,10 +3,14 @@
 # my own, I figure it'll be a fun project while I get 8bitmooc off the ground.
 
 
+# This refers to a $2000-byte Bank of memory. Each bank is physically addressed
+# from $0000 to $1FFF, but is logically set to start at a specific starting
+# position.
 class Bank(object):
-    org = 0
-    start = None
-    rom = [0]*0x2000
+    def __init__(self, start):
+        self.org = start
+        self.start = start
+        self.rom = [0]*0x2000
 
 
 # Here we return two values: (rom, errors)
@@ -34,25 +38,42 @@ def assemble(code):
             elif op == ".bytes": org += len(arg.split(','))
             elif op == ".ascii": org += len(arg-2)
             elif op == ".define":
-                lab, val = arg.split()
-                labels[lab.strip()] = num(val.strip())
+                lab, val = arg.split('=')
+                labels[lab] = num(val)
     
     # Second pass, iterate over each element and generate the binary.
     # Long and unpythonic. Get over it.
-    banks = [Bank()]
-    b = banks[0]
+    banks = []
+    b = None
     errors, warnings = [],[]
-    for label, op, arg, original in elements:
-        if op == '.org':
-            if b.start is None: b.start = num(arg)
-            b.org = num(arg)
-        elif op == '.byte':
-            b.rom[b.org-b.start] = num(arg)
-            b.org += 1
-        elif op == '.bytes':
-            for byte in arg.split(','):
-                b.rom[b.org-b.start] = num(byte.strip())
-                b.org += 1
+    for label, op, arg, original in elements:            ################### OPS
+        if op == '.bank':                                                  #
+            index = 0                                                      #
+            start = 0                                                      #
+            if '=' in arg:                                                 #
+                index,start=arg.split('=')                                 #
+                index = int(index)                                         #
+                start = num(start)                                         #
+            else:                                                          #
+                index = int(arg)                                           #
+                                                                           #
+            # Create a new bank if we have to.                             #
+            if index == len(banks):                                        #
+                banks.append(Bank(start))                                  #
+            b = banks[index]                                               #
+                                                                           #
+        elif op == '.org':                                                 #
+            b.org = num(arg)                                               #
+        elif op == '.byte':                                                #
+            b.rom[b.org-b.start] = num(arg)                                #
+            b.org += 1                                                     #
+        elif op == '.bytes':                                               #
+            for byte in arg.split(','):                                    #
+                b.rom[b.org-b.start] = num(byte.strip())                   #
+                b.org += 1                                                 #
+                
+        elif op == 'adc':pass
+                                                        ####################
     
     # TODO set the ines header.
     romstring = ""
@@ -103,18 +124,31 @@ def addrmode(arg):
     if arg == '': return "implied", None
     if arg == 'a': return "register", None
     if arg.startswith("#"): return "immediate", arg[1:]
-    if arg.endswith(",x"): return "offset", arg[:-2]
-    if arg.endswith(",y"): return "offset", arg[:-2]
-    if arg.startswith('(') and arg.endswith(",x)"): return "indirect", arg[1:-3]
-    if arg.startswith('(') and arg.endswith("),y)"): return "indirect", arg[1:-3]
-    return "memory", arg
+    if arg.endswith(",y"): return "absolute,y", arg[:-2]
+    if arg.startswith('(') and arg.endswith(",x)"): return "indirect,x", arg[1:-3]
+    if arg.startswith('(') and arg.endswith("),y"): return "indirect,y", arg[1:-3]
+    
+    if arg.endswith(",x"):
+        arg = arg[:-2]
+        if arg.startswith(">") or arg.startswith("<"): return "zero page,x", arg
+        if haslabel(arg): return "absolute,x", arg
+        x = num(argnum) & 0xff00
+        if (x == 0 or x == 0xff00): return "zero page,x", arg
+        return "absolute,x", arg
+        
+    if arg.startswith(">") or arg.startswith("<"): return "zero page", arg
+    if haslabel(arg): return "absolute", arg
+    x = num(argnum) & 0xff00
+    if (x == 0 or x == 0xff00): return "zero page", arg
+    return "absolute", arg
 
 
 # Converts a string to an integer.
 # TODO: Support basic arithmetic
 def num(s):
     neg = 1
-    if s.startswith("0x"): return int(s[2:],16) * neg
+    if s == "0": return 0
+    elif s.startswith("0x"): return int(s[2:],16) * neg
     elif s.startswith("$"): return int(s[1:],16) * neg
     elif s.startswith("%"): return int(s[1:],2) * neg
     elif s.startswith("@"): return int(s[1:],8) * neg
@@ -126,13 +160,8 @@ def num(s):
 
 # Returns true if there's a label in the code.
 def haslabel(s):
-    if s == "0": return 0
-    elif s.startswith("0x"): s = s[2:]
-    elif s.startswith("$"): s = s[1:]
-    elif s.startswith("%"): s = s[1:]
-    elif s.startswith("@"): s = s[1:]
+    if s.startswith("0x"): s = s[2:]
     elif s.startswith("0b"): s = s[2:]
-    elif s.startswith("0"): s = s[1:]
     for c in "abcdefghijklmnopqrstuvwxyz_":
         if c in s: return True
     return False
@@ -149,11 +178,8 @@ def size(op, arg):
     # of the arguments. Here, we assume that all labels are words long, so if
     # we see any labels in the arg, we just say it's a word long.
     if argnum is None: return 1
-    if argmode in ["indirect", "immediate"]: return 3
-    if (argmode == "offset" and arg.endswith(",x")) or argmode == "memory":
-        if argnum.startswith(">") or argnum.startswith("<"): return 2
-        if haslabel(argnum): return 3
-        x = num(argnum) & 0xff00
-        if (x == 0 or x == 0xff00): return 2
-    return 3
+    if argmode in ["register"]: return 1
+    if argmode in ["zero page,x", "zero page"]: return 2
+    if argmode in ["indirect,x", "indirect,y", "absolute,y", "immediate"
+                   "absolute,x", "absolute"]: return 3
 
