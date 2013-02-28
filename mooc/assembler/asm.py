@@ -170,7 +170,8 @@ def haslabel(s):
 # Returns the number of bytes (1,2,3) that the line will take up when assembled.
 def size(op, arg):
     if op == "nop": return 1
-    elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]: return 2
+    if op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]: return 2
+    if op == "brk": return 3
     
     argmode, argnum = addrmode(arg)
     
