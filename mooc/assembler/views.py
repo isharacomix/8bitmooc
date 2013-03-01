@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from textbook.models import Page
 from students.models import Student
 
-from assembler.asm import assemble
+from assembler.asm import Assembler
 
 import random
 
@@ -29,7 +29,8 @@ def view_playground(request):
 # file for download 
 def do_playground(request):
     code = request.POST["code"]
-    rom, errors = assemble( code )
+    a = Assembler()
+    rom, errors = a.assemble( code )
     
     # Either run the game in the browser or download it.
     request.session["rom"] = rom
