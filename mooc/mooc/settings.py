@@ -1,5 +1,4 @@
-# Django settings for mooc project.
-
+# -*- coding: utf-8 -*-
 import os
 
 DEBUG = True

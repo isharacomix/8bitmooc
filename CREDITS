@@ -1,0 +1,31 @@
+In the true open source spirit, this project is only possible thanks to the
+projects I borrowed from to make it work.
+
+
+    NCSULUG Website
+        Served as the template from which I gave birth to this project. I stole
+        the wikicreole markup that I use extensively in this project from them.
+                         
+                        https://github.com/ncsulug/ncsulug-website
+                     
+                     
+    JSNES
+        A JavaScript NES Emulator that serves as the easy-to-use way for
+        students to explore their code in realtime.
+        
+                        https://github.com/bfirsh/jsnes
+                     
+                     
+    Bootstrap
+        If it wasn't for Bootstrap, the MOOC wouldn't look nearly as good as it
+        does. Thanks, Twitter!
+                     
+                        https://github.com/twitter/bootstrap
+
+
+    NESDev Wiki
+        The ultimate guide to the NES, 6502, and where I learned everything I
+        know about the platform.
+        
+                        http://wiki.nesdev.com/
+

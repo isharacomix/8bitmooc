@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # My NES assembler. While it's probably a dumb idea to go and roll one of
 # my own, I figure it'll be a fun project while I get 8bitmooc off the ground.

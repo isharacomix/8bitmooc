@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Local settings for mooc project.
 LOCAL_SETTINGS = True
 from settings import *
