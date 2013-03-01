@@ -7,5 +7,6 @@ from assembler import views
 # Textbook URL pattern.
 urlpatterns = patterns('',
     url(r'^playground/$', views.view_playground, name='playground'),
+    url(r'^rom/$', views.get_rom, name='rom'),
 )
 
