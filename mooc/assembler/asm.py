@@ -129,6 +129,7 @@ class Assembler(object):
                 elif op[0] != '.': b.org += size(op, arg)
                 elif op == ".org": b.org = self.num(arg)
                 elif op == ".byte": b.org += 1
+                elif op == ".word": b.org += 2
                 elif op == ".bytes": b.org += len(arg.split(','))
                 elif op == ".ascii": b.org += len(arg-2)
                 elif op == ".define":
@@ -156,6 +157,11 @@ class Assembler(object):
             elif op == '.byte':
                 b.rom[b.org-b.start] = self.num(arg)&0xff
                 b.org += 1
+            elif op == '.word':
+                val = self.num(arg)
+                b.rom[b.org-b.start] = self.num(arg)&0xff
+                b.rom[b.org-b.start] = (self.num(arg)>>8)&0xff
+                b.org += 2
             elif op == '.bytes':
                 for byte in arg.split(','):
                     b.rom[b.org-b.start] = self.num(byte.strip())&0xff
@@ -170,7 +176,7 @@ class Assembler(object):
                 b.rom[b.org-b.start+1] = val&0xff
                 b.org += 2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
-                    b.rom[b.org-b.start] = (val&0xff00)>>16
+                    b.rom[b.org-b.start] = (val>>8)&0xff
                     b.org += 1
             elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq","brk"]:
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
@@ -180,7 +186,7 @@ class Assembler(object):
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 b.rom[b.org-b.start+1] = val&0xff
-                b.rom[b.org-b.start+2] = (val&0xff00)>>16
+                b.rom[b.org-b.start+2] = (val>>8)&0xff
                 b.org += 3
             elif op == 'jmp':
                 if arg.startswith('(') and arg.endswith(')'):
@@ -192,7 +198,7 @@ class Assembler(object):
                 if mode not in [M_ZEROPAGE, M_ABSOLUTE]: pass #error!
                 val = self.num(arg)
                 b.rom[b.org-b.start+1] = val&0xff
-                b.rom[b.org-b.start+2] = (val&0xff00)>>16
+                b.rom[b.org-b.start+2] = (val>>8)&0xff
                 b.org += 3
             elif op == 'brk':
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
@@ -210,7 +216,7 @@ class Assembler(object):
                 b.rom[b.org-b.start+1] = val&0xff
                 b.org += 2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
-                    b.rom[b.org-b.start] = (val&0xff00)>>16
+                    b.rom[b.org-b.start] = (val>>8)&0xff
                     b.org += 1
              
         
