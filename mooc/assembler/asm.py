@@ -159,8 +159,8 @@ class Assembler(object):
                 b.org += 1
             elif op == '.word':
                 val = self.num(arg)
-                b.rom[b.org-b.start] = self.num(arg)&0xff
-                b.rom[b.org-b.start] = (self.num(arg)>>8)&0xff
+                b.rom[b.org-b.start] = val&0xff
+                b.rom[b.org-b.start+1] = (val>>8)&0xff
                 b.org += 2
             elif op == '.bytes':
                 for byte in arg.split(','):
