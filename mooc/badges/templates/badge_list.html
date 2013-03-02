@@ -8,7 +8,7 @@
     {% for b in badge_list %}
         <div class="row">
             <div class="span2">
-                <p><a href="{% url badge_view b.shortname %}">
+                <p><a href="{% url "badge_view" b.shortname %}">
                 <img src="{% get_static_prefix %}img/{{b.graphic}}.png" />
                 </a>{% if b.check %}<i class="icon-ok"></i>{% endif %}</p>
             </div>

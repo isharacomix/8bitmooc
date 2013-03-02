@@ -7,7 +7,7 @@
 {% block body %}
 
     <div class="row">
-        <form name="input" action="{% url playground %}" method="post">{% csrf_token %}
+        <form name="input" action="{% url "playground" %}" method="post">{% csrf_token %}
         <div class="span8">
             <div>
 

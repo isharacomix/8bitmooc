@@ -43,7 +43,7 @@
         <script type="text/javascript">
         function getBadge()
         {
-            OpenBadges.issue(["{{ domain }}{% url badge_assert user=user.username badge=badge.shortname %}"], function(errors, successes) {});
+            OpenBadges.issue(["{{ domain }}{% url "badge_assert" user=user.username badge=badge.shortname %}"], function(errors, successes) {});
         }
         </script>
     {% endif %}
