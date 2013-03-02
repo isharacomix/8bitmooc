@@ -27,7 +27,7 @@ class AssemblyChallengeResponse(models.Model):
                                   null=True)
     code      = models.TextField("code", blank=True)
     timestamp = models.DateTimeField("timestamp", auto_now=True)
-    
+        
     def __unicode__(self):
         return u'AssemblyResponse %d from %s'%(self.id,self.student.username)
 

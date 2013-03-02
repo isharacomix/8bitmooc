@@ -13,6 +13,8 @@ from textbook.models import Page
 from students.models import Student
 
 from assembler.asm import Assembler
+from assembler.models import AssemblyChallengeResponse
+from students.models import Student
 
 import random
 
@@ -32,6 +34,13 @@ def do_playground(request):
     code = request.POST["code"]
     a = Assembler()
     rom, errors = a.assemble( code )
+    
+    # Save this in the database.
+    ACR = AssemblyChallengeResponse()
+    try: ACR.student = Student.from_request(request)
+    except exceptions.ObjectDoesNotExist: pass
+    ACR.code = code
+    ACR.save()
     
     # Either run the game in the browser or download it.
     request.session["rom"] = rom
