@@ -201,6 +201,7 @@ class QuizAnswer(models.Model):
     selectedC = models.BooleanField("C was selected", default=False )
     selectedD = models.BooleanField("D was selected", default=False )
     selectedE = models.BooleanField("E was selected", default=False )
+    correct   = models.BooleanField("Answer was correct", default=False )
     
     def __unicode__(self):
         return u'QuizAnswer %d'%self.id
@@ -212,6 +213,8 @@ class QuizChallengeResponse(models.Model):
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
     student   = models.ForeignKey(Student, verbose_name="student")
     timestamp = models.DateTimeField("timestamp", auto_now=True)
+    correct   = models.BooleanField("All answers correct", default=False )
+    score     = models.IntegerField("correct answers")
     
     def __unicode__(self):
         return u'QuizResponse %d from %s'%(self.id,self.student.username)

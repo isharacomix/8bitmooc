@@ -204,8 +204,11 @@ def do_quizchallenge( request, world, stage, challenge ):
     # we'll save all of those models, then create a single QuizChallengeResponse
     # to hold them.
     answers = []
+    score = 0
+    total = 0
     for q in range(len(responses)):
         if q not in answer_map: pass # raise shenanigans.
+        total += 1
         QA = QuizAnswer()
         raw_response_list = responses[q]
         QA.question, choice_map = answer_map[q]
@@ -217,6 +220,24 @@ def do_quizchallenge( request, world, stage, challenge ):
         if 'C' in response_list: QA.selectedC = True
         if 'D' in response_list: QA.selectedD = True
         if 'E' in response_list: QA.selectedE = True
+        
+        ans = True
+        if QA.question.multiple_ok:
+            if QA.selectedA != QA.question.correctA: ans = False
+            if QA.selectedB != QA.question.correctB: ans = False
+            if QA.selectedC != QA.question.correctC: ans = False
+            if QA.selectedD != QA.question.correctD: ans = False
+            if QA.selectedE != QA.question.correctE: ans = False
+        else:
+            ans = False
+            if QA.selectedA == QA.question.correctA: ans = True
+            if QA.selectedB == QA.question.correctB: ans = True
+            if QA.selectedC == QA.question.correctC: ans = True
+            if QA.selectedD == QA.question.correctD: ans = True
+            if QA.selectedE == QA.question.correctE: ans = True
+        if ans: score += 1
+        QA.correct = ans
+        
         answers.append(QA)
     
     # We made it through safely! Now we save the response in the DB.
@@ -224,13 +245,13 @@ def do_quizchallenge( request, world, stage, challenge ):
     QCR = QuizChallengeResponse()
     QCR.quiz = challenge
     QCR.student = request.user.student
+    QCR.score = score
+    QCR.correct = (score == total)
     QCR.save()  # Can't do many-to-many until we save it once.
     for QA in answers: QCR.answers.add(QA)
     QCR.save()
     
-    # Last, but not least, calculate the user's score. We'll display this in
-    # the sidebar for them.
-    
+    # If QCR was correct, add the stage to the Student's completion record.
     
     return HttpResponse( str(responses) )
 
