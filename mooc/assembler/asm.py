@@ -155,20 +155,26 @@ class Assembler(object):
             elif op == '.org':
                 b.org = self.num(arg)
             elif op == '.byte':
+                self.labels["*"] = b.org+1
                 b.rom[b.org-b.start] = self.num(arg)&0xff
                 b.org += 1
             elif op == '.word':
+                self.labels["*"] = b.org+2
                 val = self.num(arg)
                 b.rom[b.org-b.start] = val&0xff
                 b.rom[b.org-b.start+1] = (val>>8)&0xff
                 b.org += 2
             elif op == '.bytes':
                 for byte in arg.split(','):
+                    self.labels["*"] = b.org+1
                     b.rom[b.org-b.start] = self.num(byte.strip())&0xff
                     b.org += 1
             elif op in ["stx","ldx"]:
                 arg = arg.replace(",y",",x")
                 mode = self.addrmode(arg)
+                self.labels["*"] = b.org+2
+                if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
+                    self.labels["*"] = b.org+3
                 symbol = SYMBOL_TABLE[op][mode]
                 val = self.num(arg)
                 if not symbol: pass #raise error                        
@@ -179,16 +185,19 @@ class Assembler(object):
                     b.rom[b.org-b.start] = (val>>8)&0xff
                     b.org += 1
             elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq","brk"]:
+                self.labels["*"] = b.org+2
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 b.rom[b.org-b.start+1] = self.num(arg)&0xff
                 b.org += 2
             elif op == 'jsr':
+                self.labels["*"] = b.org+3
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 b.rom[b.org-b.start+1] = val&0xff
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
                 b.org += 3
             elif op == 'jmp':
+                self.labels["*"] = b.org+3
                 if arg.startswith('(') and arg.endswith(')'):
                     b.rom[b.org-b.start] = SYMBOL_TABLE[op][1]
                     arg = arg[1:-1]
@@ -201,6 +210,7 @@ class Assembler(object):
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
                 b.org += 3
             elif op == 'brk':
+                self.labels["*"] = b.org+3
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 mode = self.addrmode(arg)
@@ -210,6 +220,9 @@ class Assembler(object):
             else:
                 mode = self.addrmode(arg)
                 symbol = SYMBOL_TABLE[op][mode]
+                self.labels["*"] = b.org+2
+                if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
+                    self.labels["*"] = b.org+3
                 val = self.num(arg)
                 if not symbol: pass #raise error                        
                 b.rom[b.org-b.start] = symbol
@@ -284,8 +297,9 @@ class Assembler(object):
         return M_ABSOLUTE, arg
 
 
-    # Converts a string to an integer. Much of the error checking is here.
-    # TODO: Support basic arithmetic
+    # Converts a string to an integer. We do it this way:
+    # A legal number is a set of alphanumeric strings seperated by + and -
+    # 
     def num(self, s):
         neg = 1
         if s == "0": return 0
@@ -296,14 +310,15 @@ class Assembler(object):
         elif s.startswith("0b"): return int(s[2:],2) * neg
         elif s.startswith("0"): return int(s[1:],8) * neg
         elif s.isdigit(): return int(s) * neg
-        return None
+        elif s in self.labels: return self.labels[s]
+        else: pass #illegal
 
 
 # Returns true if there's a label in the code. Returns no errors.
 def haslabel(s):
     if s.startswith("0x"): s = s[2:]
     elif s.startswith("0b"): s = s[2:]
-    for c in "abcdefghijklmnopqrstuvwxyz_":
+    for c in "abcdefghijklmnopqrstuvwxyz_*":
         if c in s: return True
     return False
 
