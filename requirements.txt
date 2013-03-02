@@ -2,6 +2,7 @@ django>=1.5
 django-bootstrap-toolkit
 django-gravatar
 South>=0.7
+py-bcrypt
 pytz
 django-redis
 Creoleparser

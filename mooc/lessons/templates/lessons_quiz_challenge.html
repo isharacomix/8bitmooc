@@ -7,7 +7,7 @@
 
     <div class="row">
         <div class="span8">
-            <form name="input" action="{% url "challenge" world=world.shortname stage=stage.shortname %}" method="post">{% csrf_token %}
+            <form name="input" action="{% url 'challenge' world=world.shortname stage=stage.shortname %}" method="post">{% csrf_token %}
             <input type="hidden" name="quizID" value="{{ quizID }}">
             <div>
 
