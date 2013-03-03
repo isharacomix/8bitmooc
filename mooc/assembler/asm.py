@@ -8,10 +8,15 @@
 # from $0000 to $1FFF, but is logically set to start at a specific starting
 # position.
 class Bank(object):
-    def __init__(self, start):
+    def __init__(self, start, size=0x2000):
         self.org = start
         self.start = start
-        self.rom = [0]*0x2000
+        self.size = size
+        self.rom = [0xff]*self.size
+        self.inesprg = 0
+        self.ineschr = 0
+        self.inesmap = 0
+        self.inesmir = 0
 
 
 # Addressing modes.
@@ -126,11 +131,11 @@ class Assembler(object):
                     if index == len(banks):
                         banks.append(Bank(start))
                     b = banks[index]
-                elif op[0] != '.': b.org += size(op, arg)
+                elif op[0] != '.': b.org += self.size(op, arg)
                 elif op == ".org": b.org = self.num(arg)
                 elif op == ".byte": b.org += 1
-                elif op == ".word": b.org += 2
-                elif op == ".bytes": b.org += len(arg.split(','))
+                elif op == ".word" or op == ".dw": b.org += 2
+                elif op == ".bytes" or op == ".db": b.org += len(arg.split(','))
                 elif op == ".ascii": b.org += len(arg-2)
                 elif op == ".define":
                     lab, val = arg.split('=')
@@ -141,6 +146,7 @@ class Assembler(object):
         banks = []
         b = None
         for label, op, arg, original in elements:
+            print ">>>"+original
             if op == '.bank':
                 index = 0
                 start = 0
@@ -152,31 +158,39 @@ class Assembler(object):
                 if index == len(banks):
                     banks.append(Bank(start))
                 b = banks[index]
+            elif op == '.inesprg':
+                self.inesprg = int(arg)
+            elif op == '.ineschr':
+                self.ineschr = int(arg)
+            elif op == '.inesmap':
+                self.inesmap = int(arg)
+            elif op == '.inesmir':
+                self.inesmir = int(arg)
             elif op == '.org':
                 b.org = self.num(arg)
             elif op == '.byte':
                 self.labels["*"] = b.org+1
                 b.rom[b.org-b.start] = self.num(arg)&0xff
                 b.org += 1
-            elif op == '.word':
+            elif op == '.word' or op == '.dw':
                 self.labels["*"] = b.org+2
                 val = self.num(arg)
                 b.rom[b.org-b.start] = val&0xff
                 b.rom[b.org-b.start+1] = (val>>8)&0xff
                 b.org += 2
-            elif op == '.bytes':
+            elif op == '.bytes' or op == '.db':
                 for byte in arg.split(','):
                     self.labels["*"] = b.org+1
                     b.rom[b.org-b.start] = self.num(byte.strip())&0xff
                     b.org += 1
             elif op in ["stx","ldx"]:
                 arg = arg.replace(",y",",x")
-                mode = self.addrmode(arg)
+                mode, argnum = self.addrmode(arg)
                 self.labels["*"] = b.org+2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
                     self.labels["*"] = b.org+3
                 symbol = SYMBOL_TABLE[op][mode]
-                val = self.num(arg)
+                val = self.num(argnum)
                 if not symbol: pass #raise error                        
                 b.rom[b.org-b.start] = symbol
                 b.rom[b.org-b.start+1] = val&0xff
@@ -203,9 +217,9 @@ class Assembler(object):
                     arg = arg[1:-1]
                 else:
                     b.rom[b.org-b.start] = SYMBOL_TABLE[op][0]
-                mode = self.addrmode(arg)
+                mode, argnum = self.addrmode(arg)
                 if mode not in [M_ZEROPAGE, M_ABSOLUTE]: pass #error!
-                val = self.num(arg)
+                val = self.num(argnum)
                 b.rom[b.org-b.start+1] = val&0xff
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
                 b.org += 3
@@ -213,36 +227,43 @@ class Assembler(object):
                 self.labels["*"] = b.org+3
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
-                mode = self.addrmode(arg)
+                mode, argnum = self.addrmode(arg)
                 if mode not in [M_IMMEDIATE]: pass #error!
                 b.rom[b.org-b.start+1] = val&0xff
                 b.org += 3
-            else:
-                mode = self.addrmode(arg)
+            elif op in SYMBOL_TABLE:
+                mode, argnum = self.addrmode(arg)
                 symbol = SYMBOL_TABLE[op][mode]
+                if not symbol: pass #raise error                        
                 self.labels["*"] = b.org+2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
                     self.labels["*"] = b.org+3
-                val = self.num(arg)
-                if not symbol: pass #raise error                        
-                b.rom[b.org-b.start] = symbol
-                b.rom[b.org-b.start+1] = val&0xff
-                b.org += 2
-                if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
-                    b.rom[b.org-b.start] = (val>>8)&0xff
+                if mode in [M_IMPLIED,M_REGISTER]:
+                    self.labels["*"] = b.org+1
+                    b.rom[b.org-b.start] = symbol
                     b.org += 1
-             
+                else:
+                    val = self.num(argnum)
+                    b.rom[b.org-b.start] = symbol
+                    b.rom[b.org-b.start+1] = val&0xff
+                    b.org += 2
+                    if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
+                        b.rom[b.org-b.start] = (val>>8)&0xff
+                        b.org += 1
         
-        # TODO set the ines header.
-
+        # Set the ines header. We don't honor different mapper bits.
+        header = [ 0x4E, 0x45, 0x53, 0x1A, self.inesprg, self.ineschr,
+                   self.inesmir, 0, 0, 0, 0 , 0, 0, 0, 0 , 0]
         
         # If there are any errors, nothing is assembled.
         if len(self.errors) > 0: return "", self.warnings
 
         # Otherwise, put it all together and see what we get!
         romstring = ""
+        for c in header:
+            romstring += "%c"%(c&0xff)
         for b in banks:
-            for c in b.rom: romstring += "%c"%c
+            for c in b.rom: romstring += "%c"%(c&0xff)
         return romstring, self.warnings
 
 
@@ -250,7 +271,8 @@ class Assembler(object):
     # it into four-tuples: label, opcode, arg, original line w/ line number.
     def parse(self, code, source="code"):
         # Strip the comments and whitespace.
-        stripped = [uncomment(l.lower()).strip() for l in code.splitlines()]
+        codelines = code.splitlines()
+        stripped = [self.uncomment(l.lower()).strip() for l in codelines]
         
         # Break the code into four-tuples: label, opcode, arg, and original string.
         tokens = []
@@ -267,7 +289,7 @@ class Assembler(object):
                 items = line.split(None,1)
                 op = items[0]
                 if len(items) == 2: data = items[1].replace(' ','')
-            tokens.append((label,op,data,"("+source+") Line "+str(i)+": "+code[i]))
+            tokens.append((label,op,data,"("+source+") Line "+str(i+1)+": "+codelines[i]))
         return tokens
 
 
@@ -275,7 +297,7 @@ class Assembler(object):
     # Note that this doesn't actually verify that the number is formatted correctly.
     # The num() function takes care of that.
     def addrmode(self, arg):
-        if arg == '': return M_IMPLIED, None
+        if arg == '' or arg is None: return M_IMPLIED, None
         if arg == 'a': return M_REGISTER, None
         if arg.startswith("#"): return M_IMMEDIATE, arg[1:]
         if arg.endswith(",y"): return M_ABSOLUTE_Y, arg[:-2]
@@ -285,66 +307,106 @@ class Assembler(object):
         if arg.endswith(",x"):
             arg = arg[:-2]
             if arg.startswith(">") or arg.startswith("<"): return M_ZEROPAGE_X, arg
-            if haslabel(arg): return M_ABSOLUTE_X, arg
-            x = self.num(argnum) & 0xff00
+            if self.haslabel(arg): return M_ABSOLUTE_X, arg
+            x = self.num(arg) & 0xff00
             if (x == 0 or x == 0xff00): return M_ZEROPAGE_X, arg
             return M_ABSOLUTE_X, arg
             
         if arg.startswith(">") or arg.startswith("<"): return M_ZEROPAGE, arg
-        if haslabel(arg): return M_ABSOLUTE, arg
-        x = self.num(argnum) & 0xff00
+        if self.haslabel(arg): return M_ABSOLUTE, arg
+        x = self.num(arg) & 0xff00
         if (x == 0 or x == 0xff00): return M_ZEROPAGE, arg
         return M_ABSOLUTE, arg
 
 
-    # Converts a string to an integer. We do it this way:
     # A legal number is a set of alphanumeric strings seperated by + and -
-    # 
     def num(self, s):
-        neg = 1
+        report = 0
+        mask = 0xffff
+        if s.startswith('>'): mask, s = 0xff, s[1:]
+        if s.startswith('<'): mask, s = 0xff00, s[1:]
+        
+        for c in s:
+            if c not in "abcdefghijklmnopqrstuvwxyz_*-+%$@": pass #raise illegal
+        
+        # We first split by the + signs, and then we split on the '-' signs.
+        nums = s.split('+')
+        for n in nums:
+            if '-' in n:
+                negnums = n.split('-')
+                if n.startswith('-'):
+                    report -= self.getnum(negnums[1])
+                    for neg in negnums[2:]: report -= self.getnum(neg)
+                else:
+                    report += self.getnum(negnums[0])
+                    for neg in negnums[1:]: report -= self.getnum(neg)
+            else: report += self.getnum(n)
+        
+        # Mask the result and return it. We simply wrap overflow around.
+        report = report & mask
+        if mask == 0xff00: report = (report >> 8)&0xff
+        return report
+    
+    # Converts a string to an integer.
+    def getnum(self, s):
         if s == "0": return 0
-        elif s.startswith("0x"): return int(s[2:],16) * neg
-        elif s.startswith("$"): return int(s[1:],16) * neg
-        elif s.startswith("%"): return int(s[1:],2) * neg
-        elif s.startswith("@"): return int(s[1:],8) * neg
-        elif s.startswith("0b"): return int(s[2:],2) * neg
-        elif s.startswith("0"): return int(s[1:],8) * neg
-        elif s.isdigit(): return int(s) * neg
+        elif s.startswith("0x"): return int(s[2:],16)
+        elif s.startswith("$"): return int(s[1:],16)
+        elif s.startswith("%"): return int(s[1:],2)
+        elif s.startswith("@"): return int(s[1:],8)
+        elif s.startswith("0b"): return int(s[2:],2)
+        elif s.startswith("0"): return int(s[1:],8)
+        elif s.isdigit(): return int(s)
         elif s in self.labels: return self.labels[s]
         else: pass #illegal
 
 
-# Returns true if there's a label in the code. Returns no errors.
-def haslabel(s):
-    if s.startswith("0x"): s = s[2:]
-    elif s.startswith("0b"): s = s[2:]
-    for c in "abcdefghijklmnopqrstuvwxyz_*":
-        if c in s: return True
-    return False
+    # Returns true if there's a label in the code. Returns no errors.
+    def haslabel(self, s):
+        if s.startswith("0x"): s = s[2:]
+        elif s.startswith("0b"): s = s[2:]
+        for c in "abcdefghijklmnopqrstuvwxyz_*":
+            if c in s: return True
+        return False
 
 
-# Returns the number of bytes (1,2,3) that the line will take up when assembled.
-# Returns an error if something weird happens.
-def size(op, arg):
-    if op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]: return 2
-    if op in ["brk",'jmp','jsr']: return 3
-    
-    argmode, argnum = addrmode(arg)
-    
-    # Identify the addressing mode based on the addressing modes and the sizes
-    # of the arguments. Here, we assume that all labels are words long, so if
-    # we see any labels in the arg, we just say it's a word long.
-    if argnum is None: return 1
-    if argmode in [M_REGISTER, M_IMPLIED]: return 1
-    if argmode in [M_ZEROPAGE, M_ZEROPAGE_X, M_INDIRECT_X,
-                   M_INDIRECT_Y, M_IMMEDIATE]: return 2
-    if argmode in [M_ABSOLUTE_Y, M_ABSOLUTE_X, M_ABSOLUTE]: return 3
-    # error here
+    # Returns the number of bytes (1,2,3) that the line will take up when assembled.
+    # Returns an error if something weird happens.
+    def size(self, op, arg):
+        if op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]: return 2
+        if op in ["brk",'jmp','jsr']: return 3
+        
+        argmode, argnum = self.addrmode(arg)
+        
+        # Identify the addressing mode based on the addressing modes and the sizes
+        # of the arguments. Here, we assume that all labels are words long, so if
+        # we see any labels in the arg, we just say it's a word long.
+        if argnum is None: return 1
+        if argmode in [M_REGISTER, M_IMPLIED]: return 1
+        if argmode in [M_ZEROPAGE, M_ZEROPAGE_X, M_INDIRECT_X,
+                       M_INDIRECT_Y, M_IMMEDIATE]: return 2
+        if argmode in [M_ABSOLUTE_Y, M_ABSOLUTE_X, M_ABSOLUTE]: return 3
+        # error here
 
 
-# This takes a line and gets rid of the comments.
-# TODO handle quoted semicolons.
-def uncomment(line):
-    if ';' not in line: return line
-    return line.split(';')[0]
+    # This takes a line and gets rid of the comments.
+    def uncomment(self,line):
+        if ';' not in line: return line
+        if '.ascii' not in line: return line.split(';')[0]
+        killpoint = None
+        safe = True
+        i = line.index('"')
+        while not killpoint and i < len(line):
+            if line[i] == ';' and not safe: killpoint = i
+            if line[i] == '"': safe = False
+        return line[:killpoint]
+
+
+def test(s):
+    code = open(s).read()
+    a = Assembler()
+    x,w = a.assemble(code)
+    out = open("test.nes","wb")
+    out.write(x)
+    out.close()
 
