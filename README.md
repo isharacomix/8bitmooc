@@ -40,17 +40,19 @@ The todo list is as follows:
  * Exercises
  * Some standard libraries for the 6502
  * An epic logo (maybe get opengameart to help)
- * Some sprites for students to use for games (I'll make a sprite converter)
+ * Some sprites for students to use for games ~~(I'll make a sprite converter)~~
 
 The web platform needs:
- * A wiki (for the textbook)
- * An assembler and emulator
+ * ~~Open Badges (because badges are pro)~~
+ * ~~An assembler and emulator~~
+ * ~~A wiki (for the textbook)~~
  * An autograder (a reference architecture 6502)
- * Open Badges (because badges are pro)
  * To support a million students (our target goal!)
 
 ##Our Goal?
 A million students, a million satisfied customers, and ultimately, world domination.
 
 ##Wanna help?
-http://8bitmooc.org/sign-up
+ * Follow the Devblog on http://8bitmooc.org
+ * Join the IRC Channel: #8bitmooc on Freenode
+ * Sign up here: http://8bitmooc.org/sign-up
