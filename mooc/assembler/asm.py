@@ -3,6 +3,7 @@
 # My NES assembler. While it's probably a dumb idea to go and roll one of
 # my own, I figure it'll be a fun project while I get 8bitmooc off the ground.
 
+from assembler.models import Kernal, Pattern
 
 # This refers to a $2000-byte Bank of memory. Each bank is physically addressed
 # from $0000 to $1FFF, but is logically set to start at a specific starting
@@ -109,8 +110,24 @@ class Assembler(object):
     def assemble(self, code):
         elements = self.parse(code)
         
-        # Handle includes.
-        # handle incbins (basically add '.bytes' directives in the code)
+        # Pass zero: handle .includes and .incbins, which connect to the
+        # Assembler model. The database stores the includes and incbins as
+        # textfiles to be imported
+        new_elements = []
+        for label, op, arg, original in elements:
+            if op == ".include":
+                kern = Kernal.objects.get(name=arg)
+                inc_elements = self.parse(kern.code, arg)
+                new_elements += inc_elements
+            elif op == ".incbin":
+                patt = Pattern.objects.get(name=arg)
+                new_arg = ""
+                for i in range(len(patt.code)/2):
+                    new_arg += "$"+patt.code[i*2:i*2+2]+","
+                new_elements.append((label, ".db", new_arg.strip(','), original))
+            else:
+                new_elements.append((label, op, arg, original))
+        elements = new_elements
         
         # First pass: Identify the values of labels by counting the size of the
         # operations based on addressing modes and identifying the .org directives.
@@ -457,7 +474,8 @@ class Assembler(object):
     
     # Add an error string to the list of errors.
     def err(self,s):
-        self.errors.append("["+s+"] "+self.lastline)
+        if len(self.errors) < 100:
+            self.errors.append("["+s+"] "+self.lastline)
 
 
 def test(s):

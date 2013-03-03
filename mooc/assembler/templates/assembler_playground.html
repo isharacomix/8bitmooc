@@ -10,6 +10,11 @@
         <form name="input" action="{% url 'playground' %}" method="post">{% csrf_token %}
         <div class="span8">
             <div>
+            {% for e in errors %}
+            <p>{{ e }}</p>
+            {% endfor %}
+            </div>
+            <div>
 
 <textarea class="input-block-level code-input" rows="20" name="code" wrap="physical">{{ source_code }}</textarea>
 
@@ -22,8 +27,8 @@
     <div id="emulator"></div>
     
         
-            <input type="submit" name="run" value="Run in Emulator" />
-            <input type="submit" name="assemble" value="Assemble" />
+            <input type="submit" name="run" value="Assemble" />
+            <input type="submit" name="assemble" value="Download" />
         </div>
         </form>
     </div>
