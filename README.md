@@ -7,7 +7,7 @@ So, #8bitmooc is an 8-bit MOOC.
 A MOOC is a Massively Open Online Course, a course open to anyone in the
 world for free to take, learn, interact, and enjoy. The most popular
 MOOCs right now are those offered by folks like Coursera, EdX, and Udacity,
-but there's no reason why we can't make our own MOOC right here in Github!
+but there's no reason why we can't make our own MOOC right here in Github!!
 
 That's exactly what I'm doing. Wanna help?
 
