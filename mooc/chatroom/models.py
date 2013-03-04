@@ -14,6 +14,14 @@ class Chat(models.Model):
     author      = models.ForeignKey(Student, verbose_name="author")
     channel     = models.ForeignKey(World, verbose_name="channel")
     
+    # You can set up your chat feed to ignore messages your friends have
+    # dismissed or even only see posts your friends have endorsed. This
+    # makes it possible to curate the firehose.
+    endorsed_by = models.ManyToManyField(Student, blank=True,
+                  related_name='endorsed+')
+    dismissed_by = models.ManyToManyField(Student, blank=True,
+                   related_name='dismissed+')
+    
     class Meta:
             ordering = ('timestamp',)
 

@@ -26,7 +26,9 @@ def test_chat(request):
     return render( request, "chatroom_test.html", {'channel': 'test'})
 
 
-# We still need a view controller and URL dispatcher for the chatroom service.
+# Even though there is no user-visible page for the chat room, we still need a
+# URL dispatcher and view in order to handle the JSON output (kind of like the
+# /rom/ URL).
 def do_chat(request):
     try:
         student = Student.from_request(request)
@@ -34,7 +36,6 @@ def do_chat(request):
     except exceptions.ObjectDoesNotExist:
         return HttpResponse(json.dumps({}), content_type='application/json')
 
-    
     function = request.POST.get("function")
     log = {}
     
