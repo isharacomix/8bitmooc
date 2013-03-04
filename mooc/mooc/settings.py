@@ -118,6 +118,7 @@ INSTALLED_APPS = (
     'students',
     'badges',
     'assembler',
+    'chatroom',
 )
 TEXTBOOK_DIR = os.path.join(PROJECT_DIR, "textbook")
 

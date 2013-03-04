@@ -1,0 +1,56 @@
+{% load static %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="{% static 'js/chatroom.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    // set the refresh rate for the chat room.
+  setInterval('chat.update()', 30000)
+  
+  // Create the chat room and set the channel based on the open world.
+  var chat =  new Chat();
+  var channel = "{{ channel }}";
+
+  $(function() {
+  
+     chat.getState(); 
+     
+     // watch textarea for key presses
+     $("#inputspace").keydown(function(event) {  
+     
+         var key = event.which;  
+   
+         //all keys including return.  
+         if (key >= 33) {
+           
+             var maxLength = $(this).attr("maxlength");  
+             var length = this.value.length;  
+             
+             // don't allow new content if length is maxed out
+             if (length >= maxLength) {  
+                 event.preventDefault();  
+             }  
+         }  
+    });
+     // watch textarea for release of key press
+     $('#inputspace').keyup(function(e) {  
+                
+        if (e.keyCode == 13) { 
+        
+              var text = $(this).val();
+              var maxLength = $(this).attr("maxlength");  
+              var length = text.length; 
+               
+              // send 
+              if (length <= maxLength + 1) { 
+                chat.send(text, name);  
+                $(this).val("");
+              } else {
+                $(this).val(text.substring(0, maxLength));
+              }  
+        }
+     });
+  });
+
+    </script>
+

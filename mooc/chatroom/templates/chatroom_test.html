@@ -1,0 +1,21 @@
+{% extends "layout_base.html" %}
+{% load static %}
+{% load textbook %}
+
+{% block title %}Chat Room Test (will be gone one day){% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            {% include "chatroom.html" %}
+        </div>
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include 'chatroom_footer.html' %}
+{% endblock scripts %}
+

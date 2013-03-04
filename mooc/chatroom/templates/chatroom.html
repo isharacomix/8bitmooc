@@ -1,0 +1,15 @@
+<div id="page-wrap"">
+
+    <h2>jQuery/PHP Chat</h2>
+    
+    <p id="name-area"></p>
+    
+    <div id="chat-wrap"><div id="chat-area"></div></div>
+    
+    <form id="send-message-area" method="post">{% csrf_token %}
+        <p>Your message: </p>
+        <textarea id="inputspace" maxlength = '140'></textarea>
+    </form>
+
+</div>
+
