@@ -19,12 +19,15 @@
 <textarea class="input-block-level code-input" rows="20" name="code" wrap="physical">{{ source_code }}</textarea>
 
             </div>
+            <div class="well">
+              {% include "assembler_cheatsheet.html" %}
+            </div>
         </div>
         
         <div class="span4">
     
         
-    <div id="emulator"></div>
+            <div id="emulator"></div>
     
         
             <input type="submit" name="run" value="Assemble" />
