@@ -11,8 +11,8 @@ class Chat(models.Model):
     content     = models.CharField("content", max_length=140,
                         help_text="Content of the chat.")
     timestamp = models.DateTimeField("timestamp", auto_now=True)
-    author      = models.ForeignKey(Student, verbose_name="author", null=True)
-    channel     = models.ForeignKey(World, verbose_name="channel", null=True)
+    author      = models.ForeignKey(Student, verbose_name="author")
+    channel     = models.ForeignKey(World, verbose_name="channel")
     
     class Meta:
             ordering = ('timestamp',)
