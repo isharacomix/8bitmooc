@@ -270,11 +270,17 @@ class Assembler(object):
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
                     b.rom[b.org-b.start] = (val>>8)&0xff
                     b.org += 1
-            elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq","brk"]:
+            elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]:
                 self.labels["*"] = b.org+2
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 b.rom[b.org-b.start+1] = self.num(arg)&0xff
                 b.org += 2
+            elif op == 'brk':
+                self.labels["*"] = b.org+3
+                b.rom[b.org-b.start] = SYMBOL_TABLE[op]
+                b.rom[b.org-b.start+1] = self.num(arg)&0xff
+                b.rom[b.org-b.start+2] = (self.num(arg)>>8)&0xff
+                b.org += 3
             elif op == 'jsr':
                 self.labels["*"] = b.org+3
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
