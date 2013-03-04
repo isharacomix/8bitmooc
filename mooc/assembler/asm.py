@@ -287,6 +287,8 @@ class Assembler(object):
                 val = self.num(arg)
                 b.rom[b.org-b.start+1] = val&0xff
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
+                if (b.org+2)&0xff == 0:
+                    self.err("JSR memory location crosses the page. Add a NOP before this line.")
                 b.org += 3
             elif op == 'jmp':
                 self.labels["*"] = b.org+3
@@ -301,6 +303,8 @@ class Assembler(object):
                 val = self.num(argnum)
                 b.rom[b.org-b.start+1] = val&0xff
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
+                if (b.org+2)&0xff == 0:
+                    self.err("JMP memory location crosses the page. Add a NOP before this line.")
                 b.org += 3
             elif op == 'brk':
                 self.labels["*"] = b.org+3
