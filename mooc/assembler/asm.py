@@ -3,6 +3,7 @@
 # My NES assembler. While it's probably a dumb idea to go and roll one of
 # my own, I figure it'll be a fun project while I get 8bitmooc off the ground.
 
+from django.core import exceptions
 from assembler.models import Kernal, Pattern
 
 # This refers to a $2000-byte Bank of memory. Each bank is physically addressed
@@ -115,19 +116,44 @@ class Assembler(object):
         # textfiles to be imported
         new_elements = []
         for label, op, arg, original in elements:
-            if op == ".include":
-                kern = Kernal.objects.get(name=arg)
+            if op in [".include", ".incbin", ".ascii"] and (arg is None or
+                            not (arg.startswith('"') and arg.endswith('"'))):
+                self.err("Incorrectly formatted quoted string")
+            elif op == ".include":
+                arg = arg[1:-1]
+                try: kern = Kernal.objects.get(name=arg)
+                except exceptions.ObjectDoesNotExist:
+                    self.err("No such kernal "+arg)
                 inc_elements = self.parse(kern.code, arg)
                 new_elements += inc_elements
             elif op == ".incbin":
-                patt = Pattern.objects.get(name=arg)
+                arg = arg[1:-1]
+                try: patt = Pattern.objects.get(name=arg)
+                except exceptions.ObjectDoesNotExist:
+                    self.err("No such pattern "+arg)
                 new_arg = ""
                 for i in range(len(patt.code)/2):
                     new_arg += "$"+patt.code[i*2:i*2+2]+","
                 new_elements.append((label, ".db", new_arg.strip(','), original))
+            elif op == ".ascii":
+                arg = arg[1:-1]
+                new_arg = ""
+                skip = False
+                for c in arg:
+                    try: x = ord(c)
+                    except: x = 0
+                    if skip:
+                        skip = False
+                        new_arg += "$%x,"%x
+                    elif c == '\\': skip = True
+                    else: new_arg += "$%x,"%x
+                new_elements.append((label, ".db", new_arg.strip(','), original))
             else:
                 new_elements.append((label, op, arg, original))
         elements = new_elements
+        
+        # If we came across any errors in pass zero, don't proceed to pass one.
+        if len(self.errors) > 0: return "", self.errors
         
         # First pass: Identify the values of labels by counting the size of the
         # operations based on addressing modes and identifying the .org directives.
@@ -169,7 +195,6 @@ class Assembler(object):
                 elif op == ".byte": b.org += 1
                 elif op == ".word" or op == ".dw": b.org += 2
                 elif op == ".bytes" or op == ".db": b.org += len(arg.split(','))
-                elif op == ".ascii": b.org += len(arg-2)
                 elif op == ".define":
                     lab, val = arg.split('=')
                     self.labels[lab] = self.num(val)
@@ -462,13 +487,13 @@ class Assembler(object):
     # Should not return any errors.
     def uncomment(self,line):
         if ';' not in line: return line
-        if '.ascii' not in line: return line.split(';')[0]
+        if not line.startswith('.ascii'): return line.split(';')[0]
         killpoint = None
         safe = True
         i = line.index('"')
         while not killpoint and i < len(line):
             if line[i] == ';' and not safe: killpoint = i
-            if line[i] == '"': safe = False
+            if line[i] == '"' and line[i-1] != "\\": safe = False
         return line[:killpoint]
     
     
