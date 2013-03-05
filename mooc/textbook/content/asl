@@ -1,7 +1,7 @@
 = ASL: Arithmetic Shift Left
 
 |=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Accumulator      |`ASL A`        |$0A     | 1      | 1      |
+|Accumulator      |`ASL A`        |$0A     | 1      | 2      |
 |Zero Page        |`ASL $44`      |$06     | 2      | 5      |
 |Zero Page,X      |`ASL $44,X`    |$16     | 2      | 6      |
 |Absolute         |`ASL $4400`    |$0E     | 3      | 6      |

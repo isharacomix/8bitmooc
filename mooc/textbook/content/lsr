@@ -1,7 +1,7 @@
 = LSR: Logical Shift Right
 
 |=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Accumulator      |`LSR A`        |$4A     | 1      | 1      |
+|Accumulator      |`LSR A`        |$4A     | 1      | 2      |
 |Zero Page        |`LSR $44`      |$46     | 2      | 5      |
 |Zero Page,X      |`LSR $44,X`    |$56     | 2      | 6      |
 |Absolute         |`LSR $4400`    |$4E     | 3      | 6      |

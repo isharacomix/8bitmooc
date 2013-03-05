@@ -1,7 +1,7 @@
 = ROL: ROtate Left
 
 |=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Accumulator      |`ROL A`        |$2A     | 1      | 1      |
+|Accumulator      |`ROL A`        |$2A     | 1      | 2      |
 |Zero Page        |`ROL $44`      |$26     | 2      | 5      |
 |Zero Page,X      |`ROL $44,X`    |$36     | 2      | 6      |
 |Absolute         |`ROL $4400`    |$2E     | 3      | 6      |
