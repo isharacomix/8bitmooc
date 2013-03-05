@@ -7,12 +7,12 @@
     <div class="row">
         <div class="span12">
             <article class="article">
-                <h1>Search Results for "{{query}}"</h1>
+                <h2>Search Results for "{{query}}"</h2>
                 <ul>
                 {% if results %}
-                    {% for slug in results %}
+                    {% for slug, digest in results %}
                     
-                        <li><a href="{% url 'textbook_page' page=slug%}">{{slug}}</a></li>
+                        <li><a href="{% url 'textbook_page' page=slug%}">{{slug}}</a>: {{digest}}</li>
                     
                     {% endfor %}
                 {% else %}

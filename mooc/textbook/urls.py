@@ -8,6 +8,5 @@ from textbook import views
 urlpatterns = patterns('',
     url(r'^$', views.view_page, name='textbook'),
     url(r'^(?P<page>[^/]+)/$', views.view_page, name='textbook_page'),
-    url(r'^search/(?P<query>[^/]+)$', views.find_pages, name='textbook_search'),
 )
 

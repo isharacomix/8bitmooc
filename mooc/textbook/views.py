@@ -27,6 +27,8 @@ Please either hit the back button or return to the [[index|front page]].
 # This method simply passes the string to the appropriate template and renders
 # it in wiki creole.
 def view_page(request, page=None):
+    if "search" in request.GET:
+        return find_pages(request, request.GET["search"])
     if page is None: return redirect( "textbook_page", page="index" )
     try:
         p = Page.objects.get(title=page)
@@ -46,8 +48,11 @@ def find_pages(request, query):
     
     # Go through the text and find a digest that will allow the user to
     # find relevant data.
-    data = {}
-    results = data
+    pages = Page.objects.filter(content__contains=query)
+    results = []
+    for p in pages:
+        i = p.content.index(query)
+        results.append( (p.title,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
     
     return render(request, "textbook_search.html",
                           {'results': results, 'query': query })
