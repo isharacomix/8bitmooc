@@ -1,0 +1,6 @@
+= PHA: PusH Accumulator
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`PHA`          |$48     | 1      | 2      |
+
+**Flags affected:** None

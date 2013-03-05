@@ -1,0 +1,11 @@
+= LDX: LoaD X
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Immediate        |`LDX #$44`     |$A2     | 2      | 2      |
+|Zero Page        |`LDX $44`      |$A6     | 2      | 3      |
+|Zero Page,Y      |`LDX $44,Y`    |$B6     | 2      | 4      |
+|Absolute         |`LDX $4400`    |$AE     | 3      | 4      |
+|Absolute,Y       |`LDX $4400,Y`  |$BE     | 3      | 4+     |
+
+**Flags affected:** S Z
+

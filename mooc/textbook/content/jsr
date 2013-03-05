@@ -1,0 +1,6 @@
+= JSR: Jump to SubRoutine
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Absolute         |`JSR $4400`    |$20     | 3      | 6      |
+
+**Flags affected:** None

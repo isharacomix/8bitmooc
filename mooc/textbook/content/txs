@@ -1,0 +1,6 @@
+= TSX: Transfer X to Stack pointer
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`TXS`          |$9A     | 1      | 2      |
+
+**Flags affected:** None

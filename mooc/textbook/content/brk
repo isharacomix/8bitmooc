@@ -1,0 +1,7 @@
+= BRK: BReaK (software interrupt)
+
+|=Addressing Mode  |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Immediate (1 byte)|`BRK #$44`     |$00     | 2      | 7      |
+
+**Flags affected:** B
+

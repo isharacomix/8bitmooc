@@ -1,0 +1,6 @@
+= SED: SEt Decimal
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`SED`          |$F8     | 1      | 2      |
+
+**Flags affected:** D

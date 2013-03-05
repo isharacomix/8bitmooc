@@ -35,7 +35,7 @@ def wiki_link_path(link):
     #    # User profile
     #    return reverse('profile', args=[MemberProfile.make_username(link[1:])])
     #else:
-    return reverse('textbook_page', kwargs={'page': link})
+    return reverse('textbook_page', kwargs={'page': link.lower().replace(' ','-')})
 
 
 def wiki_link_class(link):

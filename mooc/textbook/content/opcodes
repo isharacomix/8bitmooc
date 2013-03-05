@@ -1,0 +1,80 @@
+= 6502 Opcodes
+
+Opcodes (also referred to as mnuemonics) represent the most basic level of
+assembly code.
+
+
+The 6502 has 56 opcodes, which can be divided into the following families.
+
+== Arithmetic
+ * `[[ADC]]` : ADd with Carry
+ * `[[SBC]]` : SuBtract with Carry
+ * `[[ASL]]` : Arithmetic Shift Left
+ * `[[LSR]]` : Logical Shift Right
+ * `[[AND]]` : bitwise AND with accumulator
+ * `[[ORA]]` : bitwise OR with accumulator
+ * `[[EOR]]` : bitwise Exclusive OR with accumulator
+ * `[[ROL]]` : ROtate Left
+ * `[[ROR]]` : ROtate Right
+
+== Memory
+ * `[[LDA]]` : LoaD Accumulator
+ * `[[LDX]]` : LoaD X
+ * `[[LDY]]` : LoaD Y
+ * `[[STA]]` : STore Accumulator
+ * `[[STX]]` : STore X
+ * `[[STY]]` : STore Y
+ * `[[INC]]` : INCrement memory
+ * `[[DEC]]` : DECrement memory
+
+== Stack
+ * `[[PHA]]` : PusH Accumulator
+ * `[[PHP]]` : PusH Processor status
+ * `[[PLA]]` : PuLl Accumulator
+ * `[[PLP]]` : PuLl Processor status
+ * `[[TSX]]` : Transfer Stack pointer to X
+ * `[[TXS]]` : Transfer X to Stack pointer
+ 
+//Main article: [[stack]]//
+
+== Registers
+ * `[[TAX]]` : Transfer Accumulator to X
+ * `[[TAY]]` : Transfer Accumulator to Y
+ * `[[TXA]]` : Transfer X to Accumulator
+ * `[[TYA]]` : Transfer Y to Accumulator
+ * `[[INX]]` : INcrement X
+ * `[[INY]]` : INcrement Y
+ * `[[DEX]]` : DEcrement X
+ * `[[DEY]]` : DEcrement Y
+
+== Control Flow
+ * `[[JMP]]` : JuMP
+ * `[[JSR]]` : Jump to SubRoutine
+ * `[[RTS]]` : ReTurn from Subroutine
+ * `[[RTI]]` : ReTurn from Interrupt
+ * `[[BRK]]` : BReaK (software interrupt)
+ * `[[BCC]]` : Branch if Carry Clear
+ * `[[BCS]]` : Branch if Carry Set
+ * `[[BEQ]]` : Branch if EQual
+ * `[[BNE]]` : Branch if Not Equal
+ * `[[BPL]]` : Branch if PLus
+ * `[[BMI]]` : Branch if MInus
+ * `[[BVC]]` : Branch if oVerflow Clear
+ * `[[BVS]]` : Branch if oVerflow Set
+ * `[[NOP]]` : NO oPeration
+
+== System Flags
+ * `[[CLC]]` : CLear Carry
+ * `[[CLD]]` : CLear Decimal
+ * `[[CLI]]` : CLear Interrupt
+ * `[[CLV]]` : CLear oVerflow
+ * `[[SEC]]` : SEt Carry
+ * `[[SED]]` : SEt Decimal
+ * `[[SEI]]` : SEt Interrupt
+
+== Comparison
+ * `[[CMP]]` : CoMPare to accumulator
+ * `[[CPX]]` : CoMPare to X
+ * `[[CPY]]` : CoMPare to Y
+ * `[[BIT]]` : compare BITs
+

@@ -1,0 +1,6 @@
+= PLA: PuLl Accumulator
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`PLA`          |$68     | 1      | 2      |
+
+**Flags affected:** S Z

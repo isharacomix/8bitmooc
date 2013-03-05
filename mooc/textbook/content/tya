@@ -1,0 +1,6 @@
+= TYA: Transfer Y to Accumulator
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`TYA`          |$98     | 1      | 2      |
+
+**Flags affected:** S Z

@@ -12,7 +12,7 @@
                 {% if results %}
                     {% for slug, digest in results %}
                     
-                        <li><a href="{% url 'textbook_page' page=slug%}">{{slug}}</a>: {{digest}}</li>
+                        <li><strong><a href="{% url 'textbook_page' page=slug%}">{{slug}}</a></strong>: <em> {{digest}}</em></li>
                     
                     {% endfor %}
                 {% else %}

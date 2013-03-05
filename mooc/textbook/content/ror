@@ -1,0 +1,25 @@
+= ROR: ROtate Right
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Accumulator      |`ROR A`        |$6A     | 1      | 1      |
+|Zero Page        |`ROR $44`      |$66     | 2      | 5      |
+|Zero Page,X      |`ROR $44,X`    |$76     | 2      | 6      |
+|Absolute         |`ROR $4400`    |$6E     | 3      | 6      |
+|Absolute,X       |`ROR $4400,X`  |$7E     | 3      | 7      |
+
+**Flags affected:** S Z C
+
+This opcode takes the argument and shifts all of the bits to the right by one.
+Whatever value is in the [[Carry]] flag is shifted into bit 7 while bit 0 is
+shifted into the Carry flag. Note
+that this opcode modifies the argument, so this reads and writes to memory
+in the same instruction.
+
+=== Example
+{{{
+ Carry = 1 -> 11110000 ->
+              --------
+              11111000 0 = Carry
+}}}
+
+

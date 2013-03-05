@@ -1,0 +1,26 @@
+= ASL: Arithmetic Shift Left
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Accumulator      |`ASL A`        |$0A     | 1      | 1      |
+|Zero Page        |`ASL $44`      |$06     | 2      | 5      |
+|Zero Page,X      |`ASL $44,X`    |$16     | 2      | 6      |
+|Absolute         |`ASL $4400`    |$0E     | 3      | 6      |
+|Absolute,X       |`ASL $4400,X`  |$1E     | 3      | 7      |
+
+**Flags affected:** S Z C
+
+This opcode takes the argument and shifts all of the bits to the left by one.
+0 is shifted into bit 0 while bit 7 is shifted into the [[Carry]] flag. Note
+that this opcode modifies the argument, so this reads and writes to memory
+in the same instruction.
+
+A left-shift is functionally equivalent to multiplying the argument by 2.
+
+=== Example
+{{{
+        <- 11110000 <-
+           --------
+ Carry = 1 11100000
+}}}
+
+

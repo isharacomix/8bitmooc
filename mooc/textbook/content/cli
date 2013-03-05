@@ -1,0 +1,6 @@
+= CLI: CLear Interrupt
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`CLI`          |$58     | 1      | 2      |
+
+**Flags affected:** I

@@ -1,0 +1,6 @@
+= CLV: CLear oVerflow
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`CLV`          |$B8     | 1      | 2      |
+
+**Flags affected:** V

@@ -1,0 +1,14 @@
+= CMP: CoMPare with accumulator
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Immediate        |`CMP #$44`     |$C9     | 2      | 2      |
+|Zero Page        |`CMP $44`      |$C5     | 2      | 3      |
+|Zero Page,X      |`CMP $44,X`    |$D5     | 2      | 4      |
+|Absolute         |`CMP $4400`    |$CD     | 3      | 4      |
+|Absolute,X       |`CMP $4400,X`  |$DD     | 3      | 4+     |
+|Absolute,Y       |`CMP $4400,Y`  |$D9     | 3      | 4+     |
+|Indirect,X       |`CMP ($44,X)`  |$C1     | 2      | 6      |
+|Indirect,Y       |`CMP ($44),Y`  |$D1     | 2      | 5+     |
+
+**Flags affected:** S Z C
+

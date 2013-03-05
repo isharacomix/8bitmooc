@@ -10,7 +10,7 @@
                 <li><a href="{% url 'textbook' %}">Textbook</a></li>
                 <li><a href="{% url 'badge_list' %}">Badges</a></li>
                 <li><a href="{% url 'playground' %}">Playground</a></li>
-                <form class="navbar-search" action="{% url 'textbook' %}index/" method="get">
+                <form class="navbar-search" action="{% url 'textbook' %}" method="get">
                     <input type="text" class="search-query" placeholder="Search" name="search" />
                 </form>
             </ul>

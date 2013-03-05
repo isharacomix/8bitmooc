@@ -1,0 +1,9 @@
+= CPX: ComPare with X
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Immediate        |`CPX #$44`     |$E0     | 2      | 2      |
+|Zero Page        |`CPX $44`      |$E4     | 2      | 3      |
+|Absolute         |`CPX $4400`    |$EC     | 3      | 4      |
+
+**Flags affected:** S Z C
+

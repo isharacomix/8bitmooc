@@ -1,0 +1,6 @@
+= RTI: ReTurn from Interrupt
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Implied          |`RTI`          |$40     | 1      | 6      |
+
+**Flags affected:** All

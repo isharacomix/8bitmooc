@@ -275,20 +275,12 @@ class Assembler(object):
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 b.rom[b.org-b.start+1] = self.num(arg)&0xff
                 b.org += 2
-            elif op == 'brk':
-                self.labels["*"] = b.org+3
-                b.rom[b.org-b.start] = SYMBOL_TABLE[op]
-                b.rom[b.org-b.start+1] = self.num(arg)&0xff
-                b.rom[b.org-b.start+2] = (self.num(arg)>>8)&0xff
-                b.org += 3
             elif op == 'jsr':
                 self.labels["*"] = b.org+3
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 b.rom[b.org-b.start+1] = val&0xff
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
-                if (b.org+2)&0xff == 0:
-                    self.err("JSR memory location crosses the page. Add a NOP before this line.")
                 b.org += 3
             elif op == 'jmp':
                 self.labels["*"] = b.org+3
@@ -303,18 +295,16 @@ class Assembler(object):
                 val = self.num(argnum)
                 b.rom[b.org-b.start+1] = val&0xff
                 b.rom[b.org-b.start+2] = (val>>8)&0xff
-                if (b.org+2)&0xff == 0:
-                    self.err("JMP memory location crosses the page. Add a NOP before this line.")
                 b.org += 3
             elif op == 'brk':
-                self.labels["*"] = b.org+3
+                self.labels["*"] = b.org+2
                 b.rom[b.org-b.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_IMMEDIATE]:
                     self.err("Incorrect addressing mode for %s"%op)
                 b.rom[b.org-b.start+1] = val&0xff
-                b.org += 3
+                b.org += 2
             elif op in SYMBOL_TABLE:
                 mode, argnum = self.addrmode(arg)
                 symbol = SYMBOL_TABLE[op][mode]
@@ -477,8 +467,8 @@ class Assembler(object):
     # Returns the number of bytes (1,2,3) that the line will take up when assembled.
     # Should not return any errors.
     def size(self, op, arg):
-        if op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]: return 2
-        if op in ["brk",'jmp','jsr']: return 3
+        if op in ["brk","bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]: return 2
+        if op in ['jmp','jsr']: return 3
         
         argmode, argnum = self.addrmode(arg)
         

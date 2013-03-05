@@ -1,0 +1,30 @@
+= AND: bitwise AND with accumulator
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Immediate        |`AND #$44`     |$29     | 2      | 2      |
+|Zero Page        |`AND $44`      |$25     | 2      | 3      |
+|Zero Page,X      |`AND $44,X`    |$35     | 2      | 4      |
+|Absolute         |`AND $4400`    |$2D     | 3      | 4      |
+|Absolute,X       |`AND $4400,X`  |$3D     | 3      | 4+     |
+|Absolute,Y       |`AND $4400,Y`  |$39     | 3      | 4+     |
+|Indirect,X       |`AND ($44,X)`  |$21     | 2      | 6      |
+|Indirect,Y       |`AND ($44),Y`  |$31     | 2      | 5+     |
+
+**Flags affected:** S Z
+
+This opcode takes the argument and performs a bitwise AND with the
+[[Accumulator]], storing it in the register.
+
+The AND function takes two truth values and returns true whenever both inputs
+are also true. If either input is false, the result is false. The bitwise AND
+performs an AND function on all eight bits of the input argument and the
+Accumulator, storing the final value for each bit in the Accumulator.
+
+=== Example
+{{{
+           11110000
+       AND 00111100
+           --------
+           00110000
+}}}
+
