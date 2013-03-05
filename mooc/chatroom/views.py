@@ -44,9 +44,8 @@ def do_chat(request):
                 text.append(l.content)
             log['text'] = text
     elif function == "send": 
-        nickname = request.POST.get("nickname")
         message = request.POST.get("message")
-        if message != "\n":
+        if message != "":
             C = Chat()
             C.author = student
             C.channel = world
