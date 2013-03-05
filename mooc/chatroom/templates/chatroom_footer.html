@@ -1,6 +1,5 @@
 {% load static %}
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="{% static 'js/chatroom.js' %}" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
 
@@ -9,7 +8,7 @@
   
   // Create the chat room and set the channel based on the open world.
   var chat =  new Chat();
-  var channel = "{{ channel }}";
+  var channel = "{{ world.shortname }}";
 
   $(function() {
   

@@ -14,11 +14,13 @@
             </article>
         </div>
         <div class="span4">
-            <div class="hero-unit">
-                <p>Social goes here</p>
-            </div>
+            {% include "chatroom.html" %}
         </div>
     </div>
 
 {% endblock body %}
+
+{% block scripts %}
+    {% include 'chatroom_footer.html' %}
+{% endblock scripts %}
 

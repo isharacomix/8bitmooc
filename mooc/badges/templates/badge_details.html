@@ -36,8 +36,6 @@
 
 
 {% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="{% static 'js/bootstrap.js' %}"></script>
     {% if awarded %}
         <script src="http://beta.openbadges.org/issuer.js"></script>
         <script type="text/javascript">
@@ -47,6 +45,5 @@
         }
         </script>
     {% endif %}
-
 {% endblock scripts %}
 

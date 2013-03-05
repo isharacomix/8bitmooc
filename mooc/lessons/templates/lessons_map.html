@@ -6,18 +6,35 @@
 
 {% block body %}
 
-    {% for stage, available, complete in stage_list %}
-        <div class="row">
-            <div class="span2">
-                <p><a href="{% url 'stage' world=world.shortname stage=stage.shortname %}">
-                World {{ world.shortname }}-{{ stage.shortname }}: {{ stage.name }}
-                </a>{% if complete %}<i class="icon-ok"></i>{% endif %}</p>
+    <div class="row">
+        <div class="span8">
+        {% for stage, available, complete in stage_list %}
+            <div class="row">
+                <div class="span2">
+                    <p><a href="{% url 'stage' world=world.shortname stage=stage.shortname %}">
+                    World {{ world.shortname }}-{{ stage.shortname }}: {{ stage.name }}
+                    </a>{% if complete %}<i class="icon-ok"></i>{% endif %}</p>
+                </div>
+                
+                <div class="span6">
+                    stuff goes here son.
+                </div>
             </div>
-            
-            <div class="span10">
-                STUFF GOES HERE SON
-            </div>
+        {% endfor %}
         </div>
-    {% endfor %}
+        
+        <div class="span4">
+            {% include "chatroom.html" %}
+        </div>
+        
+    </div>
+    
+    
 
 {% endblock body %}
+
+
+{% block scripts %}
+    {% include 'chatroom_footer.html' %}
+{% endblock scripts %}
+

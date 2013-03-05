@@ -14,18 +14,6 @@ from lessons.models import World
 import json
 
 
-# This simply loads a simple test template for the chat room.
-def test_chat(request):
-    try:
-        w = World()
-        w.name="Test world"
-        w.shortname="test"
-        w.graphic = "foo"
-        w.save()        
-    except: pass
-    return render( request, "chatroom_test.html", {'channel': 'test'})
-
-
 # Even though there is no user-visible page for the chat room, we still need a
 # URL dispatcher and view in order to handle the JSON output (kind of like the
 # /rom/ URL).
