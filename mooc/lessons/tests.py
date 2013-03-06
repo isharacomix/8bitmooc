@@ -37,7 +37,8 @@ class LessonTests(TestCase):
                         graphic = "foo" )
         self.W.save()
         self.Q = QuizChallenge( shortname = "quiz1",
-                                content = "foo" )
+                                content = "foo",
+                                score = 10 )
         self.Q.save()
         self.l1 = Stage( name = "Fun Level 1",
                          shortname = "1",

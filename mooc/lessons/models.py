@@ -70,7 +70,7 @@ class World(models.Model):
     
     # Unicode representation.
     def __unicode__(self):
-        return u"Module %s (%s)" % (self.shortname, self.name)
+        return u"World %s (%s)" % (self.shortname, self.name)
 
 
 # This is the abstract Challenge class. Different challenges handle things
@@ -142,7 +142,7 @@ class Stage(models.Model):
         ordering = ('ordering',)
     
     def __unicode__(self):
-        return u"Lesson %s-%s: %s" % (self.world.shortname, self.shortname, self.name)
+        return u"Stage %s-%s: %s" % (self.world.shortname, self.shortname, self.name)
 
 
 # Questions for the QuizChallenge type. There are two forms of questions,
@@ -172,8 +172,6 @@ class QuizQuestion(models.Model):
     correctC    = models.BooleanField("C is correct", default=False )
     correctD    = models.BooleanField("D is correct", default=False )
     correctE    = models.BooleanField("E is correct", default=False )
-    score       = models.IntegerField("ordering",
-                                      help_text="How many points is this worth?")
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Questions are ordered from lowest to "+
                                       "to highest when displayed in lists.")
@@ -193,6 +191,8 @@ class QuizChallenge(BaseChallenge):
     randomize   = models.BooleanField("random ok?", default=False,
                         help_text="If this is set, then the questions will be "+
                                   "randomized each time they are seen")
+    score       = models.IntegerField("score",
+                                      help_text="How many points is this worth?")
 
 
 # An answer to a single quiz question.
