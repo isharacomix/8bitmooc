@@ -172,6 +172,8 @@ class QuizQuestion(models.Model):
     correctC    = models.BooleanField("C is correct", default=False )
     correctD    = models.BooleanField("D is correct", default=False )
     correctE    = models.BooleanField("E is correct", default=False )
+    score       = models.IntegerField("ordering",
+                                      help_text="How many points is this worth?")
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Questions are ordered from lowest to "+
                                       "to highest when displayed in lists.")
