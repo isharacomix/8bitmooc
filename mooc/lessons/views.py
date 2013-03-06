@@ -251,7 +251,14 @@ def do_quizchallenge( request, world, stage, challenge ):
     for QA in answers: QCR.answers.add(QA)
     QCR.save()
     
-    # If QCR was correct, add the stage to the Student's completion record.
+    # If QCR was correct, add the stage to the Student's completion record and
+    # give them some points.
+    if QCR.correct:
+        student = request.user.student
+        if here not in std.stage_set.all():
+            student.score += challenge.score
+            student.stage_set.add(here)
+            student.save()
     
     return HttpResponse( str(responses) )
 
