@@ -4,7 +4,7 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 
 from students.models import Student
-from lessons.models import World
+from world.models import World
 from chatroom.models import Chat
 
 

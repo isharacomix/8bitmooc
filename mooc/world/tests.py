@@ -3,9 +3,9 @@ from django.test import TestCase
 from django.test.client import Client
 
 from django.contrib.auth.models import User
-from textbook.models import Page
+from wiki.models import Page
 from students.models import Student
-from lessons.models import World, Stage, Achievement, QuizChallenge
+from world.models import World, Stage, Achievement, QuizChallenge
 
 
 # This class tests the World and Lesson system. Here is the test data.
@@ -34,7 +34,8 @@ class LessonTests(TestCase):
         # Let's create a world with three stages.
         self.W = World( name = "Fun World",
                         shortname = "1",
-                        graphic = "foo" )
+                        graphic = "foo",
+                        description = "The best world ever." )
         self.W.save()
         self.Q = QuizChallenge( shortname = "quiz1",
                                 content = "foo" )
@@ -121,6 +122,7 @@ class LessonTests(TestCase):
         self.c.login(username="ishara", password="ishararulz")
         response = self.c.get("/world/1/")
         self.assertFalse( "Fun Level 3" in response.content )
+        self.assertTrue("The best world ever" in response.content )
     
     
     # TODO test the quizzes and stuff

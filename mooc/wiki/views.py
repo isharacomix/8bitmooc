@@ -6,7 +6,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from textbook.models import Page
+from wiki.models import Page
 
 import os
 import time

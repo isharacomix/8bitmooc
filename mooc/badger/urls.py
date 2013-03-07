@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import patterns, include, url
 
-from badges import views
+from badger import views
 
 # These are the URLs for the badges. This provides a RESTful assertion API
 # to play nicely with badge verifiers. A logged in user can visit the badge

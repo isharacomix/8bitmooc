@@ -21,9 +21,9 @@ urlpatterns = patterns('',
     url(r'^', include('students.urls')),            # /~<user>/     # /profile/
     url(r'^', include('assembler.urls')),           # /playground/
     url(r'^chat/', include('chatroom.urls')),       # /world/
-    url(r'^world/', include('lessons.urls')),       # /world/
-    url(r'^textbook/', include('textbook.urls')),   # /textbook/
-    url(r'^badges/', include('badges.urls')),       # /badges/
+    url(r'^world/', include('world.urls')),       # /world/
+    url(r'^textbook/', include('wiki.urls')),   # /textbook/
+    url(r'^badges/', include('badger.urls')),       # /badges/
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

@@ -2,7 +2,7 @@
 from django.db import models
 
 from students.models import Student
-from lessons.models import BaseChallenge
+from world.models import BaseChallenge
 
 
 # Challenge type: Assembly Program

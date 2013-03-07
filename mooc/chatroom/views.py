@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 
 from chatroom.models import Chat
 from students.models import Student
-from lessons.models import World
+from world.models import World
 
 import json
 

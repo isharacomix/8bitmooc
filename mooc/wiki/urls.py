@@ -2,7 +2,7 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import TemplateView
 
-from textbook import views
+from wiki import views
 
 # Textbook URL pattern.
 urlpatterns = patterns('',

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from lessons.models import (Achievement, World, Stage,
-                            QuizChallenge, QuizQuestion)
+from world.models import (Achievement, World, Stage,
+                          QuizChallenge, QuizQuestion)
 
 
 admin.site.register(Achievement)

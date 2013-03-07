@@ -6,7 +6,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from badges.models import Badge
+from badger.models import Badge
 from students.models import Student
 from django.contrib.auth.models import User
 

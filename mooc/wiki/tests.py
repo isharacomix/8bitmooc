@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
-from textbook.models import Page
+from wiki.models import Page
 
 
 # This class tests the Textbook, including the Creole markup.

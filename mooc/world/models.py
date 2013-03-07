@@ -2,7 +2,7 @@
 from django.db import models
 
 from django.contrib.auth.models import User
-from textbook.models import Page
+from wiki.models import Page
 from students.models import Student
 
 
@@ -57,6 +57,9 @@ class World(models.Model):
     graphic     = models.SlugField("graphic",
                             help_text="Filename of the glyph in the Module "+
                                       "img directory.")
+    description = models.TextField("description",
+                        help_text="A description of the world in a "+
+                                  "human-readable format.")
     prereq      = models.ForeignKey(Achievement, verbose_name="prereq",
                             blank=True, null=True,
                             help_text="Which prerequisite is needed to start "+

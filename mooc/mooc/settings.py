@@ -113,10 +113,10 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     # My Apps
     'mooc',
-    'textbook',
-    'lessons',
+    'wiki',
+    'world',
     'students',
-    'badges',
+    'badger',
     'assembler',
     'chatroom',
 )

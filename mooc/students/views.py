@@ -7,7 +7,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from lessons.models import Stage, World
+from world.models import Stage, World
 from students.models import Student
 from django.contrib.auth.models import User
 

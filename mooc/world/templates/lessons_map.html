@@ -1,6 +1,6 @@
 {% extends "layout_base.html" %}
 {% load static %}
-{% load textbook %}
+{% load creole %}
 
 {% block title %}World {{ world.shortname }}: {{ world.name }}{% endblock title %}
 
@@ -28,6 +28,11 @@
         </div>
         
     </div>
+    <row>
+      <div class="span12">
+                {{ world.description|creole }}
+      </div>
+    </row>
     
     
 

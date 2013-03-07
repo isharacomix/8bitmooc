@@ -7,9 +7,9 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from textbook.models import Page
-from lessons.models import Stage, World
-from lessons.models import QuizAnswer, QuizChallengeResponse
+from wiki.models import Page
+from world.models import Stage, World
+from world.models import QuizAnswer, QuizChallengeResponse
 from students.models import Student
 
 import random

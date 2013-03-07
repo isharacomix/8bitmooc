@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from students.models import Student
-from lessons.models import World
+from world.models import World
 
 
 # A chat message.

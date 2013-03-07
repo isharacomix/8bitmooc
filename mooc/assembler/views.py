@@ -9,7 +9,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from textbook.models import Page
+from wiki.models import Page
 from students.models import Student
 
 from assembler.asm import Assembler
