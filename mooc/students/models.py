@@ -11,6 +11,7 @@ from django.core import exceptions
 # Technically, teachers are also "students" in the course.
 class Student(models.Model):
     user            = models.OneToOneField(User, verbose_name="user")
+    score           = models.IntegerField("score", default=0)
     
     # The friends list is a whitelist and the blocked list is a blacklist.
     # When someone is blocked by a substantial number of people, they are

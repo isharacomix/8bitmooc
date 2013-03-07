@@ -214,12 +214,12 @@ def do_quizchallenge( request, world, stage, challenge ):
         QA.question, choice_map = answer_map[q]
         response_list = []
         for r in raw_response_list:
-            if r in answer_map: response_list.append( answer_map[r] )
-        if 'A' in response_list: QA.selectedA = True
-        if 'B' in response_list: QA.selectedB = True
-        if 'C' in response_list: QA.selectedC = True
-        if 'D' in response_list: QA.selectedD = True
-        if 'E' in response_list: QA.selectedE = True
+            if r in choice_map: response_list.append( choice_map[r] )
+        if 'a' in response_list: QA.selectedA = True
+        if 'b' in response_list: QA.selectedB = True
+        if 'c' in response_list: QA.selectedC = True
+        if 'd' in response_list: QA.selectedD = True
+        if 'e' in response_list: QA.selectedE = True
         
         ans = True
         if QA.question.multiple_ok:
@@ -230,11 +230,11 @@ def do_quizchallenge( request, world, stage, challenge ):
             if QA.selectedE != QA.question.correctE: ans = False
         else:
             ans = False
-            if QA.selectedA == QA.question.correctA: ans = True
-            if QA.selectedB == QA.question.correctB: ans = True
-            if QA.selectedC == QA.question.correctC: ans = True
-            if QA.selectedD == QA.question.correctD: ans = True
-            if QA.selectedE == QA.question.correctE: ans = True
+            if QA.selectedA and QA.selectedA == QA.question.correctA: ans = True
+            if QA.selectedB and QA.selectedB == QA.question.correctB: ans = True
+            if QA.selectedC and QA.selectedC == QA.question.correctC: ans = True
+            if QA.selectedD and QA.selectedD == QA.question.correctD: ans = True
+            if QA.selectedE and QA.selectedE == QA.question.correctE: ans = True
         if ans: score += 1
         QA.correct = ans
         
@@ -243,7 +243,7 @@ def do_quizchallenge( request, world, stage, challenge ):
     # We made it through safely! Now we save the response in the DB.
     for QA in answers: QA.save()
     QCR = QuizChallengeResponse()
-    QCR.quiz = challenge
+    QCR.challenge = challenge
     QCR.student = request.user.student
     QCR.score = score
     QCR.correct = (score == total)
@@ -251,7 +251,14 @@ def do_quizchallenge( request, world, stage, challenge ):
     for QA in answers: QCR.answers.add(QA)
     QCR.save()
     
-    # If QCR was correct, add the stage to the Student's completion record.
+    # If QCR was correct, add the stage to the Student's completion record and
+    # give them some points.
+    if QCR.correct:
+        if here not in QCR.student.stage_set.all():
+            QCR.student.score += challenge.score
+            QCR.student.stage_set.add(here)
+            QCR.student.save()
     
-    return HttpResponse( str(responses) )
+    # return useful information
+    return HttpResponse( "")
 
