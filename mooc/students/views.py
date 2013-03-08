@@ -6,6 +6,7 @@ from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 
 from world.models import Stage, World
 from students.models import Student
@@ -21,4 +22,33 @@ def view_profile(request, username):
     except exceptions.ObjectDoesNotExist: raise Http404()
 
     return render( request, 'students_profile.html', {'student': student} )
+
+
+# This logs a user in, provided the password and stuff is right. :P
+def login_page(request):
+    if request.method == 'POST':
+        if request.POST.get("register") == "register": return redirect("register")
+        if request.POST.get("login") == "login":
+            username = request.POST.get("username")
+            password = request.POST.get("password")
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect("playground")
+                else:
+                    return HttpResponse("you do not exist sir")
+            else:
+                return HttpResponse("bad credentials")
+    else:
+        return HttpResponse("lol")
+
+
+# This is the register page. If we have a POST request, we DO the register.
+def register_page(request):
+    if request.method == 'POST':
+        return do_register(request)
+    else:
+        return HttpResponse("youregister")
     
+

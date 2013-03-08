@@ -7,5 +7,7 @@ from students import views
 # Student Profile URL pattern - includes the internal "edit profile page".
 urlpatterns = patterns('',
     url(r'^~(?P<username>[\w-]+)$', views.view_profile, name='profile'),
+    url(r'^login/$', views.login_page, name='login'),
+    url(r'^register/$', views.register_page, name='register'),
 )
 
