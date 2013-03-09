@@ -1,0 +1,13 @@
+{% extends "layout_base.html" %}
+
+{% block title %}Logged out{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span6 offset3">
+            Go back to the <a href="{% url 'index' %}">main page</a>.
+        </div>
+    </div>
+
+{% endblock body %}

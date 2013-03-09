@@ -6,7 +6,7 @@ from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 from world.models import Stage, World
 from students.models import Student
@@ -26,29 +26,48 @@ def view_profile(request, username):
 
 # This logs a user in, provided the password and stuff is right. :P
 def login_page(request):
-    if request.method == 'POST':
+    if request.user.is_authenticated():
+        return redirect("dashboard")
+    elif request.method == 'POST':
         if request.POST.get("register") == "register": return redirect("register")
         if request.POST.get("login") == "login":
             username = request.POST.get("username")
             password = request.POST.get("password")
             user = authenticate(username=username, password=password)
             if user is not None:
-                if user.is_active:
+                if user.student:
                     login(request, user)
-                    return redirect("playground")
+                    return redirect("dashboard")
                 else:
-                    return HttpResponse("you do not exist sir")
+                    return render(request, 'login.html',
+                                       {'alerts': [{"tags":"alert-error",
+                                                    "content":"This account has not yet been activated." }]} )
             else:
-                return HttpResponse("bad credentials")
+                return render(request, 'login.html',
+                                       {'alerts': [{"tags":"alert-error",
+                                                    "content":"Incorrect username or password." }]} )
     else:
-        return HttpResponse("lol")
+        return render(request, 'login.html')
 
 
 # This is the register page. If we have a POST request, we DO the register.
 def register_page(request):
-    if request.method == 'POST':
+    if request.user.is_authenticated():
+        return redirect("dashboard")
+    elif request.method == 'POST':
         return do_register(request)
     else:
-        return HttpResponse("youregister")
+        return render(request, 'login.html')
     
+
+# This is the register page. If we have a POST request, we DO the register.
+def logout_page(request):
+    if request.user.is_authenticated():
+        logout(request)
+        return render( request, "logout.html", {"alerts":[{"tags":"alert-success",
+                                                          "content":"You have successfully logged out."}]} )
+    else:
+        return redirect("login")
+    
+
 

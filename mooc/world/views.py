@@ -25,11 +25,19 @@ def get_stage(world, stage):
     except exceptions.ObjectDoesNotExist: raise Http404()
 
 
+# This displays the dashboard/world select screen.
+def view_dashboard(request):
+    try: student = Student.from_request(request)
+    except exceptions.ObjectDoesNotExist: return redirect("login")
+    
+    return render( request, 'lessons_dash.html' )
+
+
 # This displays the world map.
 # TODO Trying to figure out how to specify between text mode and graphical mode.
 def world_map(request, world):
     try: student = Student.from_request(request)
-    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    except exceptions.ObjectDoesNotExist: return redirect("login")
     
     try: world = World.objects.get(shortname=world)
     except exceptions.ObjectDoesNotExist: raise Http404()
@@ -54,7 +62,7 @@ def world_map(request, world):
 # first" or "lesson first" group.
 def view_stage(request, world, stage):
     try: student = Student.from_request(request)
-    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    except exceptions.ObjectDoesNotExist: return redirect("login")
     
     here = get_stage(world, stage)
     go = "lesson"
@@ -71,7 +79,7 @@ def view_stage(request, world, stage):
 # then we redirect to the challenge.
 def view_lesson(request, world, stage):
     try: student = Student.from_request(request)
-    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    except exceptions.ObjectDoesNotExist: return redirect("login")
     
     here = get_stage(world, stage)
     if not here.lesson:
@@ -87,7 +95,7 @@ def view_lesson(request, world, stage):
 # family we're dealing with (hard-coded).
 def view_challenge(request, world, stage):
     try: student = Student.from_request(request)
-    except exceptions.ObjectDoesNotExist: return HttpResponse("Redirect to login")
+    except exceptions.ObjectDoesNotExist: return redirect("login")
     
     here = get_stage(world, stage)
     if not here.challenge:

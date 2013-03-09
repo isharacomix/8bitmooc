@@ -18,19 +18,18 @@
                 <li class="dropdown">
                     {% if user.is_authenticated %}
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        HALLO <b class="caret"></b>
+                        Hello, {{ user.username }}! <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                         <li><a href="http://example.com">Test</a></li>
-                         <li><a href="http://example.com">Test</a></li>
+                         <li><a href="{% url 'logout' %}">Logout</a></li>
                     </ul>
                     {% else %}
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         (not logged in) <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="http://example.com">Login</a></li>
-                        <li><a href="http://example.com">Register</a></li>
+                         <li><a href="{% url 'login' %}">Login</a></li>
+                         <li><a href="{% url 'register' %}">Sign up!</a></li>
                     </ul>
                     {% endif %}
                 </li>

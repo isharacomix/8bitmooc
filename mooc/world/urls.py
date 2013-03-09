@@ -7,6 +7,7 @@ from world import views
 
 # Textbook URL pattern.
 urlpatterns = patterns('',
+    url(r'^$', views.view_dashboard, name='dashboard'),
     url(r'^(?P<world>[\w-]+)/$', views.world_map, name='world_map'),
     url(r'^(?P<world>[\w-]+)/(?P<stage>[\w-]+)/$', views.view_stage,
                                                    name='stage'),

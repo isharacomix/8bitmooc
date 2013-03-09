@@ -5,33 +5,15 @@
 {% block body %}
 
     <div class="row">
-        <div class="span12">
-            <div class="hero-unit">
-                <h1>#8bitmooc</h1>
+        <div class="span4 offset4">
+            <p>LOGIN HERE YO</p>
 
-                <p>IT IS UNDER CONSTRUCTION</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="span3">
-        {% if not user.is_authenticated %}
             <form action="{% url 'login' %}" method="POST">{% csrf_token %}
                <input class="input-block-level" type="text" placeholder="Username" name="username"></input>
                <input class="input-block-level" type="password" placeholder="Password" name="password"></input>
                <button class="btn btn-large btn-block btn-success" type="submit" name="login" value="login">Login</button>
                <button class="btn btn-large btn-block btn-primary" type="submit" name="register" value="register">Sign up!</button>
             </form>
-        {% else %}
-        <div class="well">
-        Put some hotlinks here bro
-            
-        </div>
-        {% endif %}
-        </div>
-        <div class="span9">
-            Le blog
         </div>
     </div>
 
