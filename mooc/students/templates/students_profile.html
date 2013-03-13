@@ -1,6 +1,6 @@
 {% extends "layout_base.html" %}
 {% load static %}
-{% load avatar_tags %}
+{% load gravatar %}
 
 {% block title %}{{ student.user.username }}'s Profile{% endblock title %}
 
@@ -8,7 +8,7 @@
 
     <div class="row">
         <div class="span2">
-            <img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% avatar_url student.user 128 %}">
+            <img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% gravatar_for_email student.user.email 128 %}">
         <strong>{{ profile.name }}</strong>
     </h1>
         </div>
