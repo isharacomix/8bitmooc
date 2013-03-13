@@ -1,1 +1,9 @@
+= BCS: Branch if Carry Set
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Relative         |`BCS $44`      |$B0     | 2      | 2+     |
+
+**Flags affected:** None
+
+This opcode follows the branch if the [[Carry]] Flag is set to one.
 

@@ -1,1 +1,9 @@
+= BNE: Branch if Not Equal
+
+|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
+|Relative         |`BNE $44`      |$D0     | 2      | 2+     |
+
+**Flags affected:** None
+
+This opcode follows the branch if the [[Zero]] Flag is set to one.
 
