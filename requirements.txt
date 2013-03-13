@@ -1,6 +1,7 @@
 django>=1.5
 django-bootstrap-toolkit
-django-gravatar
+django-avatar
+pil
 South>=0.7
 py-bcrypt
 pytz

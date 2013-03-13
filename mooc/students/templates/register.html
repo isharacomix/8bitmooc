@@ -1,4 +1,5 @@
 {% extends "layout_base.html" %}
+{% load bootstrap_toolkit %}
 
 {% block title %}Join the MOOC!{% endblock title %}
 
@@ -6,7 +7,21 @@
 
     <div class="row">
         <div class="span4">
-        JOIN THE MOOC FORM
+            <form action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+
+                {{ form.username|as_bootstrap }}
+
+                {{ form.email|as_bootstrap }}
+
+                {{ form.password1|as_bootstrap }}
+
+                {{ form.password2|as_bootstrap }}
+
+                <button type="submit" class="btn btn-primary">
+                    Join #8bitmooc!
+                </button>
+            </form>
         </div>
         
         <div class="span8">

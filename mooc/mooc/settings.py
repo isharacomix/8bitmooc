@@ -109,7 +109,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     # Dependencies
     'south',
-    'gravatar',
+    'avatar',
     'bootstrap_toolkit',
     # My Apps
     'mooc',

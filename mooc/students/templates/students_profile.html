@@ -1,5 +1,6 @@
 {% extends "layout_base.html" %}
 {% load static %}
+{% load avatar_tags %}
 
 {% block title %}{{ student.user.username }}'s Profile{% endblock title %}
 
@@ -7,7 +8,9 @@
 
     <div class="row">
         <div class="span2">
-            PUT MAH PROFILE PICTUER HERE!
+            <img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% avatar_url student.user 128 %}">
+        <strong>{{ profile.name }}</strong>
+    </h1>
         </div>
         
         <div class="span10">
