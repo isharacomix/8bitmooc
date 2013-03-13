@@ -44,9 +44,13 @@ def do_playground(request):
     
     # Either run the game in the browser or download it.
     request.session["rom"] = rom
+    alerts = []
+    for e in errors:
+        alerts.append( {"tags":"alert-error",
+                        "content":e} )
     if "run" in request.POST or len(errors)>0:
         return render( request, "assembler_playground.html", {"source_code": request.POST["code"],
-                                                              "errors": errors})
+                                                              "alerts": alerts})
     else:
         return get_rom(request)
 

@@ -225,6 +225,7 @@ class Assembler(object):
                 if index == len(banks):
                     banks.append(Bank(start))
                 b = banks[index]
+            elif op == '.define': pass
             elif op == '.inesprg':
                 try: self.inesprg = int(arg)
                 except ValueError: self.err("Need a decimal integer")
