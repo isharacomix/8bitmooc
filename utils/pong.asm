@@ -94,9 +94,8 @@ gamestart:                              ;
         STY PADDLE_2Y
         STX BALL_X                      ;
         STY BALL_Y                      ;
-        LDA #2                          ;
-        STA BALL_DX                     ;
         LDA #1                          ;
+        STA BALL_DX                     ;
         STA BALL_DY                     ;
 forever:                                ; Infinite loop - we do all of our
         JMP forever                     ;   logic during NMI.
@@ -205,6 +204,58 @@ ai:                                     ;
 ; Errors        : N/A
 ;----------------------------------------
 collisions:                             ;
+        CPY #$E0
+        BCS hitbottom-*
+        CPY #$08
+        BCC hitbottom-*
+        JMP checksides
+hitbottom:
+        LDA BALL_DY
+        EOR #$FF
+        STA BALL_DY
+        INC BALL_DY
+checksides:
+        TYA
+        CPX #$2
+        BCC crossleft-*
+        CPX #$FD
+        BCS crossright-*
+        CPX #24
+        BEQ leftpaddle-*
+        CPX #222
+        BEQ rightpaddle-*
+        JMP endcollisions
+leftpaddle:
+        SEC
+        SBC PADDLE_1Y
+        ADC #8
+        CMP #40
+        BCC flipflop-*
+        JMP endcollisions
+rightpaddle:
+        SEC
+        SBC PADDLE_2Y
+        ADC #8
+        CMP #40
+        BCC flipflop-*
+        JMP endcollisions
+crossleft:
+        INC P2_SCORE
+        LDX #100                        ; DEBUG: Starting position of the ball
+        LDY #120
+        STX BALL_X
+        JMP flipflop
+crossright:
+        INC P1_SCORE
+        LDX #100                        ; DEBUG: Starting position of the ball
+        LDY #120
+        STX BALL_X
+flipflop:
+        LDA BALL_DX
+        EOR #$FF
+        STA BALL_DX
+        INC BALL_DX
+endcollisions:
         RTS                             ;
 ;----------------------------------------
 ;
