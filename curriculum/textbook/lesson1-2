@@ -1,0 +1,144 @@
+= Lesson 1-2: How computers see numbers
+If you know anything about computers, you are probably aware that computers
+treat everything from music to cat videos in terms of ones and zeroes: **binary**.
+Before we can even talk about computers, we need to talk about how they interpret
+numbers, how to represent them, and the terminology associated with certain parts
+of numbers.
+
+== Learning Objectives
+When you can...
+ * Define **binary**, **decimal**, and **hexadecimal**
+ * Define **bit**, **byte**, **nibble**, and **word**
+ * Convert between binary, decimal, and hexadecimal numbers
+... you have successfully completed this lesson.
+
+== Bits, Bytes, and Words - oh my!
+Unlike the number system used by most of the world (the "decimal" or "base-ten"
+system), computers see everything as combinations of **bi**nary dig**its**, or
+**bits**. A bit is - simply put - a one or a zero.
+
+Bits, by themselves, aren't very interesting, since they can only store two
+values. However, just like in a decimal counting system, we can string them
+together to create larger numbers - in fact, any integer that can be represented
+in decimal can also be represented in binary. It just takes a few more digits.
+
+{{{
+Counting in Binary...
+       0   Zero
+       1   One
+      10   Two
+      11   Three
+     100   Four
+     101   Five
+     110   Six
+     111   Seven
+    1000   Eight
+11111111   Two Hundred and Fifty-Five
+}}}
+
+In computing, a //byte// is a unit of measure made up of eight //bits//. Because
+there are 256 different ways to arrange the ones and zeroes in a byte, a byte can
+be used to represent the numbers 0 to 255. Historically, the term byte meant
+"however many bits it takes to represent a letter", but today, all major
+computing platforms have adopted the byte-size of eight bits.
+
+A //word//, on the other hand, is a unit of measure that usually contains more
+than one byte. The number of a bytes in a word is defined by the manufacturer
+of the machine - in the case of the NES, and for our purposes, a word is two
+bytes (16 bits).
+
+== Converting from Binary to Decimal and back
+To convert from binary (base two) to decimal (base ten), it takes a little work.
+As you may remember from your classes in primary school, each digit in a number
+has a place (ones place, tens place, hundreds place, etc):
+
+{{{
+            146
+            ||ones      6*1
+            |tens      +4*10
+            hundreds   +1*100
+                     =146
+}}}
+
+When you reach the highest value that can be held by a place, you add one to the
+next highest place and start it over at 0. If you look back at when we were
+counting up in binary earlier, you can see how that happens. To convert a number
+from binary to decimal, you simply add up the places where there happens to be
+a one.
+
+{{{
+           1101
+           |||ones     1*1
+           ||twos     +0*2
+           |fours     +1*4
+           eights     +1*8
+                     =13
+}}}
+
+How did we get those values?
+
+{{{
+           100                   100
+           ||ones    10^0        ||ones  2^0
+           |tens     10^1        |twos   2^1
+           hundreds  10^2        fours   2^2
+}}}
+
+Converting from binary to decimal is easy, but going back requires a bit of
+division.
+
+== Hexadecimal Shorthand
+Binary numbers, because they express the least information possible in each
+digit, end up taking a lot of digits to express their value. Hexadecimal (base
+16) is often used as a shorthand for express binary. It works as a shorthand
+because - unlike decimal - it is a power of two, and does not require any
+multiplication or division for translation. All you have to do is translate four
+bits at a time.
+
+{{{
+      0000 -> 0     1000 -> 8
+      0001 -> 1     1001 -> 9
+      0010 -> 2     1010 -> A
+      0011 -> 3     1011 -> B       11000101
+      0100 -> 4     1100 -> C      becomes C5
+      0101 -> 5     1101 -> D
+      0110 -> 6     1110 -> E
+      0111 -> 7     1111 -> F
+}}}
+
+== How to represent numbers
+If we show you the number `100`, how do you know whether that's 100 in base ten,
+4 in binary, or 256 in hex? Well, you don't - we have to have some way of
+differentiating between them.
+
+{{{
+        1000       Decimal
+        %1000      Binary
+        $1000      Hex
+        0b1000     Binary
+        0x1000     Hex
+}}}
+
+There is no difference between using percent and dollarsign versus using b and x,
+the b and x approach may seem familiar if you're coming from a higher level
+language, but the other approach is very common in the assembly programming world,
+and as it is the traditional notation in other tutorials, we are trying to stay
+consistent in this one.
+
+== Wrapping up
+This is the most boring part of any course in computing, since the last thing
+you want to do is math. However, part of why this part of the course is so
+important is because I need to be able to refer to things by the terms 'bits',
+'bytes', and 'words' without confusing you. Furthermore, when you see the
+dollar signs and percent signs in code samples from here on out, I want it to
+be clear what that means. We will revisit this topic multiple times throughout
+the course, so if you don't entirely get it now, let it sink in for a bit and
+come back to it later.
+
+=== Key terms from this lesson
+  * Bit
+  * Byte
+  * Word
+  * Decimal
+  * Binary
+  * Hex

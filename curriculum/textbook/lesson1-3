@@ -1,0 +1,158 @@
+= Lesson 1-3: Assemblers, ROMs, and Emulators
+Now that we understand bytes, bits and binary, it's time to write our first
+program. While it doesn't come as any surprise that computers represent all
+numbers in terms of ones and zeroes, something that isn't as immediately
+obvious is that it represents everything in terms of numbers - meaning that
+everything from music to cat videos are represented as sequences of ones and
+zeroes.
+
+Programs are represented in binary as well. Programming is the process of
+writing something in a human-readable language and compiling it to a machine
+readable binary language that can be executed by a computer. This lesson will
+explain the process of assembly, and introduce you to the environment we will
+be programming in for the rest of this course.
+
+== Learning Objectives
+When you can...
+ * Define the terms **assembler** and **emulator**
+ * Explain how an assembler translates assembly language into binary
+ * Load a ROM Image into an Emulator
+... you have successfully completed this lesson.
+
+== Assembly Language
+The CPU (Central Processing Unit, or just the //processor//) is the part of a
+computer that reads binary and then performs actions based on the values that
+it reads. However, because it is very difficult for people to program directly
+in binary, a very simple language exists to allow humans to use short, human-readable
+strings - called //opcodes// - and then have an program called an //assembler//
+translate those directly into the machine's language.
+
+Here's an example of a program written for the NES's 6502 processor:
+
+{{{
+start:
+    LDA #16         ; Load 16 into the 'A' register
+    ADC #26         ; Add 26 to the 'A' register
+    CMP #42         ; Compare the A register to the Answer
+    BEQ 3           ; If the answer is correct, skip the next line
+    LDA #0          ; Set the 'A' register back to zero
+    ADC #9          ; Add 9 to the 'A' register
+}}}
+
+Our assembler takes the program above and converts it to the following binary
+code.
+
+{{{
+    10101101 00010000 00000000
+    01101101 00011000 00000000
+    11001101 00101010 00000000
+    11110000 00000011
+    10101101 00000000 00000000
+    01101101 00001001 00000000
+}}}
+
+Before we start trying to make sense of that, let's look at the anatomy of an
+assembly program.
+
+{{{
+start:  <-- This is a "label"
+    LDA #16         ; Load 16 into the 'A' register
+    ADC #26         ; Add 26 to the 'A' register
+    CMP #42         ; Compare the A register to the Answer
+    BEQ 3           ; If the answer is correct, skip the next line
+    LDA #0          ; Set the 'A' register back to zero
+    ADC #9          ; Add 9 to the 'A' register
+     ^   ^                                   ^
+     |   |                                   |
+     | These numbers are "arguments"       Text after semicolons are "comments"
+ These three letter strings are "opcodes"
+}}}
+
+An assembly program is made up of multiple lines of code, and each line has
+the exact same structure. A label (optional), an opcode (optional), an argument
+(required if the opcode needs an argument), and a comment (optional). As you can
+see, you can have either all or none of these elements and still have a valid
+line of code.
+
+{{{
+    label:  OPC argument   ; comment
+}}}
+
+Each line of code that contains an opcode will be assembled into one, two, or
+three bytes of data. The first byte of data represents the opcode that was
+used, while the rest of the bytes represent the argument. If you remember
+translating between decimal and binary, you'll see that the decimal numbers
+after each opcode in the example program are the same as the second byte in
+the binary output.
+
+You aren't expected to know why or how these numbers mean anything yet. We'll
+look at that in later lessons. Right now, the most important part to get is to
+understand that assembly language allows you to write what is essentially
+directly translatable to binary.
+
+== Emulators
+One of the trickiest things about assembly language is that each assembly
+language is unique to each processor. For example, the programs you write in
+this class for the 6502 can not be run on an x86 (most laptops and desktops)
+or an ARM (most smartphones and tablets) processor. However, there are programs
+we can use to try out these programs called //emulators//. An emulator is a
+computer program that simulates a computer and then accepts programs as if it
+were a real, physical device, even going so far as to simulate controllers,
+sound, and graphics of the device.
+
+Older gaming consoles used games printed on circuit boards in plastic cartridges
+as their input, and we refer to virtual such cartridges as ROMs (which stands for
+read-only memory, as the game code was often fixed and could not be easily
+changed after printing).
+
+For this class, we will be writing programs and developing ROMs for the Nintendo
+Entertainment System. If you go to the "Challenge" tab of this page, you'll see
+a page with an input field on the left and a black square on the right. The
+black square is an NES emulator written in JavaScript that will be used for most
+of the work in this class. Whenever you click the Assemble button, the source
+code in the left side of the screen will be assembled, converted to binary,
+saved to a virtual ROM, and loaded into the emulator.
+
+If you have a slower browser, or are trying to participate in this course on
+a mobile device, you may not be able to use the web-based emulator. In that case,
+you may also download the ROMs to use them on your own emulator. On a Computer,
+our preferred emulator is //Mednafen//. On mobile devices, I've generally liked
+//John's NES Emulator//. In this case, rather than clicking the "assemble" button,
+click the "download" button, which will assemble the program and (assuming there
+are no errors) allow you to save the ROM to your computer/mobile device.
+
+=== Legal issues with emulation
+Because older game consoles were created before the heydey of easy software
+distribution, they were often not outfitted with the highest quality copy-protection
+mechanisms, meaning that when technology advanced, it became trivial to take
+the very small ROMs for platforms like the Atari, NES, and Sega Genesis and
+distribute them to be played in the emulators developed for these platforms.
+
+While there are interesting ethical questions on this topic that we will raise
+later in this course, for now, it is reasonable to say that emulation of such
+platforms is legal even if the distribution and play of copyright ROMs is
+unlawful. However, because this course is built with the intention of creating
+wholly new games, there are no legal issues when it comes to developing games
+for this platform.
+
+== Wrapping up
+This lesson serves as a high-level introduction to the idea of what's happening
+whenever you go to the challenges and run your code. If you haven't already,
+try assembling the code and playing with the game. As you can see, the game
+isn't complete, but as you complete the lessons and challenges in world 1,
+eventually it will be.
+
+This course is built on the philosophy that you will learn more by playing with
+the code than reading these lessons, so the goal for us is to get you compiling
+code as quickly as possible so that you can start seeing how your actions cause
+changes in the emulator.
+
+=== Key terms from this lesson
+ * Opcode
+ * Label
+ * Assembly
+ * Comment
+ * Assembler
+ * Emulator
+ * Argument
+
