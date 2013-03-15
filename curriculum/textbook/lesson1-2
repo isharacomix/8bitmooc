@@ -87,6 +87,19 @@ How did we get those values?
 Converting from binary to decimal is easy, but going back requires a bit of
 division.
 
+{{{
+            243         div by 128 = 1; rem 115 
+            115         div by 64 = 1; rem 51
+             51         div by 32 = 1; rem 19
+             19         div by 16 = 1; rem 3
+              3         div by 8 = 0; rem 3
+              3         div by 4 = 0; rem 3
+              3         div by 2 = 1; rem 1
+              1         div by 1 = 1; rem 0
+              
+              243 = 11110011 in binary
+}}}
+
 == Hexadecimal Shorthand
 Binary numbers, because they express the least information possible in each
 digit, end up taking a lot of digits to express their value. Hexadecimal (base
