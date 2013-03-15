@@ -1,0 +1,130 @@
+= Lesson 1-4: Registers and Memory
+Let's dive right into some assembly! One of the most elementary yet most
+important things you do when writing a program is read and write data from
+memory.
+
+== Learning Objectives
+When you can...
+ * Define the term **register** and **memory**
+ * Write a program that moves data between registers and memory
+... you have successfully completed this lesson.
+
+== What is memory?
+Do you know how much RAM your computer has? Most modern computers have between
+two and four gigabytes, and if you've ever upgraded the RAM in your machine,
+you probably noticed that you're able to run more programs more quickly at the
+same time.
+
+//RAM// stands for //Random-Access Memory//, and is a bit like a scratchpad
+that a program can be used to keep notes for later reference. Data that is
+frequently used by a program, such as a player's score or position on the screen,
+are stored in memory where it can easily be read and periodically updated.
+
+Fast memory is not cheap, and cheap memory is not fast.
+
+Memory is different from //storage//. You may have a 300 GB hard drive, but
+that's not considered memory 
+
+
+== What is a register?
+Memory comes at one major disadvantage, in that it is relatively slow to work
+with. The processor can only access one byte in memory at a time, meaning that
+it's not possible for it to work with two values in memory at the same time.
+
+The 6502 has three registers, named A, X, and Y. The A register is a special
+register called the //accumulator//, and it is the only register that can be
+used for mathematical operations.
+
+(a video showing sticky notes and math operations would be very interesting)
+
+== Looking at some code
+{{{
+        LDA $20     ; Load the value stored at the $20th memory
+                    ; location into the accumulator
+        STA $300    ; Store the value in the accumuator in the
+                    ; $300th memory location
+}}}
+
+The `LDA` opcode takes a value and stores it into the A register. This code will
+take whatever value is in the byte of memory at address $100 and then store it
+in the A register. The `STA` opcode goes in reverse by putting the value in a
+different memory location. There are also `LDX`, `LDY`, `STX`, and `STY` for the
+X and Y registers.
+
+Why don't we just move the memory from $100 to $200? Many processors, including
+the 6502, do not have the ability to directly move one byte in memory to another.
+The memory can only be in one mode at a time: read mode or write mode.
+Therefore, in order to move memory, we put the memory in Read mode, save it to
+our register temporarily, and then set it into write mode so we can put it
+somewhere else.
+
+What if we didn't want to set the A register to the value at the $10th memory
+location? What if we actually wanted to set the A register to $10? The way to
+do that is by changing the addressing mode.
+
+{{{
+        LDA #$20    ; Load the value '$20' into the accumulator
+        STA $300    ; Store the value in the accumuator in the
+                    ; $300th memory location
+}}}
+
+The '#' character in front of the memory address tells the assembler that instead
+of getting the value from that memory address, actually get //that value itself//.
+
+== Addressing Modes
+The addressing mode is how the opcode interprets the argument that follows it.
+
+{{{
+        OPC $100    ; Absolute - access the value at this memory location
+        OPC #$10    ; Immediate - use this literal value
+        OPC $100,X  ; Absolute Offset - access the value at the memory location
+                    ;                   by adding the value in the X register to
+                    ;                   the specified address
+        OPC $100,Y  ; Absolute Offset - same as above, with the Y register
+        OPC $10     ; Zero Page - like absolute, but a special addressing mode
+                    ;             for memory locations between $00 and $FF 
+}}}
+
+Not all opcodes support all addressing modes. For example, `STA #$100` doesn't
+make any sense, since you need to specify an actual memory address to store
+the value.
+
+== Pages of Memory
+The NES has 2 KB (2024, or $800 bytes of memory). The memory is divided into
+eight pages of 256 ($100) bytes each. While you can read and write to any of
+the pages of memory, the first two pages are special.
+
+The zero page makes up the memory at locations from $00 to $FF, and it's since it
+has its own addressing mode, it must be pretty special. While most memory
+addresses require an entire word to represent the memory address location, addresses
+in the zero page only need a byte, which means that when they are compiled, the
+opcode and address only take up two bytes rather than three, which makes programs
+that utilize the zero page both smaller and faster, which adds up when doing lots
+of operations.
+
+The first page, from $100 to $1FF, is another special page of memory referred to
+as the [[stack]]. We'll discuss the stack later, but for now, it's probably a
+good idea never to read or write data to and from the stack.
+
+The rest of the memory, from $200 to $7FF, is program memory that you can use
+for whatever you like - the player's score, their health, number of lives, etc.
+Ideally, each memory address will be used for one purpose, that way you can keep
+track of what goes at $201, $202... etc. The zero page is often used as an extra
+set of "registers", since they are faster to access than other locations in memory,
+and usually fill the role of the scratchpad we discussed earlier.
+
+You may wonder if there's anything at memory addresses greater than $800, and
+there are. We'll discuss those when we get to our section on the [[memory map]].
+
+== Wrapping Up
+
+=== Key terms from this lesson
+ * Register
+ * Memory
+ * Addressing Mode
+ * Zero Page
+
+(Assignment)
+The score for this game of pong is stored at memory locations $206 (player 1)
+and $207 (player 2). To complete this challenge, set the score to 7 and 5.
+

@@ -1,0 +1,96 @@
+= Lesson 1-6: Arithmetic
+Simply reading and writing values to storage isn't particularly interesting.
+We want to be able to manipulate the values in our registers, not just move
+them around. While addition and subtraction isn't necessarily the most exciting
+thing in the world, you can still do some pretty cool things with it - most
+importantly - we can finish the game of Pong.
+
+== Learning Objectives
+When you can...
+ * Define the **carry flag**
+ * Write a program that adds and subtracts from the A register
+... you have successfully completed this lesson.
+
+== The Accumulator
+The reason why the accumulator has its name is because it accumulates the
+result of arithmetic. In the 6502, the only register that can be used for
+mathematical operations is the A register. If you want to be able to do math
+on values in other registers, you can use the `TXA` and `TYA` opcodes to transfer
+values to the A register, and then `TAX` and `TAY` to put them back.
+
+== Addition
+The addition opcode in the 6502 is `ADC`, which stands for "ADd with Carry".
+ADC takes the argument and adds it to the accumulator, overwriting the value in
+the accumulator with the sum of the addition.
+
+{{{
+        LDA #$5     ; Store the literal value $5 in the accumulator
+        ADC #$4     ; Add the literal value $4 to the accumulator
+        STA $1      ; Store the result ($9) in memory location 1.
+}}}
+
+`ADC` has the same addressing modes as `LDA`, meaning that if you want to add
+a literal value, prefix the value with the "#" sign. By using absolute or zero
+page mode, you can read a value from memory and add it directly to the A register.
+
+Now let's talk about this carry business. When doing addition, surely you're
+familiar with the idea of "carrying the one".
+
+{{{
+Carry:  1          1  1  1
+        45          10011010
+       +86         +11010011
+       ---         ---------
+       131         101101101
+}}}
+
+When doing addition on paper, if you need an extra digit, you can just make on.
+However, a byte is limited to 8 bits, and if you run out of space, that last
+one has to go somewhere. That's what we call the Carry Flag. The Carry Flag is
+a one-bit flag on the processor that is set whenever you do any addition, and
+it holds a 0 whenever addition did not require a carry, and one when it does
+require a carry. If the carry flag is equal to 1 whenever you run ADC, an
+additional 1 will be added to the total (representing adding the carry).
+
+This means whenever you decide to use `ADC`, you need to make sure the carry flag
+is set to zero. You can do this with the `CLC` (CLear Carry) command.
+
+== Subtraction
+In addition to Add with Carry, the 6502 also gives us an `SBC` (SuBtract with Carry)
+operation. With the SBC, rather than starting out with an empty carry flag and
+allowing the carry flag to tell you where there was an overflow, the `SBC` command
+requires you to start with a full carry flag. Before using the `SBC` opcode,
+be sure to run the `SEC` (SEt Carry) command. If the carry flag is clear when
+subtraction takes place, then an additional 1 will be subtracted from the
+result.
+
+One question that may be lingering in your mind is how negative numbers are
+represented in binary - we'll get to that in a later lesson.
+
+== Wrapping Up
+
+=== Key terms from this lesson
+ * Carry Flag
+
+(challenge)
+The player's paddle is on the left and the computer's paddle is on the right.
+We are going to implement an extremely naive AI where the computer's paddle
+simply moves up by two steps each time the screen refreshes. The computer's
+paddle location is stored at memory address $205. Subtract two from the paddle
+position.
+
+Extra challenge: Use ADC instead of SBC.
+Extra challenge 2: Do not use ADC or SBC.
+
+
+(boss challenge)
+It's time to finish Pong. The entire program has been written except for the
+code that makes the ball move.
+
+The ball's position is stored in $200 and $201 (X and Y respectively). The speed
+of the ball is in the X and Y registers. Write a program that saves the ball's
+new position based on the speed in the registers. The instructor's solution
+takes 10 lines of code.
+
+Extra challenge: Optimize the program without using LDA.
+
