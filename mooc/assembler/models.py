@@ -19,7 +19,10 @@ class AssemblyChallenge(BaseChallenge):
 # If the challenge variable is null, that means that the challenge was submitted
 # on the playground.
 # There's no reason to worry about saving the compiled ROMs, since those can
-# be assembled on the fly (and it's safe, since we've got a two-pass assembler).
+# be assembled on the fly (and it's safe, since we've got a tw-pass assembler).
+# A student can retrieve the newest version of any submission by referring to
+# its name in the library, and if it's marked public, it appears on their
+# profile page and anyone can see it as well.
 class AssemblyChallengeResponse(models.Model):
     challenge = models.ForeignKey(AssemblyChallenge, verbose_name="challenge",
                                   blank=True, null=True)
@@ -27,7 +30,12 @@ class AssemblyChallengeResponse(models.Model):
                                   null=True)
     code      = models.TextField("code", blank=True)
     timestamp = models.DateTimeField("timestamp", auto_now=True)
-        
+    public    = models.BooleanField("public", default=False)
+    name      = models.SlugField("name", blank=True, null=True)
+    
+    class Meta:
+        ordering = ('timestamp',)
+    
     def __unicode__(self):
         return u'AssemblyResponse %d from %s'%(self.id,self.student.username)
 

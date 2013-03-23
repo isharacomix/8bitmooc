@@ -6,6 +6,8 @@ from students.models import Student
 
 from assembler.asm import Assembler
 
+from assembler.models import AssemblyChallengeResponse
+
 # This test class tests the assembler's various functionalities. This isn't
 # nearly as rigorous as actually verifying the output of an assembly program,
 # but you know... baby steps.
@@ -129,3 +131,49 @@ class TestAssembler(TestCase):
         self.assertEquals( self.A.parsenum("fake"), 0 )
         self.assertEquals( self.A.errors[0], "[Unknown label: 'fake'] ")
         
+        
+# This tests the playground's functionality, such as library code and the like.
+class TestPlayground(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.u1 = User.objects.create_user("ishara",
+                                           "ishara@isharacomix.org",
+                                           "ishararulz")
+        self.s1 = Student( user=self.u1 )
+        self.s1.save()
+        self.ishara = self.s1
+        
+        ACR1 = AssemblyChallengeResponse()
+        ACR1.student = self.ishara
+        ACR1.code = ";Version 1"
+        ACR1.name = "bagels"
+        ACR1.public = True
+        ACR1.save()
+        ACR2 = AssemblyChallengeResponse()
+        ACR2.student = self.ishara
+        ACR2.code = ";Version 2"
+        ACR2.name = "bagels"
+        ACR2.save()
+    
+    # Test to make sure the playground renders.
+    def test_playground_works(self):
+        response = self.c.get('/playground/')
+        self.assertEqual(response.status_code, 200)
+    
+    # Test the library code. We get version 1 if Ishara is not logged in and
+    # version 2 if he is.
+    def test_library_privacy(self):
+        response = self.c.get('/library/ishara/bagels/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(";Version 1" in response.content)
+        self.c.login(username="ishara", password="ishararulz")
+        response = self.c.get('/library/ishara/bagels/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(";Version 2" in response.content)
+
+    # Test and make sure missing programs still load OK.
+    def test_library_privacy(self):
+        response = self.c.get('/library/ishara/fakebagels/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("No such game was found in the library" in response.content)
+    
