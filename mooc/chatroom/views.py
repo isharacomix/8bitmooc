@@ -11,6 +11,8 @@ from chatroom.models import Chat
 from students.models import Student
 from world.models import World
 
+from gravatar.templatetags import gravatar
+
 import json
 
 
@@ -32,17 +34,19 @@ def do_chat(request):
         log['state'] = len(lines) 
     elif function == "update":
         state = int(request.POST.get("state"))
-        lines = list(Chat.objects.filter(channel=world))
+        lines = list(Chat.objects.filter(channel=world).reverse())
+        
         count = len(lines)
         if state == count:
             log['state'] = state
-            log['text'] = False
+            log['messages'] = False
         else:
-            text = []
+            messages = []
             log['state'] = state + count - state
             for l in lines:
-                text.append(l.content)
-            log['text'] = text
+                gimg = gravatar.gravatar_img_for_user(l.author, size=32)
+                messages.append([l.author.username, gimg, l.content, str(l.timestamp)])
+            log['messages'] =  messages
     elif function == "send": 
         message = request.POST.get("message")
         if message != "":

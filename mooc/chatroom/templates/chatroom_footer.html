@@ -2,17 +2,19 @@
 
     <script src="{% static 'js/chatroom.js' %}" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
-
-    // set the refresh rate for the chat room.
-  setInterval('chat.update()', 30000)
   
   // Create the chat room and set the channel based on the open world.
-  var chat =  new Chat();
   var channel = "{{ world.shortname }}";
+  var chat =  new Chat();
+
+    // set the refresh rate for the chat room.
+     state = 0;
+     instanse = false;
+     chat.update();
+     setInterval(function(){chat.update();}, 30000);
 
   $(function() {
   
-     chat.getState(); 
      
      // watch textarea for key presses
      $("#inputspace").keydown(function(event) {  

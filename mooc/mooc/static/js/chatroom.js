@@ -5,7 +5,6 @@ var mes;
 function Chat () {
     this.update = updateChat;
     this.send = sendChat;
-    this.getState = getStateOfChat;
 }
 
 
@@ -55,20 +54,6 @@ $.ajaxSetup({
 });
 
 
-// This returns the current number of strings on the server.
-function getStateOfChat() {
-	if(!instanse){
-		instanse = true;
-		$.ajax({
-			type: "POST",
-			url: "/chat/",
-			data: {'function': 'getState', 'channel': channel},
-			dataType: "json",	
-			success: function(data) {state = data.state;instanse = false;}
-		});
-	}	
-}
-
 // This draws those values
 function updateChat() {
 	if(!instanse){
@@ -79,10 +64,10 @@ function updateChat() {
 			data: {'function': 'update','state': state,'channel': channel},
 			dataType: "json",
 			success: function(data) {
-				if(data.text){
+				if(data.messages){
 				    $('#chat-area').html("");
-					for (var i = 0; i < data.text.length; i++) {
-						$('#chat-area').append(data.text[i] +"<br />");
+					for (var i = 0; i < data.messages.length; i++) {
+						$('#chat-area').append("<div class=\"media\"><a class=\"pull-left\" href=\"/~"+data.messages[i][0]+"\">"+data.messages[i][1]+"</a><p><strong>"+data.messages[i][0]+": </strong> "+data.messages[i][2] +"</p></div>");
 					}	
 				}
 				document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
@@ -90,9 +75,6 @@ function updateChat() {
 				state = data.state;
 			}
 		});
-	}
-	else {
-		setTimeout(updateChat, 1500);
 	}
 }
 
@@ -109,4 +91,5 @@ function sendChat(message, nickname) {
 		}
 	});
 }
+
 
