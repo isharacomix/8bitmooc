@@ -30,7 +30,10 @@ def view_dashboard(request):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
-    return render( request, 'lessons_dash.html' )
+    # TODO - filter out worlds that the user should not be able to see yet.
+    worlds = World.objects.all()
+    
+    return render( request, 'lessons_dash.html', { "worlds": worlds } )
 
 
 # This displays the world map.

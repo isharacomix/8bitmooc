@@ -9,7 +9,21 @@
     <div class="row">
       <div class="span12">
         <div class="well">
-            Put all of hte courses in a carousel.
+            <ul class="thumbnails">
+            
+            {% for w in worlds %}
+                <li class="span2">
+                <div class="thumbnail">
+                <a href="{% url 'world_map' world=w.shortname %}" class="thumbnail">
+                <img src="{% get_static_prefix %}img/{{w.graphic}}.png" alt="">
+                </a>
+                <h4>{{ w.name }}</h4>
+                <p>Completion status</p>
+                </div>
+                </li>
+            {% endfor %}
+                
+            </ul>
         </div>
       </div>  
     </div>
