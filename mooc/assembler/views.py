@@ -41,6 +41,14 @@ def do_playground(request):
     try: ACR.student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: pass
     ACR.code = code
+    ACR.name = "untitled"
+    if "name" in request.POST:
+        ACR.name = ""
+        for c in request.POST["name"][:40].lower():
+            if c in "abcdefghijklmnopqrstuvwxyz0123456789-_":
+                ACR.name += c
+    if "public" in request.POST and request.POST["public"]=="True":
+        ACR.public = True
     ACR.save()
     
     # Either run the game in the browser or download it.
@@ -50,7 +58,8 @@ def do_playground(request):
         alerts.append( {"tags":"alert-error",
                         "content":e} )
     if "run" in request.POST or len(errors)>0:
-        return render( request, "assembler_playground.html", {"source_code": code,
+        return render( request, "assembler_playground.html", {"name": ACR.name,
+                                                              "source_code": code,
                                                               "alerts": alerts})
     else:
         return get_rom(request)
@@ -93,14 +102,15 @@ def get_library_game(request, username, gamename):
     for e in errors:
         alerts.append( {"tags":"alert-error",
                         "content":e} )
-    return render( request, "assembler_playground.html", {"source_code": code,
+    return render( request, "assembler_playground.html", {"name":gamename,
+                                                          "source_code": code,
                                                           "alerts": alerts})
 
 
 # The get_rom view simply returns the current ROM that is in the session
 # variables.
 def get_rom(request):
-    if "rom" in request.session:
+    if "rom" in request.session and request.session["rom"] != "":
         response = HttpResponse(request.session["rom"], content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename="rom.nes"'
         return response 

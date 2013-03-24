@@ -2867,7 +2867,6 @@ JSNES.Mappers[1].prototype.getRegNumber = function(address) {
 
 JSNES.Mappers[1].prototype.loadROM = function(rom) {
     if (!this.nes.rom.valid) {
-        alert("MMC1: Invalid ROM! Unable to load.");
         return;
     }
 
@@ -2948,7 +2947,6 @@ JSNES.Mappers[2].prototype.write = function(address, value) {
 
 JSNES.Mappers[2].prototype.loadROM = function(rom) {
     if (!this.nes.rom.valid) {
-        alert("UNROM: Invalid ROM! Unable to load.");
         return;
     }
 
@@ -3178,7 +3176,6 @@ JSNES.Mappers[4].prototype.executeCommand = function(cmd, arg) {
 
 JSNES.Mappers[4].prototype.loadROM = function(rom) {
     if (!this.nes.rom.valid) {
-        alert("MMC3: Invalid ROM! Unable to load.");
         return;
     }
 
@@ -5634,7 +5631,6 @@ JSNES.PPU.prototype = {
                 this.writeMem(this.vramMirrorTable[address],value);
             }else {
                 // FIXME
-                alert("Invalid VRAM address: "+address.toString(16));
             }
             
         }

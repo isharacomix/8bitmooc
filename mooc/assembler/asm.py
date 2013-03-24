@@ -335,6 +335,7 @@ class Assembler(object):
         
         # If there are any errors, nothing is assembled.
         if len(self.errors) > 0: return "", self.errors
+        if len(banks) == 0: return "", self.errors
 
         # Otherwise, put it all together and see what we get!
         romstring = ""
