@@ -116,7 +116,10 @@ class Stage(models.Model):
                             help_text="The wiki page with this lesson's lesson.")
     challenge   = models.ForeignKey(BaseChallenge, verbose_name="challenge", blank=True,
                             null=True, help_text="The challenge for this lesson.")
-    prereqs     = models.ManyToManyField("Stage", blank=True,
+    prereqs1    = models.ManyToManyField("Stage", blank=True,
+                            help_text="If any of the prereqs have been completed,"+
+                                      " then the lesson is considered open.")
+    prereqs2    = models.ManyToManyField("Achievement", blank=True,
                             help_text="If any of the prereqs have been completed,"+
                                       " then the lesson is considered open.")
     world       = models.ForeignKey(World, verbose_name="world",
@@ -124,14 +127,8 @@ class Stage(models.Model):
     hidden      = models.BooleanField("hidden", default=False,
                         help_text="If this is set, then the student can only "+
                                   " see the lesson when they have the prereqs.")
-    reward      = models.ForeignKey(Achievement, verbose_name="reward",
-                            null=True, blank=True,
-                            help_text="Which Achievement is awarded for completing "+
-                                      "this lesson?")
     
     # These represent how the lesson appears on the World Map (location, glyph)
-    xlocation   = models.IntegerField("X", help_text="X location on the map.")
-    ylocation   = models.IntegerField("Y", help_text="Y location on the map.")
     graphic     = models.SlugField("graphic",
                             help_text="Filename of the glyph in the Lesson "+
                                       "img directory.")

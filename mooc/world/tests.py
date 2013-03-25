@@ -46,29 +46,23 @@ class LessonTests(TestCase):
                          lesson = self.t2,
                          challenge = self.Q,
                          world = self.W,
-                         xlocation = 1,
-                         ylocation = 1,
                          graphic = "foo")
         self.l2 = Stage( name = "Fun Level 2",
                          shortname = "2",
                          lesson = self.t2,
                          world = self.W,
-                         xlocation = 1,
-                         ylocation = 1,
                          graphic = "foo")
         self.l3 = Stage( name = "Fun Level 3",
                          shortname = "3",
                          challenge = self.Q,
                          world = self.W,
-                         xlocation = 1,
-                         ylocation = 1,
                          graphic = "foo",
                          hidden = True)
         self.l1.save()
         self.l2.save()
         self.l3.save()
-        self.l2.prereqs.add(self.l1)
-        self.l3.prereqs.add(self.l1)
+        self.l2.prereqs1.add(self.l1)
+        self.l3.prereqs1.add(self.l1)
         self.l2.save()
         self.l3.save()
         

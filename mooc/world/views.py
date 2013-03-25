@@ -25,6 +25,25 @@ def get_stage(world, stage):
     except exceptions.ObjectDoesNotExist: raise Http404()
 
 
+# This returns True when the specified student is allowed to be in the specified
+# stage.
+def is_open(student, stage):
+    if stage.world.prereq and student not in stage.world.prereq.awarded_to.all():
+        return False
+    completed = student.stage_set.all()
+    achievements = student.achievement_set.all()
+    prereqs1 = stage.prereqs1.all()
+    prereqs2 = stage.prereqs2.all()
+    if len(prereqs1)+len(prereqs2) == 0: return True
+    for p in prereqs1:
+        if p in completed:
+            return True
+    for p in prereqs2:
+        if p in achievements:
+            return True
+    return False
+
+
 # This displays the dashboard/world select screen.
 def view_dashboard(request):
     try: student = Student.from_request(request)
@@ -36,8 +55,8 @@ def view_dashboard(request):
     return render( request, 'lessons_dash.html', { "worlds": worlds } )
 
 
-# This displays the world map.
-# TODO Trying to figure out how to specify between text mode and graphical mode.
+# This displays the world map, which is actually just a collection of thumbnails.
+# Yes, I made a compromise.
 def world_map(request, world):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
@@ -50,12 +69,9 @@ def world_map(request, world):
     stages = [] 
     completed = student.stage_set.all()
     for s in world.stage_set.all():
-        available = True
-        for p in s.prereqs.all():
-            if p not in completed:
-                available = False
+        available = is_open(student, s)
         if available or (not s.hidden):
-            stages.append( ( s, available, s in completed ) )
+            stages.append( ( s, available, s in completed, s.prereqs1.all(), s.prereqs2.all() ) )
     
     return render( request, 'lessons_map.html', {'world': world,
                                                  'stage_list': stages} )
@@ -67,7 +83,10 @@ def view_stage(request, world, stage):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
+    # Redirect the user to the world map if they can't access that page yet.
     here = get_stage(world, stage)
+    if not is_open(student, here): raise Http404()
+    
     go = "lesson"
     # if in challenge-first group: go = "challenge"
     
@@ -84,7 +103,9 @@ def view_lesson(request, world, stage):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
+    # Redirect the user to the world map if they can't access that page yet.
     here = get_stage(world, stage)
+    if not is_open(student, here): raise Http404()
     if not here.lesson:
         if here.challenge: return redirect( "challenge", world = world, stage = stage )
         else: raise Http404()
@@ -100,7 +121,9 @@ def view_challenge(request, world, stage):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
+    # Redirect the user to the world map if they can't access that page yet.
     here = get_stage(world, stage)
+    if not is_open(student, here): raise Http404()
     if not here.challenge:
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
         else: raise Http404()

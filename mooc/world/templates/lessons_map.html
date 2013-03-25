@@ -7,23 +7,44 @@
 {% block body %}
 
     <div class="row">
-        <div class="span8">
-        {% for stage, available, complete in stage_list %}
-            <div class="row">
-                <div class="span2">
-                    <p><a href="{% url 'stage' world=world.shortname stage=stage.shortname %}">
-                    World {{ world.shortname }}-{{ stage.shortname }}: {{ stage.name }}
-                    </a>{% if complete %}<i class="icon-ok"></i>{% endif %}</p>
-                </div>
+      <div class="span9">
+        <div class="well">
+          <ul class="thumbnails">
+            {% for stage, available, complete, prereqs1, prereqs2 in stage_list %}
+                <li class="span2">
+                <div class="thumbnail">
                 
-                <div class="span6">
-                    stuff goes here son.
+                {% if available %}
+                <a href="{% url 'stage' world=world.shortname stage=stage.shortname %}" class="thumbnail">
+                <img src="{% get_static_prefix %}img/{{stage.graphic}}.png" alt="">
+                </a>
+                <h4>World {{ world.shortname }}-{{ stage.shortname }}</h4>
+                <p>{{ stage.name }}</p>
+                
+                {% else %}
+                
+                <a href="#" class="thumbnail">
+                <img src="{% get_static_prefix %}img/{{stage.graphic}}.png" alt="">
+                </a>
+                <p>Complete any of 
+                {% for p in prereqs1 %}
+                    <strong>World {{p.world.shortname}}-{{p.shortname}}</strong>,
+                {% endfor %}
+                {% for p in prereqs2 %}
+                    <em><strong>{{p.name}}</strong></em>,
+                {% endfor %}
+                to unlock this stage.
+                </p>
+                {% endif %}
+                
                 </div>
-            </div>
-        {% endfor %}
+                </li>
+            {% endfor %}
+          </ul>
         </div>
+      </div>
         
-        <div class="span4">
+        <div class="span3">
             {% include "chatroom.html" %}
         </div>
         
