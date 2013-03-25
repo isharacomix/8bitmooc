@@ -52,7 +52,11 @@ def view_dashboard(request):
     # TODO - filter out worlds that the user should not be able to see yet.
     worlds = World.objects.all()
     
-    return render( request, 'lessons_dash.html', { "worlds": worlds } )
+    
+    worldnums = range(len(worlds)+1)[1:]
+    
+    return render( request, 'lessons_dash.html', { "worlds": worlds,
+                                                   "worldnums": worldnums } )
 
 
 # This displays the world map, which is actually just a collection of thumbnails.

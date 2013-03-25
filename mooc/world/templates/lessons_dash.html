@@ -8,25 +8,43 @@
 
     <div class="row">
       <div class="span12">
-        <div class="well">
-            <ul class="thumbnails">
-            
-            {% for w in worlds %}
-                <li class="span2">
-                <div class="thumbnail">
-                <a href="{% url 'world_map' world=w.shortname %}" class="thumbnail">
-                <img src="{% get_static_prefix %}img/{{w.graphic}}.png" alt="">
-                </a>
-                <h4>{{ w.name }}</h4>
-                <p>Completion status</p>
-                </div>
-                </li>
-            {% endfor %}
-                
-            </ul>
+      
+          <div id="worldCarousel" class="carousel slide">
+    <ol class="carousel-indicators">
+    <li data-target="#worldCarousel" data-slide-to="0" class="active"></li>
+    {% for w in worldnums %}
+    <li data-target="#worldCarousel" data-slide-to="{{w}}"></li>
+    {% endfor %}
+    </ol>
+    <!-- Carousel items -->
+    <div class="carousel-inner">
+    <div class="active item">
+        <img src="{% get_static_prefix %}img/8bitmooc_logo.png" alt="">
+        <div class="carousel-caption">
+        <h4>World Select</h4>
+        <p>Use the arrows to move back and forth between worlds.</p>
         </div>
-      </div>  
     </div>
+    {% for w in worlds %}
+    <div class="item">
+        <a href="{% url 'world_map' world=w.shortname %}">
+        <img src="{% get_static_prefix %}img/{{ w.graphic }}.png" alt="">
+        </a>
+        <div class="carousel-caption">
+        <h4>{{ w.name }}</h4>
+        <p>World {{ w.shortname }}</p>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    <!-- Carousel nav -->
+    <a class="carousel-control left" href="#worldCarousel" data-slide="prev">&lsaquo;</a>
+    <a class="carousel-control right" href="#worldCarousel" data-slide="next">&rsaquo;</a>
+    </div>
+    
+      </div>
+    </div>
+      
     
     <div class="row">
       <div class="span12">

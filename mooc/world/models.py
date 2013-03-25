@@ -55,7 +55,7 @@ class World(models.Model):
     shortname   = models.SlugField("shortname", max_length=8, unique=True,
                             help_text="Short world name, usually a number.")
     graphic     = models.SlugField("graphic",
-                            help_text="Filename of the glyph in the Module "+
+                            help_text="Filename of the carousel card in the Module "+
                                       "img directory.")
     description = models.TextField("description",
                         help_text="A description of the world in a "+
@@ -130,8 +130,8 @@ class Stage(models.Model):
     
     # These represent how the lesson appears on the World Map (location, glyph)
     graphic     = models.SlugField("graphic",
-                            help_text="Filename of the glyph in the Lesson "+
-                                      "img directory.")
+                            help_text="Filename of the image representing this "+
+                                      "world.")
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Lessons are ordered from lowest to "+
                                       "to highest when displayed in lists.")
