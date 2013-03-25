@@ -7,15 +7,65 @@
 {% block body %}
 
     <div class="row">
-        <div class="span2">
-            <img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% gravatar_for_email student.user.email 128 %}">
-        <strong>{{ profile.name }}</strong>
-    </h1>
+        <div class="span3">
+            <div>
+                <img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% gravatar_for_email student.user.email 128 %}">
+            </div>
+            
+            <div>
+            {% if user == student.user %}
+            Click here to change avi
+            {% elif user.is_authenticated %}
+            Click here to add friend
+            {% endif %}
+            </div>
+            
+            
         </div>
         
-        <div class="span10">
-            I AM A STUDENT IN #8BITMOOC!
+        <div class="span9">
+            <h2>{{ student.user.username }} ({{ student.score }} points)</h2>
+            
+            <div>
+            {{ student.bio }}
+            </div>
+            
+            <h3>Completed Stages</h3>
+            <div>
+              <ul class="thumbnails">
+                {% for s in student.stage_set.all %}
+                  <li class="span2">
+                  <div class="thumbnail">
+                  <a href="#" class="thumbnail">
+                  <img src="{% get_static_prefix %}img/{{s.graphic}}.png" alt="" title="World {{ s.world.shortname }}-{{ s.shortname }}" />
+                  </a>
+                  </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+            
+            <h3>Achievements</h3>
+            <div>
+              <ul class="thumbnails">
+                {% for a in student.achievement_set.all %}
+                  <li class="span2">
+                  <div class="thumbnail">
+                  <a href="#" class="thumbnail">
+                  <img src="{% get_static_prefix %}img/{{s.graphic}}.png" alt="" title="{{a.name}}" />
+                  </a>
+                  </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+            
+            <h3>Game Library</h3>
+            <div>
+            List le games here
+            </div>
         </div>
     </div>
 
 {% endblock body %}
+

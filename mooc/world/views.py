@@ -75,7 +75,7 @@ def world_map(request, world):
     for s in world.stage_set.all():
         available = is_open(student, s)
         if available or (not s.hidden):
-            stages.append( ( s, available, s in completed, s.prereqs1.all(), s.prereqs2.all() ) )
+            stages.append( ( s, available, s in completed ) )
     
     return render( request, 'lessons_map.html', {'world': world,
                                                  'stage_list': stages} )
