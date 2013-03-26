@@ -38,7 +38,9 @@ class Student(models.Model):
     display_email   = models.BooleanField("display e-mail", default=False,
                         help_text="Display E-mail publicly?")
     twitter         = models.CharField("twitter", max_length=32, blank=True,
-                        help_text="Twitter handle.")   
+                        help_text="Twitter handle.")
+    website         = models.CharField("website", max_length=32, blank=True,
+                        help_text="Personal website.")      
     
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.

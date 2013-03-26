@@ -9,17 +9,48 @@
     <div class="row">
         <div class="span3">
             <div>
-                <img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% gravatar_for_email student.user.email 128 %}">
+                <p><img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% gravatar_for_email student.user.email 128 %}"></p>
             </div>
             
             <div>
+            <p>
             {% if user == student.user %}
-            Click here to change avi
+            <a href="http://gravatar.com" class="btn btn-primary">Change Avatar</a>
             {% elif user.is_authenticated %}
-            Click here to add friend
+        <form name="input" action="{% url 'profile' username=student.user.username %}" method="post">{% csrf_token %}
+                {% if student not in user.student.friends.all %}
+                <button class="btn btn-success" type="submit" name="friend" value="friend">Add Friend</button>
+                {% else %}
+                <button class="btn btn-success" type="submit" name="unfriend" value="unfriend">Remove Friend</button>
+                {% endif %}
+                
+                {% if student not in user.student.blocked.all %}
+                <button class="btn btn-danger" type="submit" name="block" value="block">Block</button>
+                {% else %}
+                <button class="btn btn-danger" type="submit" name="unblock" value="unblock">Unblock</button>
+                {% endif %}
+        </form>
             {% endif %}
+            </p>
             </div>
             
+            {% if student.website %}
+            <div>
+            <p><i class="icon-globe"></i> <a href="{{ student.website }}">{{ student.website }}</a></p>
+            </div>
+            {% endif %}
+            
+            {% if student.display_email %}
+            <div>
+            <p><i class="icon-envelope"></i> {{ student.user.email }}</p>
+            </div>
+            {% endif %}
+            
+            {% if student.twitter %}
+            <div>
+            <p><i class="icon-comment"></i> <a href="http://twitter.com/{{ student.twitter }}">@{{ student.twitter }}</a></p>
+            </div>
+            {% endif %}
             
         </div>
         
@@ -62,7 +93,11 @@
             
             <h3>Game Library</h3>
             <div>
-            List le games here
+            <ul>
+            {% for g in games %}
+                <li><a href="{% url 'library' username=student.user.username gamename=g.name %}">{{ g.name }}</a></li>
+            {% endfor %}
+            </ul>
             </div>
         </div>
     </div>

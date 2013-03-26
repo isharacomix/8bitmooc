@@ -23,8 +23,49 @@ def view_profile(request, username):
     try:
         student = Student.objects.get( user=User.objects.get(username=username) )
     except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    # Take care of friending and stuff.
+    alerts = []
+    if request.method == 'POST':
+        try: me = Student.from_request(request)
+        except exceptions.ObjectDoesNotExist: return redirect("login")
+        
+        if 'friend' in request.POST:
+            if student not in me.friends.all():
+                me.friends.add(student)
+                me.save()
+                alerts.append( {"tags":"alert-success",
+                                "content":"Friend request sent."} )
+        if 'unfriend' in request.POST or 'block' in request.POST:
+            if student in me.friends.all():
+                me.friends.remove(student)
+                me.save()
+                alerts.append( {"tags":"alert-success",
+                                "content":"Removed from friends list."} )
+        if 'block' in request.POST:
+            if student not in me.blocked.all():
+                me.blocked.add(student)
+                me.save()
+                alerts.append( {"tags":"alert-success",
+                                "content":"User blocked."} )
+        if 'unblock' in request.POST or 'friend' in request.POST:
+            if student in me.blocked.all():
+                me.blocked.remove(student)
+                me.save()
+                alerts.append( {"tags":"alert-success",
+                                "content":"User unblocked."} )
+        
+    
+    # We only want to get the neweest of each game.
+    games = {}
+    for g in student.assemblychallengeresponse_set.filter(public=True,
+                                                          challenge=None).reverse():
+        if g.name not in games:
+            games[g.name] = g
 
-    return render( request, 'students_profile.html', {'student': student} )
+    return render( request, 'students_profile.html', {'student': student,
+                                                      'games': games.values(),
+                                                      'alerts': alerts} )
 
 
 # This logs a user in, provided the password and stuff is right. :P
