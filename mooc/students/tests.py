@@ -26,6 +26,6 @@ class StudentTests(TestCase):
 
     # Test the Profile page.
     def test_profile_page(self):
-        response = self.c.get("/~ishara")
+        response = self.c.get("/~ishara/")
         self.assertEqual(response.status_code, 200)
 
