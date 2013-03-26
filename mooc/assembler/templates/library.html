@@ -1,0 +1,28 @@
+{% extends "layout_base.html" %}
+{% load gravatar %}
+
+{% block title %}{% if username %}{{username}}'s{% endif %} Game Library{% endblock title %}
+
+{% block body %}
+
+<div class="row">
+  <div class="span8 offset2">
+
+  <h2>{% if username %}{{username}}'s{% endif %} Game Library</h2>
+
+  {% for g in games %}
+  <div class="media">
+    <img class="gravatar pull-left" alt="" src="{% gravatar_for_email g.student.user.email 32 %}" />
+
+    <div class="media-body">
+    <a href="{% url 'library' username=g.student.username gamename=g.name %}">{{g.name}}</a> by {{g.student.username}}
+    </div>
+  </div>
+  {% endfor %}
+
+  </div>
+</div>
+
+{% endblock body %}
+
+

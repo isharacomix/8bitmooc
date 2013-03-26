@@ -65,6 +65,35 @@ def do_playground(request):
         return get_rom(request)
 
 
+# This retrieves all of the games in the library and sorts them by owner.
+def view_library(request):
+    games = {}
+    
+    for g in AssemblyChallengeResponse.objects.filter(public=True,
+                                                      challenge=None).reverse():
+        if (g.student.user.username, g.name) not in games:
+            games[(g.student.user.username,g.name)] = g
+    
+    return render( request, "library.html", {"games": games.values() } )
+
+
+# This just returns the games for the specified user.
+def view_user_library(request, username):
+    try:
+        student = Student.objects.get( user=User.objects.get(username=username) )
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    games = {}
+    for g in AssemblyChallengeResponse.objects.filter(public=True,
+                                                      challenge=None,
+                                                      student=student).reverse():
+        if (g.student.user.username, g.name) not in games:
+            games[(g.student.user.username,g.name)] = g
+    
+    return render( request, "library.html", {"games": games.values(),
+                                             "username": username } )
+
+
 # This retrieves a game from the library and displays it in the playground.
 def get_library_game(request, username, gamename):
     subs = []

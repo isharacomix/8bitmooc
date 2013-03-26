@@ -8,6 +8,8 @@ from assembler import views
 urlpatterns = patterns('',
     url(r'^playground/$', views.view_playground, name='playground'),
     url(r'^rom/$', views.get_rom, name='rom'),
+    url(r'^library/$', views.view_library, name='view_library'),
+    url(r'^library/(?P<username>[\w-]+)/$', views.view_user_library, name='user_library'),
     url(r'^library/(?P<username>[\w-]+)/(?P<gamename>[\w-]+)/$', views.get_library_game, name='library'),
 )
 
