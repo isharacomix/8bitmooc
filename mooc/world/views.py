@@ -74,10 +74,23 @@ def world_map(request, world):
     completed = student.stage_set.all()
     for s in world.stage_set.all():
         available = is_open(student, s)
-        students = list(Student.objects.filter(recent_stage=s).exclude(id=student.id))
-        random.shuffle(students)
+        complete = s in completed
+        
+        # If we've not beaten the stage, then we set students equal to other
+        # students there. Otherwise, we set it equal to the number of SOSes.
+        students = []
+        student_count = 0
+        if not complete:
+            students = list(Student.objects.filter(recent_stage=s).exclude(id=student.id))
+            random.shuffle(students)
+            student_count = len(students)
+        else:
+            pass
+            students = []
+        
+        # Return the values needed by the template!
         if available or (not s.hidden):
-            stages.append( ( s, available, s in completed, len(students), students[:4] ) )
+            stages.append( ( s, available, complete, student_count, students[:4] ) )
     
     return render( request, 'lessons_map.html', {'world': world,
                                                  'stage_list': stages} )
@@ -150,6 +163,26 @@ def view_challenge(request, world, stage):
                                                               c.quizchallenge)
     raise Http404()
 
+
+# This is a response to an SOS call for peer assistance. Based on the challenge
+# type, a different SOS response is used (for example, there is an assembly
+# challenge response SOS, but not a quiz challenge sos).
+def sos_response(request, world, stage):
+    try: student = Student.from_request(request)
+    except exceptions.ObjectDoesNotExist: return redirect("login")
+    
+    # Redirect the user to the world map if they can't access that page yet.
+    # TODO: Also redirect if the user hasn't COMPLETED the stage
+    here = get_stage(world, stage)
+    if not is_open(student, here): raise Http404()
+    if not here.challenge:
+        if here.lesson: return redirect( "lesson", world = world, stage = stage )
+        else: raise Http404()
+    
+    # These are the types of challenges.
+    c = here.challenge
+    if hasattr(c, "quizchallenge"): raise Http404()
+    raise Http404()
 
 # This is a quizchallenge. This is pretty tricky to do since we have to be able
 # to randomize the quizzes for the user without revealing any of the internal

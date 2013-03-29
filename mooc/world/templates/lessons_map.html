@@ -35,13 +35,17 @@
                 {% for p in stage.prereqs2.all %}
                     <em><strong>{{p.name}}</strong></em>,
                 {% endfor %}
-                to unlock this stage.
+                to unlock this stage. <i class="icon-lock"></i>
                 </p>
                 {% endif %}
                 
                 <div>
                 {% if complete %}
-                SOS Button
+                    {% if student_count > 0 %}
+                    <a href="{% url 'sos' world=stage.world.shortname stage=stage.shortname %}" class="btn btn-danger btn-block">S.O.S. <i class="icon-user icon-white"></i>{{ student_count }}</a>
+                    {% else %}
+                    <a href="#" class="btn btn-block disabled">S.O.S. <i class="icon-user"></i>{{ student_count }}</a>
+                    {% endif %}
                 {% else %}
                 <i class="icon-user"></i> {{student_count}}
                 {% for s in students %}
