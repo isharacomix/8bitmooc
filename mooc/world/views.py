@@ -74,7 +74,8 @@ def world_map(request, world):
     completed = student.stage_set.all()
     for s in world.stage_set.all():
         available = is_open(student, s)
-        students = Student.objects.filter(recent_stage=s).exclude(id=student.id)
+        students = list(Student.objects.filter(recent_stage=s).exclude(id=student.id))
+        random.shuffle(students)
         if available or (not s.hidden):
             stages.append( ( s, available, s in completed, len(students), students[:4] ) )
     
