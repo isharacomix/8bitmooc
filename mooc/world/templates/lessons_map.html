@@ -1,6 +1,7 @@
 {% extends "layout_base.html" %}
 {% load static %}
 {% load creole %}
+{% load gravatar %}
 
 {% block title %}World {{ world.shortname }}: {{ world.name }}{% endblock title %}
 
@@ -10,7 +11,7 @@
       <div class="span9">
         <div class="well">
           <ul class="thumbnails">
-            {% for stage, available, complete in stage_list %}
+            {% for stage, available, complete, student_count, students in stage_list %}
                 <li class="span2">
                 <div class="thumbnail">
                 
@@ -19,7 +20,19 @@
                 <img src="{% get_static_prefix %}img/{{stage.graphic}}.png" alt="">
                 </a>
                 <h4>World {{ world.shortname }}-{{ stage.shortname }}</h4>
-                <p>{{ stage.name }}</p>
+                <p>{{ stage.name }} {% if complete %}<i class="icon-ok"></i>{% endif %}</p>
+                
+                <div>
+                {% if complete %}
+                SOS Button
+                {% else %}
+                <i class="icon-user"></i> {{student_count}}
+                {% for s in students %}
+                    <img class="gravatar" alt="" title="{{s.username}}" src="{% gravatar_for_email s.email 20 %}" />
+                {% endfor %}
+                {% endif %}
+                </div>
+                
                 
                 {% else %}
                 
@@ -38,6 +51,7 @@
                 {% endif %}
                 
                 </div>
+                
                 </li>
             {% endfor %}
           </ul>

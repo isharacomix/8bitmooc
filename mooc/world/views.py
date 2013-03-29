@@ -74,8 +74,9 @@ def world_map(request, world):
     completed = student.stage_set.all()
     for s in world.stage_set.all():
         available = is_open(student, s)
+        students = Student.objects.filter(recent_stage=s).exclude(id=student.id)
         if available or (not s.hidden):
-            stages.append( ( s, available, s in completed ) )
+            stages.append( ( s, available, s in completed, len(students), students[:4] ) )
     
     return render( request, 'lessons_map.html', {'world': world,
                                                  'stage_list': stages} )
@@ -113,7 +114,11 @@ def view_lesson(request, world, stage):
     if not here.lesson:
         if here.challenge: return redirect( "challenge", world = world, stage = stage )
         else: raise Http404()
-        
+    
+    # Log the visit.
+    student.recent_stage = here
+    student.save()
+    
     #TODO log this as read.
     return render( request, "lessons_lesson.html", {'world': here.world,
                                                     'stage': here } )
@@ -132,7 +137,9 @@ def view_challenge(request, world, stage):
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
         else: raise Http404()
     
-    # TODO log the view
+    # Log the visit.
+    student.recent_stage = here
+    student.save()
     
     # These are all of the types of challenges.
     c = here.challenge

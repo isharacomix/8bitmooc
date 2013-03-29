@@ -41,7 +41,11 @@ class Student(models.Model):
     twitter         = models.CharField("twitter", max_length=32, blank=True,
                         help_text="Twitter handle.")
     website         = models.CharField("website", max_length=32, blank=True,
-                        help_text="Personal website.")      
+                        help_text="Personal website.")
+    
+    # Most recently-viewed stage.
+    recent_stage    = models.ForeignKey("world.Stage", verbose_name="Recent Stage", blank=True,
+                        null=True, help_text="Most recently-visited stage.")
     
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.
