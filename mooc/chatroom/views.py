@@ -46,17 +46,24 @@ def do_chat(request):
             for l in lines:
                 gimg = gravatar.gravatar_img_for_user(l.author, size=32).replace(' alt="',' alt="" class="media-object" title="')
                 
+                # Calculate the score (upvote-downvote)
                 up = l.endorsed_by.all()
                 dn = l.dismissed_by.all()
+                upc = len(up)
+                dnc = len(dn)
+                score = upc-dnc
                 
-                score = len(up)-len(dn)
-                if score >= 0: score = "+"+str(score)
-                else: score = str(score)
+                # Convert it into a string (just for the plus sign).
+                textscore = str(score)
+                if score >= 0: textscore = "+"+textscore
                 
+                # If the user has already voted on this comment, don't let them
+                # vote again, and don't let them vote on their own comment.
                 comment_id = False
                 if student != l.author and student not in up and student not in dn:
                     comment_id = l.id
-                messages.append([l.author.username, gimg, l.content, str(l.timestamp), comment_id, score])
+                if score >= -1:
+                    messages.append([l.author.username, gimg, l.content, str(l.timestamp), comment_id, textscore])
             log['messages'] =  messages
     elif function == "upvote": 
         try:
@@ -76,7 +83,7 @@ def do_chat(request):
             C = Chat()
             C.author = student
             C.channel = world
-            C.content = message
+            C.content = message[:140]
             C.save()
     
     chatlog_json = json.dumps(log)
