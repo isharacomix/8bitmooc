@@ -22,17 +22,6 @@
                 <h4>World {{ world.shortname }}-{{ stage.shortname }}</h4>
                 <p>{{ stage.name }} {% if complete %}<i class="icon-ok"></i>{% endif %}</p>
                 
-                <div>
-                {% if complete %}
-                SOS Button
-                {% else %}
-                <i class="icon-user"></i> {{student_count}}
-                {% for s in students %}
-                    <img class="gravatar" alt="" title="{{s.username}}" src="{% gravatar_for_email s.email 20 %}" />
-                {% endfor %}
-                {% endif %}
-                </div>
-                
                 
                 {% else %}
                 
@@ -49,6 +38,17 @@
                 to unlock this stage.
                 </p>
                 {% endif %}
+                
+                <div>
+                {% if complete %}
+                SOS Button
+                {% else %}
+                <i class="icon-user"></i> {{student_count}}
+                {% for s in students %}
+                    <img class="gravatar" alt="" title="{{s.username}}" src="{% gravatar_for_email s.email 20 %}" />
+                {% endfor %}
+                {% endif %}
+                </div>
                 
                 </div>
                 
