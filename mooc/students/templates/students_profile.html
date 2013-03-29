@@ -2,14 +2,14 @@
 {% load static %}
 {% load gravatar %}
 
-{% block title %}{{ student.user.username }}'s Profile{% endblock title %}
+{% block title %}{{ student.username }}'s Profile{% endblock title %}
 
 {% block body %}
 
     <div class="row">
         <div class="span3">
             <div>
-                <p><img class="gravatar" alt="{{ student.user.username }}'s avatar" src="{% gravatar_for_email student.user.email 128 %}"></p>
+                <p><img class="gravatar" alt="{{ student.username }}'s avatar" src="{% gravatar_for_email student.email 128 %}"></p>
             </div>
             
             <div>
@@ -17,7 +17,7 @@
             {% if user == student.user %}
             <a href="http://gravatar.com" class="btn btn-primary">Change Avatar</a>
             {% elif user.is_authenticated %}
-        <form name="input" action="{% url 'profile' username=student.user.username %}" method="post">{% csrf_token %}
+        <form name="input" action="{% url 'profile' username=student.username %}" method="post">{% csrf_token %}
                 {% if student not in user.student.friends.all %}
                 <button class="btn btn-success" type="submit" name="friend" value="friend">Add Friend</button>
                 {% else %}
@@ -42,7 +42,7 @@
             
             {% if student.display_email %}
             <div>
-            <p><i class="icon-envelope"></i> {{ student.user.email }}</p>
+            <p><i class="icon-envelope"></i> {{ student.email }}</p>
             </div>
             {% endif %}
             
@@ -55,7 +55,7 @@
         </div>
         
         <div class="span9">
-            <h2>{{ student.user.username }} ({{ student.score }} points)</h2>
+            <h2>{{ student.username }} ({{ student.score }} points)</h2>
             
             <div>
             {{ student.bio }}
@@ -95,7 +95,7 @@
             <div>
             <ul>
             {% for g in games %}
-                <li><a href="{% url 'library' username=student.user.username gamename=g.name %}">{{ g.name }}</a></li>
+                <li><a href="{% url 'library' username=student.username gamename=g.name %}">{{ g.name }}</a></li>
             {% endfor %}
             </ul>
             </div>

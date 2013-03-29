@@ -12,6 +12,7 @@ from django.core import exceptions
 class Student(models.Model):
     user            = models.OneToOneField(User, verbose_name="user", null=True)
     score           = models.IntegerField("score", default=0)
+    joined          = models.DateTimeField("joined", auto_now_add=True)
     
     # The friends list is a whitelist and the blocked list is a blacklist.
     # When someone is blocked by a substantial number of people, they are

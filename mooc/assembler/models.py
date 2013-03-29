@@ -29,7 +29,7 @@ class AssemblyChallengeResponse(models.Model):
     student   = models.ForeignKey(Student, verbose_name="student", blank=True,
                                   null=True)
     code      = models.TextField("code", blank=True)
-    timestamp = models.DateTimeField("timestamp", auto_now=True)
+    timestamp = models.DateTimeField("timestamp", auto_now_add=True)
     public    = models.BooleanField("public", default=False)
     name      = models.SlugField("name", blank=True, null=True)
     

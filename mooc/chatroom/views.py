@@ -37,16 +37,39 @@ def do_chat(request):
         lines = list(Chat.objects.filter(channel=world).reverse())
         
         count = len(lines)
-        if state == count:
+        if state == count and request.POST.get("force") != "true":
             log['state'] = state
             log['messages'] = False
         else:
             messages = []
             log['state'] = state + count - state
             for l in lines:
-                gimg = gravatar.gravatar_img_for_user(l.author, size=32)
-                messages.append([l.author.username, gimg, l.content, str(l.timestamp)])
+                gimg = gravatar.gravatar_img_for_user(l.author, size=32).replace(' alt="',' alt="" class="media-object" title="')
+                
+                up = l.endorsed_by.all()
+                dn = l.dismissed_by.all()
+                
+                score = len(up)-len(dn)
+                if score >= 0: score = "+"+str(score)
+                else: score = str(score)
+                
+                comment_id = False
+                if student != l.author and student not in up and student not in dn:
+                    comment_id = l.id
+                messages.append([l.author.username, gimg, l.content, str(l.timestamp), comment_id, score])
             log['messages'] =  messages
+    elif function == "upvote": 
+        try:
+            l = Chat.objects.get(id=int(request.POST.get("comment")))
+            l.endorsed_by.add(student)
+            l.save()
+        except: pass
+    elif function == "downvote": 
+        try:
+            l = Chat.objects.get(id=int(request.POST.get("comment")))
+            l.dismissed_by.add(student)
+            l.save()
+        except: pass
     elif function == "send": 
         message = request.POST.get("message")
         if message != "":

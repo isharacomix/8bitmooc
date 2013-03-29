@@ -71,8 +71,8 @@ def view_library(request):
     
     for g in AssemblyChallengeResponse.objects.filter(public=True,
                                                       challenge=None).reverse():
-        if (g.student.user.username, g.name) not in games:
-            games[(g.student.user.username,g.name)] = g
+        if (g.student.username, g.name) not in games:
+            games[(g.student.username,g.name)] = g
     
     return render( request, "library.html", {"games": games.values() } )
 
@@ -87,8 +87,8 @@ def view_user_library(request, username):
     for g in AssemblyChallengeResponse.objects.filter(public=True,
                                                       challenge=None,
                                                       student=student).reverse():
-        if (g.student.user.username, g.name) not in games:
-            games[(g.student.user.username,g.name)] = g
+        if (g.student.username, g.name) not in games:
+            games[(g.student.username,g.name)] = g
     
     return render( request, "library.html", {"games": games.values(),
                                              "username": username } )

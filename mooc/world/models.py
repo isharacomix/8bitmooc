@@ -214,7 +214,7 @@ class QuizChallengeResponse(models.Model):
     challenge = models.ForeignKey(QuizChallenge, verbose_name="challenge")
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
     student   = models.ForeignKey(Student, verbose_name="student")
-    timestamp = models.DateTimeField("timestamp", auto_now=True)
+    timestamp = models.DateTimeField("timestamp", auto_now_add=True)
     correct   = models.BooleanField("All answers correct", default=False )
     score     = models.IntegerField("correct answers")
     

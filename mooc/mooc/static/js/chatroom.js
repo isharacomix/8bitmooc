@@ -55,19 +55,22 @@ $.ajaxSetup({
 
 
 // This draws those values
-function updateChat() {
+function updateChat(force) {
 	if(!instanse){
 		instanse = true;
 		$.ajax({
 			type: "POST",
 			url: "/chat/",
-			data: {'function': 'update','state': state,'channel': channel},
+			data: {'function': 'update','state': state,'channel': channel, 'force':force},
 			dataType: "json",
 			success: function(data) {
 				if(data.messages){
 				    $('#chat-area').html("");
 					for (var i = 0; i < data.messages.length; i++) {
-						$('#chat-area').append("<div class=\"media\"><a class=\"pull-left\" href=\"/~"+data.messages[i][0]+"\">"+data.messages[i][1]+"</a><p><strong>"+data.messages[i][0]+": </strong> "+data.messages[i][2] +"</p></div>");
+					    if ( data.messages[i][4] )
+						$('#chat-area').append("<div class=\"media\"><a class=\"pull-left\" href=\"/~"+data.messages[i][0]+"\">"+data.messages[i][1]+"</a><div class=\"media-body\"><strong>"+data.messages[i][0]+": </strong> "+data.messages[i][2] +"<a href=\"#\" onclick=\"upvote("+data.messages[i][4]+");return false;\"><i class=\"icon-plus-sign\"></i></a><a href=\"#\" onclick=\"downvote("+data.messages[i][4]+");return false;\"><i class=\"icon-minus-sign\"></i><text class=\"muted\"> ("+data.messages[i][5]+")</text></div></div>");
+						else
+						$('#chat-area').append("<div class=\"media\"><a class=\"pull-left\" href=\"/~"+data.messages[i][0]+"\">"+data.messages[i][1]+"</a><div class=\"media-body\"><strong>"+data.messages[i][0]+": </strong> "+data.messages[i][2] +"<text class=\"muted\"> ("+data.messages[i][5]+")</text></div></div>");
 					}	
 				}
 				document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
@@ -88,6 +91,33 @@ function sendChat(message, nickname) {
 		dataType: "json",
 		success: function(data){
 			updateChat();
+		}
+	});
+}
+
+
+// Send an upvote
+function upvote(comment_id) {
+	$.ajax({
+		type: "POST",
+		url: "/chat/",
+		data: {'function': 'upvote', 'comment': comment_id, 'channel': channel},
+		dataType: "json",
+		success: function(data){
+			updateChat(true);
+		}
+	});
+}
+
+// send a downvote
+function downvote(comment_id) {
+	$.ajax({
+		type: "POST",
+		url: "/chat/",
+		data: {'function': 'downvote', 'comment': comment_id, 'channel': channel},
+		dataType: "json",
+		success: function(data){
+			updateChat(true);
 		}
 	});
 }

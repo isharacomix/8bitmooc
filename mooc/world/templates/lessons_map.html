@@ -26,7 +26,7 @@
                 <a href="#" class="thumbnail">
                 <img src="{% get_static_prefix %}img/{{stage.graphic}}.png" alt="">
                 </a>
-                <p>Complete any of 
+                <p>Complete 
                 {% for p in stage.prereqs1.all %}
                     <strong>World {{p.world.shortname}}-{{p.shortname}}</strong>,
                 {% endfor %}
@@ -49,11 +49,11 @@
         </div>
         
     </div>
-    <row>
+    <div class="row">
       <div class="span12">
                 {{ world.description|creole }}
       </div>
-    </row>
+    </div>
     
     
 

@@ -12,7 +12,7 @@
 
   {% for g in games %}
   <div class="media">
-    <img class="gravatar pull-left" alt="" src="{% gravatar_for_email g.student.user.email 32 %}" />
+    <img class="gravatar pull-left" alt="" src="{% gravatar_for_email g.student.email 32 %}" />
 
     <div class="media-body">
     <a href="{% url 'library' username=g.student.username gamename=g.name %}">{{g.name}}</a> by {{g.student.username}}

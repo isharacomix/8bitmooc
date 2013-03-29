@@ -10,7 +10,7 @@ from world.models import World
 class Chat(models.Model):
     content     = models.CharField("content", max_length=140,
                         help_text="Content of the chat.")
-    timestamp = models.DateTimeField("timestamp", auto_now=True)
+    timestamp = models.DateTimeField("timestamp", auto_now_add=True)
     author      = models.ForeignKey(Student, verbose_name="author")
     channel     = models.ForeignKey(World, verbose_name="channel")
     

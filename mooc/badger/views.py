@@ -70,9 +70,9 @@ def assert_badge(request, badge, user):
     salt = settings.BADGE_SALT + '.' + badge.shortname
     if badge.held_by( student ):
         badge_assertion_dict = {
-          "recipient": "sha256$"+hashlib.sha256(student.user.email+salt).hexdigest(),
+          "recipient": "sha256$"+hashlib.sha256(student.email+salt).hexdigest(),
           "salt": salt,
-          "evidence": ISSUER_DOMAIN+"/~"+student.user.username,
+          "evidence": ISSUER_DOMAIN+"/~"+student.username,
           #"expires": "2013-06-01",
           #"issued_on": "2011-06-01",
           "badge": {
