@@ -8,7 +8,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from wiki.models import Page
-from world.models import Stage, World
+from world.models import Stage, World, ChallengeSOS
 from world.models import QuizAnswer, QuizChallengeResponse
 from students.models import Student
 
@@ -84,8 +84,9 @@ def world_map(request, world):
             students = list(Student.objects.filter(recent_stage=s).exclude(id=student.id))
             random.shuffle(students)
             student_count = len(students)
-        else:
-            pass
+        elif s.challenge is not None:
+            students = list(ChallengeSOS.objects.filter(challenge=s.challenge,active=True))
+            student_count = len(students)
             students = []
         
         # Return the values needed by the template!

@@ -218,6 +218,44 @@ class QuizChallengeResponse(models.Model):
     correct   = models.BooleanField("All answers correct", default=False )
     score     = models.IntegerField("correct answers")
     
+    # 
     def __unicode__(self):
         return u'QuizResponse %d from %s'%(self.id,self.student.username)
+
+
+# This is an SOS call - a call for help associated with a class that extends
+# BaseChallenge.
+class ChallengeSOS(models.Model):
+    challenge   = models.ForeignKey(BaseChallenge, verbose_name="challenge",
+                            help_text="The challenge for this SOS.")
+    content     = models.TextField("content",
+                        help_text="The student's question in wiki-creole format.")
+    timestamp   = models.DateTimeField("timestamp", auto_now_add=True)
+    student     = models.ForeignKey(Student, verbose_name="student",
+                        help_text="The student asking this question.")
+    active      = models.BooleanField("active", default=True,
+                        help_text="This represents whether the SOS is accepting responses.")
+    
+    # Basic representation of the SOS
+    def __unicode__(self):
+        return u'SOS for '+unicode(self.challenge)
+    
+
+# This is a response to an SOS call.
+class SOSResponse(models.Model):
+    SOS         = models.ForeignKey(ChallengeSOS, verbose_name="challenge",
+                            help_text="The challenge for this SOS.")
+    response    = models.TextField("content",
+                            help_text="The response in wiki-creole format.")
+    timestamp   = models.DateTimeField("timestamp", auto_now_add=True)
+    author      = models.ForeignKey(Student, verbose_name="author",
+                        help_text="The student asking this question.")
+    too_hard    = models.BooleanField("too hard", default=False,
+                        help_text="Helper decides not to help because too hard.")
+    vague       = models.BooleanField("vague", default=False,
+                        help_text="Helper decides not to help because question is vague.")
+    
+    # Representation of the SOS response.
+    def __unicode__(self):
+        return u'Response ['+unicode(self.SOS)+u']'
 
