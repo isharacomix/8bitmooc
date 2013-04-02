@@ -138,6 +138,14 @@ class Stage(models.Model):
     completed_by= models.ManyToManyField(Student, blank=True,
                             help_text="Who has completed this stage?")
     
+    @staticmethod
+    def get_stage(world, stage):
+        try:
+            world = World.objects.get(shortname=world)
+            stage = Stage.objects.get(world=world, shortname=stage)
+            return stage
+        except exceptions.ObjectDoesNotExist: raise Http404()
+    
     class Meta:
         ordering = ('ordering',)
     

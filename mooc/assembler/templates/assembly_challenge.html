@@ -1,0 +1,72 @@
+{% extends "layout_base.html" %}
+{% load creole %}
+{% load static from staticfiles %}
+
+{% block title %}Challenge {{ world.shortname }}-{{ stage.shortname }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <form name="input" action="{% url 'playground' %}" method="post">{% csrf_token %}
+        <div class="span8">
+        
+            <div>
+            {% for e in errors %}
+            <p>{{ e }}</p>
+            {% endfor %}
+            </div>
+            <div>
+            
+        <ul class="nav nav-tabs">
+        {% if stage.lesson %}
+        <li><a href="{% url 'lesson' world=world.shortname stage=stage.shortname %}">Lesson</a></li>
+        {% endif %}
+        <li class="active"><a href="#">Challenge</a></li>
+        </ul>
+
+            <div>
+
+                {{ stage.challenge.content|creole }}
+
+            </div>
+
+<textarea class="input-block-level code-input" rows="20" name="code" wrap="physical">{{ source_code }}</textarea>
+
+            </div>
+            <div class="well">
+              {% include "assembler_cheatsheet.html" %}
+            </div>
+        </div>
+        
+        <div class="span4">
+    
+        
+            <div id="emulator"></div>
+    
+        
+            <input type="submit" name="run" value="Assemble" />
+            <input type="submit" name="assemble" value="Download" />
+        </div>
+        </form>
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    <script src="{% static 'js/dynamicaudio-min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/jsnes.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+        var nes;
+        $(function() {
+            nes = new JSNES({
+                'swfPath': '{% static "js/" %}',
+                'ui': $('#emulator').JSNESUI("/rom/")
+            });
+        });
+    </script>
+    <!--[if IE]>
+        <script type="text/vbscript" src="source/jsnes-ie-hacks.vbscript"></script>
+    <![endif]-->
+{% endblock scripts %}
+

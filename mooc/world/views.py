@@ -12,17 +12,10 @@ from world.models import Stage, World, ChallengeSOS
 from world.models import QuizAnswer, QuizChallengeResponse
 from students.models import Student
 
+from assembler.models import AssemblyChallenge
+from assembler.views import view_assemblychallenge
+
 import random
-
-
-# This handles the error handling and getting the proper module and lesson
-# from the shortnames.
-def get_stage(world, stage):
-    try:
-        world = World.objects.get(shortname=world)
-        stage = Stage.objects.get(world=world, shortname=stage)
-        return stage
-    except exceptions.ObjectDoesNotExist: raise Http404()
 
 
 # This returns True when the specified student is allowed to be in the specified
@@ -104,7 +97,7 @@ def view_stage(request, world, stage):
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
     # Redirect the user to the world map if they can't access that page yet.
-    here = get_stage(world, stage)
+    here = Stage.get_stage(world, stage)
     if not is_open(student, here): raise Http404()
     
     go = "lesson"
@@ -124,7 +117,7 @@ def view_lesson(request, world, stage):
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
     # Redirect the user to the world map if they can't access that page yet.
-    here = get_stage(world, stage)
+    here = Stage.get_stage(world, stage)
     if not is_open(student, here): raise Http404()
     if not here.lesson:
         if here.challenge: return redirect( "challenge", world = world, stage = stage )
@@ -146,7 +139,7 @@ def view_challenge(request, world, stage):
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
     # Redirect the user to the world map if they can't access that page yet.
-    here = get_stage(world, stage)
+    here = Stage.get_stage(world, stage)
     if not is_open(student, here): raise Http404()
     if not here.challenge:
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
@@ -162,6 +155,8 @@ def view_challenge(request, world, stage):
                                                               world,
                                                               stage,
                                                               c.quizchallenge)
+    if hasattr(c, "assemblychallenge"): return view_assemblychallenge(request,
+                                                 world, stage, c.assemblychallenge)
     raise Http404()
 
 
@@ -174,7 +169,7 @@ def sos_response(request, world, stage):
     
     # Redirect the user to the world map if they can't access that page yet.
     # TODO: Also redirect if the user hasn't COMPLETED the stage
-    here = get_stage(world, stage)
+    here = Stage.get_stage(world, stage)
     if not is_open(student, here): raise Http404()
     if not here.challenge:
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
@@ -190,7 +185,7 @@ def sos_response(request, world, stage):
 # structure. To do so, we keep all of the models in the session parameter
 # so we can map between the users choices to what they 'really are'.
 def view_quizchallenge( request, world, stage, challenge ):
-    here = get_stage(world, stage)
+    here = Stage.get_stage(world, stage)
     if request.method == 'POST':
         return do_quizchallenge(request, world, stage, challenge)
         return redirect("challenge", world = world, stage = stage)
@@ -263,7 +258,7 @@ def view_quizchallenge( request, world, stage, challenge ):
 # questions with values "A-E". We create a QuizAnswer for each question
 # in the list, and then create a QuizChallengeResponse to hold them all.
 def do_quizchallenge( request, world, stage, challenge ):
-    here = get_stage(world, stage)
+    here = Stage.get_stage(world, stage)
     if not here.challenge:
         if here.tutorial: return redirect( "lesson", world = world, stage =stage )
         else: raise Http404()

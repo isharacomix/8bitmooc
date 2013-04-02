@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from django.db import models
 
 from students.models import Student
@@ -9,6 +10,7 @@ from world.models import BaseChallenge
 class AssemblyChallenge(BaseChallenge):
     kernal      = models.BooleanField("kernal", default=False,
                         help_text="The kernal for this challenge.")
+    autograde   = models.SlugField("autograde function")
     #TODO - we need to map this to functions that will do the evaluation.
 
 

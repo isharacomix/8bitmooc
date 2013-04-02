@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 
 from wiki.models import Page
 from students.models import Student
+from world.models import Stage, World
 
 from assembler.asm import Assembler
 from assembler.models import AssemblyChallengeResponse
@@ -145,4 +146,27 @@ def get_rom(request):
         return response 
     else:
         raise Http404()
+
+
+# The view for an assembly challenge. Invoked by world.assemblychallenge
+def view_assemblychallenge(request, world, stage, challenge):
+    here = Stage.get_stage(world, stage)
+    if request.method == 'POST':
+        return do_assemblychallenge(request, world, stage, challenge)
+        return redirect("challenge", world = world, stage = stage)
+
+    return render( request, "assembly_challenge.html",
+               {
+                'world': here.world,
+                'stage': here,
+                } )
+
+# This is where POST requests are done.
+def do_assemblychallenge( request, world, stage, challenge ):
+    here = Stage.get_stage(world, stage)
+    if not here.challenge:
+        if here.tutorial: return redirect( "lesson", world = world, stage =stage )
+        else: raise Http404()
+    quizID = request.POST.get("quizID")
+    challenge, answer_map = request.session.get(quizID)
 
