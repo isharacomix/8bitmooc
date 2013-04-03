@@ -31,7 +31,19 @@
         {% endif %}
         </div>
         <div class="span9">
-            Le blog
+            {% for f in feed %}
+            <div>
+            <h3>{{ f.title }}</h3>
+            <article>
+            {{ f.description|safe }}
+            </article>
+            </div>
+            <hr />
+            {% endfor %}
+            
+            <div>
+            Read more at the <a href="http://8bitmooc.org">#8bitmooc blog</a>.
+            </div>
         </div>
     </div>
 

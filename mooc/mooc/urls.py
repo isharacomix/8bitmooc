@@ -3,6 +3,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic.base import TemplateView
 
+from mooc import views
+
 # This kicks off the admin panel.
 admin.autodiscover()
 
@@ -15,7 +17,7 @@ urlpatterns = patterns('',
     # Use a basic TemplateView to get the index page.
     # We might make it into a fancy blog feed one day (maybe import the
     # tumblr RSS as a planet-like thing).
-    url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
+    url(r'^$', views.view_index, name='index'),
 
     # Apps!
     url(r'^', include('students.urls')),            # /~<user>/     # /profile/
