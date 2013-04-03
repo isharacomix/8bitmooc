@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import Form
 
+
+# The form used when making a new account.
 class RegistrationForm(Form):
     username    = forms.SlugField(label="Username")
     email       = forms.EmailField(label="E-mail address")
@@ -25,4 +28,12 @@ class RegistrationForm(Form):
             if data['password1'] != data['password2']:
                 raise forms.ValidationError("The two password fields didn't match.")
         return data
+
+
+# The form used when designing your profile.
+class ProfileEditForm(Form):
+    bio         = forms.CharField(widget=forms.Textarea, label="Bio", required=False)
+    twitter     = forms.SlugField(label="Twitter Handle", required=False)
+    website     = forms.URLField(label="Personal Website", required=False)
+    email       = forms.BooleanField(label="Make e-mail address public?", required=False)
 

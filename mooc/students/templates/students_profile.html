@@ -1,6 +1,8 @@
 {% extends "layout_base.html" %}
 {% load static %}
 {% load gravatar %}
+{% load creole %}
+{% load bootstrap_toolkit %}
 
 {% block title %}{{ student.username }}'s Profile{% endblock title %}
 
@@ -13,11 +15,36 @@
             </div>
             
             <div>
-            <p>
+
             {% if user == student.user %}
-            <a href="http://gravatar.com" class="btn btn-primary">Change Avatar</a>
-            {% elif user.is_authenticated %}
+            <p><a href="http://gravatar.com" class="btn btn-primary">Change Avatar</a></p>
+            <p><button type="button" class="btn btn-success" data-toggle="modal" data-target="#edit">Edit Profile</button></p>
         <form name="input" action="{% url 'profile' username=student.username %}" method="post">{% csrf_token %}
+        
+<div id="edit" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="editlabel" aria-hidden="true">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<h3 id="editlabel">Edit Profile</h3>
+</div>
+<div class="modal-body">
+<p>Edit your profile here. You can leave any or all of the fields blank if you wish.</p>
+                {{ form.bio|as_bootstrap }}
+
+                {{ form.twitter|as_bootstrap }}
+
+                {{ form.website|as_bootstrap }}
+                
+                {{ form.email|as_bootstrap }}
+</div>
+<div class="modal-footer">
+<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+<button class="btn btn-primary" type="submit" name="editprofile" value="editprofile">Save Changes</button>
+</div>
+</div>
+
+        </form>
+            {% elif user.is_authenticated %}
+        <p><form name="input" action="{% url 'profile' username=student.username %}" method="post">{% csrf_token %}
                 {% if student not in user.student.friends.all %}
                 <button class="btn btn-success" type="submit" name="friend" value="friend">Add Friend</button>
                 {% else %}
@@ -29,9 +56,8 @@
                 {% else %}
                 <button class="btn btn-danger" type="submit" name="unblock" value="unblock">Unblock</button>
                 {% endif %}
-        </form>
+        </form></p>
             {% endif %}
-            </p>
             </div>
             
             {% if student.website %}
@@ -58,7 +84,7 @@
             <h2>{{ student.username }} ({{ student.score }} points)</h2>
             
             <div>
-            {{ student.bio }}
+            {{ student.bio|creole }}
             </div>
             
             <h3>Completed Stages</h3>
@@ -103,4 +129,12 @@
     </div>
 
 {% endblock body %}
+
+{% block scripts %}
+    {% if autoshow %}
+        <script type="text/javascript" charset="utf-8">
+        $('#edit').modal('show');
+        </script>
+    {% endif %}
+{% endblock scripts %}
 

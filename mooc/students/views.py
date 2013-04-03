@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 
 from world.models import Stage, World
 from students.models import Student
-from students.forms import RegistrationForm
+from students.forms import RegistrationForm, ProfileEditForm
 from django.contrib.auth.models import User
 
 import hashlib
@@ -24,13 +24,32 @@ def view_profile(request, username):
         student = Student.objects.get( user=User.objects.get(username=username) )
     except exceptions.ObjectDoesNotExist: raise Http404()
     
-    # Take care of friending and stuff.
+    # Take care of friending and profile editing.
     alerts = []
+    form = ProfileEditForm( {'bio':student.bio,
+                             'email':student.display_email,
+                             'twitter':student.twitter,
+                             'website':student.website} )
+    
+    autoshow = False
     if request.method == 'POST':
         try: me = Student.from_request(request)
         except exceptions.ObjectDoesNotExist: return redirect("login")
         
+        if 'editprofile' in request.POST and me == student:
+            form =  ProfileEditForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                student.bio = data['bio']
+                student.display_email = data['email']
+                student.twitter = data['twitter']
+                student.website = data['website']
+                student.save()
+            else:
+                autoshow = True
+        
         if 'friend' in request.POST:
+            # send the new friend an alert
             if student not in me.friends.all():
                 me.friends.add(student)
                 me.save()
@@ -65,7 +84,9 @@ def view_profile(request, username):
 
     return render( request, 'students_profile.html', {'student': student,
                                                       'games': games.values(),
-                                                      'alerts': alerts} )
+                                                      'alerts': alerts,
+                                                      'form':form,
+                                                      'autoshow':autoshow} )
 
 
 # This logs a user in, provided the password and stuff is right. :P

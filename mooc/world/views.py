@@ -78,7 +78,7 @@ def world_map(request, world):
             random.shuffle(students)
             student_count = len(students)
         elif s.challenge is not None:
-            students = list(ChallengeSOS.objects.filter(challenge=s.challenge,active=True))
+            students = list(ChallengeSOS.objects.filter(challenge=s.challenge,active=True).exclude(student=student))
             student_count = len(students)
             students = []
         
