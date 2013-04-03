@@ -259,9 +259,6 @@ def view_quizchallenge( request, world, stage, challenge ):
 # in the list, and then create a QuizChallengeResponse to hold them all.
 def do_quizchallenge( request, world, stage, challenge ):
     here = Stage.get_stage(world, stage)
-    if not here.challenge:
-        if here.tutorial: return redirect( "lesson", world = world, stage =stage )
-        else: raise Http404()
     quizID = request.POST.get("quizID")
     challenge, answer_map = request.session.get(quizID)
     

@@ -3,13 +3,15 @@
 from django.db import models
 
 from students.models import Student
-from world.models import BaseChallenge
+from world.models import BaseChallenge, BaseChallengeResponse
 
 
 # Challenge type: Assembly Program
 class AssemblyChallenge(BaseChallenge):
-    kernal      = models.BooleanField("kernal", default=False,
-                        help_text="The kernal for this challenge.")
+    preamble    = models.TextField("preamble",
+                        help_text="Code that comes before the user's code.")
+    postamble   = models.TextField("postamble",
+                        help_text="Code that comes after the user's code.")
     autograde   = models.SlugField("autograde function")
     #TODO - we need to map this to functions that will do the evaluation.
 
@@ -23,7 +25,7 @@ class AssemblyChallenge(BaseChallenge):
 # A student can retrieve the newest version of any submission by referring to
 # its name in the library, and if it's marked public, it appears on their
 # profile page and anyone can see it as well.
-class AssemblyChallengeResponse(models.Model):
+class AssemblyChallengeResponse(BaseChallengeResponse):
     challenge = models.ForeignKey(AssemblyChallenge, verbose_name="challenge",
                                   blank=True, null=True)
     student   = models.ForeignKey(Student, verbose_name="student", blank=True,
@@ -32,6 +34,7 @@ class AssemblyChallengeResponse(models.Model):
     timestamp = models.DateTimeField("timestamp", auto_now_add=True)
     public    = models.BooleanField("public", default=False)
     name      = models.SlugField("name", blank=True, null=True)
+    correct   = models.BooleanField("correct", default=False)
     
     class Meta:
         ordering = ('timestamp',)

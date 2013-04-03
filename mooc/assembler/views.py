@@ -13,9 +13,11 @@ from wiki.models import Page
 from students.models import Student
 from world.models import Stage, World
 
+from assembler import autograde
 from assembler.asm import Assembler
 from assembler.models import AssemblyChallengeResponse
 from students.models import Student
+from world.models import ChallengeSOS
 from django.contrib.auth.models import User
 
 import random
@@ -155,18 +157,55 @@ def view_assemblychallenge(request, world, stage, challenge):
         return do_assemblychallenge(request, world, stage, challenge)
         return redirect("challenge", world = world, stage = stage)
 
-    return render( request, "assembly_challenge.html",
-               {
-                'world': here.world,
-                'stage': here,
-                } )
+    return render( request, "assembly_challenge.html", { 'world': here.world,
+                                                         'stage': here } )
 
 # This is where POST requests are done.
 def do_assemblychallenge( request, world, stage, challenge ):
     here = Stage.get_stage(world, stage)
-    if not here.challenge:
-        if here.tutorial: return redirect( "lesson", world = world, stage =stage )
-        else: raise Http404()
-    quizID = request.POST.get("quizID")
-    challenge, answer_map = request.session.get(quizID)
+    
+    # Fetch the code and compile it.
+    code = request.POST["code"] if "code" in request.POST else ""
+    student = Student.from_request(request)
+    a = Assembler()
+    rom, errors = a.assemble( code, challenge.preamble, challenge.postamble )
+    completed = student in here.completed_by.all()
+    correct = autograde.grade( challenge, student, code, completed )
+    
+    # Save this in the database.
+    ACR = AssemblyChallengeResponse()
+    ACR.student = student
+    ACR.code = code
+    ACR.challenge = challenge
+    ACR.correct = correct
+    ACR.save()
+    
+    # Is there an SOS involved?
+    if "sos" in request.POST and "help" in request.POST:
+        SOS = ChallengeSOS()
+        SOS.challenge = challenge
+        SOS.challengeresponse = ACR
+        SOS.content = request.POST["help"]
+        SOS.student = student
+        SOS.save()
+    
+    # Do the autograding.
+    if correct:
+        here.completed_by.add(student)
+        here.save()
+    
+    # Either run the game in the browser or download it.
+    request.session["rom"] = rom
+    alerts = []
+    for e in errors:
+        alerts.append( {"tags":"alert-error",
+                        "content":e} )
+    if "run" in request.POST or "sos" in request.POST or len(errors)>0:
+        return render( request, "assembly_challenge.html", {"name": ACR.name,
+                                                            "source_code": code,
+                                                            "alerts": alerts,
+                                                            "world": here.world,
+                                                            "stage": here})
+    else:
+        return get_rom(request)
 
