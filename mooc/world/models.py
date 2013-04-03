@@ -98,6 +98,17 @@ class BaseChallenge(models.Model):
         return u"%s: %s"%(self.challenge_type(), self.shortname)
 
 
+# This is the abstract ChallengeResponse class. A ChallengeResponse is the
+# answer associated with the challenge. The shortname here has no real value.
+class BaseChallengeResponse(models.Model):
+    shortname       = models.SlugField("shortname", blank=True, null=True,
+                        help_text="Short name for the response")
+    
+    # Unicode baby!
+    def __unicode__(self):
+        return u"BaseChallengeResponse %d"%(self.id)
+
+
 # If Modules are the "worlds", then lessons are the "stages". The name of the
 # lesson is formatted: "[world.shortname]-[lesson.shortname]: [lesson.name]"
 # So it would be like "1-1: Intro to ASM".
@@ -137,6 +148,14 @@ class Stage(models.Model):
                                       "to highest when displayed in lists.")
     completed_by= models.ManyToManyField(Student, blank=True,
                             help_text="Who has completed this stage?")
+    
+    @staticmethod
+    def get_stage(world, stage):
+        try:
+            world = World.objects.get(shortname=world)
+            stage = Stage.objects.get(world=world, shortname=stage)
+            return stage
+        except exceptions.ObjectDoesNotExist: raise Http404()
     
     class Meta:
         ordering = ('ordering',)
@@ -210,7 +229,7 @@ class QuizAnswer(models.Model):
 
 
 # The form submitted when a multiple-choice quiz is completed.
-class QuizChallengeResponse(models.Model):
+class QuizChallengeResponse(BaseChallengeResponse):
     challenge = models.ForeignKey(QuizChallenge, verbose_name="challenge")
     answers   = models.ManyToManyField(QuizAnswer, verbose_name="answers")
     student   = models.ForeignKey(Student, verbose_name="student")
@@ -228,6 +247,8 @@ class QuizChallengeResponse(models.Model):
 class ChallengeSOS(models.Model):
     challenge   = models.ForeignKey(BaseChallenge, verbose_name="challenge",
                             help_text="The challenge for this SOS.")
+    challengeresponse = models.ForeignKey(BaseChallengeResponse, verbose_name="challengeresponse",
+                            help_text="The challenge response for this SOS.")
     content     = models.TextField("content",
                         help_text="The student's question in wiki-creole format.")
     timestamp   = models.DateTimeField("timestamp", auto_now_add=True)
@@ -244,7 +265,7 @@ class ChallengeSOS(models.Model):
 # This is a response to an SOS call.
 class SOSResponse(models.Model):
     SOS         = models.ForeignKey(ChallengeSOS, verbose_name="challenge",
-                            help_text="The challenge for this SOS.")
+                            help_text="The SOS for this response.")
     response    = models.TextField("content",
                             help_text="The response in wiki-creole format.")
     timestamp   = models.DateTimeField("timestamp", auto_now_add=True)

@@ -108,14 +108,19 @@ class Assembler(object):
     #   .error  Which contains a list of all errors and warnings.
     #
     # If there was an error, we return a binary of length 0.
-    def assemble(self, code):
+    def assemble(self, code, preamble="", postamble=""):
+        pre_elements = []
+        post_elements = []
+        
+        if preamble != "": pre_elements = self.parse(preamble, "preamble")
+        if postamble != "": post_elements = self.parse(postamble, "postamble")
         elements = self.parse(code)
         
         # Pass zero: handle .includes and .incbins, which connect to the
         # Assembler model. The database stores the includes and incbins as
         # textfiles to be imported
         new_elements = []
-        for label, op, arg, original in elements:
+        for label, op, arg, original in pre_elements+elements+post_elements:
             if op in [".include", ".incbin", ".ascii"] and (arg is None or
                             not (arg.startswith('"') and arg.endswith('"'))):
                 self.err("Incorrectly formatted quoted string")
