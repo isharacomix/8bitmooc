@@ -65,7 +65,7 @@ def do_playground(request):
                                                               "source_code": code,
                                                               "alerts": alerts})
     else:
-        return get_rom(request)
+        return get_rom(request, ACR.name)
 
 
 # This retrieves all of the games in the library and sorts them by owner.
@@ -141,10 +141,10 @@ def get_library_game(request, username, gamename):
 
 # The get_rom view simply returns the current ROM that is in the session
 # variables.
-def get_rom(request):
+def get_rom(request, gamename="rom"):
     if "rom" in request.session and request.session["rom"] != "":
-        response = HttpResponse(request.session["rom"], content_type='application/octet-stream')
-        response['Content-Disposition'] = 'attachment; filename="rom.nes"'
+        response = HttpResponse(request.session["rom"], content_type='application/x-nes-rom')
+        response['Content-Disposition'] = 'attachment; filename='+gamename+'.nes'
         return response 
     else:
         raise Http404()
@@ -207,5 +207,5 @@ def do_assemblychallenge( request, world, stage, challenge ):
                                                             "world": here.world,
                                                             "stage": here})
     else:
-        return get_rom(request)
+        return get_rom(request, here.world.shortname+"-"+here.shortname)
 
