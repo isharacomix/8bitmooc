@@ -6,6 +6,7 @@ TEMPLATE_DEBUG = DEBUG
 PROJECT_DIR = os.path.dirname(__file__)
 CHECKOUT_DIR = os.path.dirname(PROJECT_DIR)
 PUBLIC_DIR = os.path.join(PROJECT_DIR, 'public')
+SITE_URL = "dev.8bitmooc.org"
 
 ADMINS = (
     ('Barry Peddycord', 'ishara@isharacomix.org'),

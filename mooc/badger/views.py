@@ -16,7 +16,7 @@ import os
 
 
 # Here are the constants needed to do things.
-ISSUER_DOMAIN = "http://8bitmooc.org"
+ISSUER_DOMAIN = "http://"+settings.SITE_URL
 ISSUER_NAME = "8bitmooc"
 ISSUER_ORG = "8bitmooc"
 ISSUER_CONTACT = "admin@8bitmooc.org"

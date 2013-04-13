@@ -154,14 +154,14 @@ def register_page(request):
             
             #TODO move this email to a file so that it's not so darn ugly.
             email = """
-            Howdy, %s!
-            
-            You're almost all set for #8bitmooc - all that's left is to verify your
-            e-mail address. Please click on the following link to activate your
-            account!
-            
-            http://8bitmooc.org/login?username=%s&key=%s
-            """%(u.username, u.username,
+Howdy, %s!
+
+You're almost all set for #8bitmooc - all that's left is to verify your
+e-mail address. Please click on the following link to activate your
+account!
+
+http://%s/login?username=%s&key=%s
+            """%(u.username, settings.SITE_URL, u.username,
                  hashlib.sha256(u.username+settings.REGISTER_SALT).hexdigest())
             
             # Send an alert email to this individual.
