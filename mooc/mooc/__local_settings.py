@@ -48,5 +48,14 @@ BADGE_SALT = ''
 REGISTER_SALT = ''
 
 if DEBUG:
-    # Show emails in the console during developement.
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = ''
+    EMAIL_PORT = ''
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_USE_TLS = True
+    EMAIL_SUBJECT_PREFIX = ''
+    
+    
