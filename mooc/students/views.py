@@ -165,7 +165,7 @@ http://%s/login?username=%s&key=%s
                  hashlib.sha256(u.username+settings.REGISTER_SALT).hexdigest())
             
             # Send an alert email to this individual.
-            send_mail('8bitmooc account registration', email, 'bounces@8bitmooc.org',
+            send_mail('[8bitmooc] Account Registration', email, 'bounces@8bitmooc.org',
                       [u.email], fail_silently=True)
             return render( request, "return_to_home.html", {"alerts":alerts} )
         else:
