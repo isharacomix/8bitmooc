@@ -6,17 +6,6 @@
 from django.core import exceptions
 from assembler.models import Kernal, Pattern
 
-# This refers to a $2000-byte Bank of memory. Each bank is physically addressed
-# from $0000 to $1FFF, but is logically set to start at a specific starting
-# position.
-class Bank(object):
-    def __init__(self, start, size=0x2000):
-        self.org = start
-        self.start = start
-        self.size = size
-        self.rom = [0xff]*self.size
-
-
 # Addressing modes.
 M_IMPLIED = 0
 M_REGISTER = 1
@@ -95,12 +84,12 @@ SYMBOL_TABLE = {   #IMP, REG, IMM, ZPG, ZPX, ABS, ABX, ABY, INX, INY,
 #
 class Assembler(object):
     def __init__(self):
+        self.org = 0
+        self.start = 0xC000
+        self.rom = [0xff]*0x4000
+        self.chr = [0xff]*0x2000
         self.labels = {}
         self.errors = []
-        self.inesprg = 0
-        self.ineschr = 0
-        self.inesmap = 0
-        self.inesmir = 0
         self.lastline = ""
 
     # Here we return two values: (rom, errors)
@@ -162,44 +151,21 @@ class Assembler(object):
         
         # First pass: Identify the values of labels by counting the size of the
         # operations based on addressing modes and identifying the .org directives.
-        banks = []
-        b = None
         for label, op, arg, original in elements:
             self.lastline = original
             if label:
-                self.labels[label] = b.org
+                self.labels[label] = self.org
                 if len(label) == 0 or label[0] not in "abcdefghijklmnopqrstuvwxyz_":
                     self.err("Labels may only start with letters or underscore")
                 for c in label:
                     if c not in "abcdefghijklmnopqrstuvwxyz0123456789_":
                         self.err("Illegal character in label name")
             if op:
-                if op == '.bank': 
-                    index = 0
-                    start = 0
-                    if '=' in arg: 
-                        index,start=arg.split('=') 
-                        try: index = int(index)
-                        except ValueError:
-                            self.err("Need a decimal integer")
-                            index = 0
-                        start = self.num(start)
-                    else: index = int(arg)
-                    if index == len(banks):
-                        banks.append(Bank(start))
-                    elif index > len(banks) or index < 0:
-                        self.err("FATAL: Banks need to be declared in order.")
-                        break
-                    b = banks[index]
-                elif op not in ['.bank', '.inesprg', '.ineschr',
-                                         '.inesmap', '.inesmir'] and b is None:
-                    self.err("FATAL: Need to declare a bank before any code.")
-                    break
-                elif op[0] != '.': b.org += self.size(op, arg)
-                elif op == ".org": b.org = self.num(arg)
-                elif op == ".byte": b.org += 1
-                elif op == ".word" or op == ".dw": b.org += 2
-                elif op == ".bytes" or op == ".db": b.org += len(arg.split(','))
+                if   op[0] != '.': self.org += self.size(op, arg)
+                elif op == ".org": self.org = self.num(arg)
+                elif op == ".byte": self.org += 1
+                elif op == ".word" or op == ".dw": self.org += 2
+                elif op == ".bytes" or op == ".db": self.org += len(arg.split(','))
                 elif op == ".define":
                     lab, val = arg.split('=')
                     self.labels[lab] = self.num(val)
@@ -214,140 +180,112 @@ class Assembler(object):
         
         # Second pass, iterate over each element and generate the binary.
         # Uses the symbol table to match opcodes with addressing modes.
-        banks = []
-        b = None
+        self.org = 0
         for label, op, arg, original in elements:
             self.lastline = original
-            if op == '.bank':
-                index = 0
-                start = 0
-                if '=' in arg:
-                    index,start=arg.split('=')
-                    try: index = int(index)
-                    except ValueError: self.err("Need a decimal integer")
-                    start = self.num(start)
-                else: index = int(arg)
-                if index == len(banks):
-                    banks.append(Bank(start))
-                b = banks[index]
-            elif op == '.define': pass
-            elif op == '.inesprg':
-                try: self.inesprg = int(arg)
-                except ValueError: self.err("Need a decimal integer")
-            elif op == '.ineschr':
-                try: self.ineschr = int(arg)
-                except ValueError: self.err("Need a decimal integer")
-            elif op == '.inesmap':
-                try: self.inesmap = int(arg)
-                except ValueError: self.err("Need a decimal integer")
-            elif op == '.inesmir':
-                try: self.inesmir = int(arg)
-                except ValueError: self.err("Need a decimal integer")
+            if   op == '.define': pass
             elif op == '.org':
-                b.org = self.num(arg)
+                self.org = self.num(arg)
             elif op == '.byte':
-                self.labels["*"] = b.org+1
-                b.rom[b.org-b.start] = self.num(arg)&0xff
-                b.org += 1
+                self.labels["*"] = self.org+1
+                self.rom[self.org-self.start] = self.num(arg)&0xff
+                self.org += 1
             elif op == '.word' or op == '.dw':
-                self.labels["*"] = b.org+2
+                self.labels["*"] = self.org+2
                 val = self.num(arg)
-                b.rom[b.org-b.start] = val&0xff
-                b.rom[b.org-b.start+1] = (val>>8)&0xff
-                b.org += 2
+                self.rom[self.org-self.start] = val&0xff
+                self.rom[self.org-self.start+1] = (val>>8)&0xff
+                self.org += 2
             elif op == '.bytes' or op == '.db':
                 for byte in arg.split(','):
-                    self.labels["*"] = b.org+1
-                    b.rom[b.org-b.start] = self.num(byte.strip())&0xff
-                    b.org += 1
+                    self.labels["*"] = self.org+1
+                    self.rom[self.org-self.start] = self.num(byte.strip())&0xff
+                    self.org += 1
             elif op in ["stx","ldx"]:
                 arg = arg.replace(",y",",x")
                 mode, argnum = self.addrmode(arg)
-                self.labels["*"] = b.org+2
+                self.labels["*"] = self.org+2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
-                    self.labels["*"] = b.org+3
+                    self.labels["*"] = self.org+3
                 symbol = SYMBOL_TABLE[op][mode]
                 val = self.num(argnum)
                 if not symbol:
                     self.err("Incorrect addressing mode for %s"%op)
-                b.rom[b.org-b.start] = symbol
-                b.rom[b.org-b.start+1] = val&0xff
-                b.org += 2
+                self.rom[self.org-self.start] = symbol
+                self.rom[self.org-self.start+1] = val&0xff
+                self.org += 2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
-                    b.rom[b.org-b.start] = (val>>8)&0xff
-                    b.org += 1
+                    self.rom[self.org-self.start] = (val>>8)&0xff
+                    self.org += 1
             elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]:
-                self.labels["*"] = b.org+2
-                b.rom[b.org-b.start] = SYMBOL_TABLE[op]
-                b.rom[b.org-b.start+1] = self.num(arg)&0xff
-                b.org += 2
+                self.labels["*"] = self.org+2
+                self.rom[self.org-self.start] = SYMBOL_TABLE[op]
+                self.rom[self.org-self.start+1] = self.num(arg)&0xff
+                self.org += 2
             elif op == 'jsr':
-                self.labels["*"] = b.org+3
-                b.rom[b.org-b.start] = SYMBOL_TABLE[op]
+                self.labels["*"] = self.org+3
+                self.rom[self.org-self.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
-                b.rom[b.org-b.start+1] = val&0xff
-                b.rom[b.org-b.start+2] = (val>>8)&0xff
-                b.org += 3
+                self.rom[self.org-self.start+1] = val&0xff
+                self.rom[self.org-self.start+2] = (val>>8)&0xff
+                self.org += 3
             elif op == 'jmp':
-                self.labels["*"] = b.org+3
+                self.labels["*"] = self.org+3
                 if arg.startswith('(') and arg.endswith(')'):
-                    b.rom[b.org-b.start] = SYMBOL_TABLE[op][1]
+                    self.rom[self.org-self.start] = SYMBOL_TABLE[op][1]
                     arg = arg[1:-1]
                 else:
-                    b.rom[b.org-b.start] = SYMBOL_TABLE[op][0]
+                    self.rom[self.org-self.start] = SYMBOL_TABLE[op][0]
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_ZEROPAGE, M_ABSOLUTE]:
                     self.err("Incorrect addressing mode for %s"%op)
                 val = self.num(argnum)
-                b.rom[b.org-b.start+1] = val&0xff
-                b.rom[b.org-b.start+2] = (val>>8)&0xff
-                b.org += 3
+                self.rom[self.org-self.start+1] = val&0xff
+                self.rom[self.org-self.start+2] = (val>>8)&0xff
+                self.org += 3
             elif op == 'brk':
-                self.labels["*"] = b.org+2
-                b.rom[b.org-b.start] = SYMBOL_TABLE[op]
+                self.labels["*"] = self.org+2
+                self.rom[self.org-self.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_IMMEDIATE]:
                     self.err("Incorrect addressing mode for %s"%op)
-                b.rom[b.org-b.start+1] = val&0xff
-                b.org += 2
+                self.rom[self.org-self.start+1] = val&0xff
+                self.org += 2
             elif op in SYMBOL_TABLE:
                 mode, argnum = self.addrmode(arg)
                 symbol = SYMBOL_TABLE[op][mode]
                 if not symbol:
                     self.err("Incorrect addressing mode for %s"%op)
-                self.labels["*"] = b.org+2
+                self.labels["*"] = self.org+2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
-                    self.labels["*"] = b.org+3
+                    self.labels["*"] = self.org+3
                 if mode in [M_IMPLIED,M_REGISTER]:
-                    self.labels["*"] = b.org+1
-                    b.rom[b.org-b.start] = symbol
-                    b.org += 1
+                    self.labels["*"] = self.org+1
+                    self.rom[self.org-self.start] = symbol
+                    self.org += 1
                 else:
                     val = self.num(argnum)
-                    b.rom[b.org-b.start] = symbol
-                    b.rom[b.org-b.start+1] = val&0xff
-                    b.org += 2
+                    self.rom[self.org-self.start] = symbol
+                    self.rom[self.org-self.start+1] = val&0xff
+                    self.org += 2
                     if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
-                        b.rom[b.org-b.start] = (val>>8)&0xff
-                        b.org += 1
+                        self.rom[self.org-self.start] = (val>>8)&0xff
+                        self.org += 1
             elif op is None or op == "": pass
             else: self.err("Illegal opcode/directive %s"%op)
         
         # Set the ines header. We don't honor different mapper bits.
-        header = [ 0x4E, 0x45, 0x53, 0x1A, self.inesprg, self.ineschr,
-                   self.inesmir, 0, 0, 0, 0 , 0, 0, 0, 0 , 0]
+        header = [ 0x4E, 0x45, 0x53, 0x1A, 1, 1, 0, 1,
+                   0, 0, 0 , 0, 0, 0, 0 , 0]
         
         # If there are any errors, nothing is assembled.
         if len(self.errors) > 0: return "", self.errors
-        if len(banks) == 0: return "", self.errors
-
+        
         # Otherwise, put it all together and see what we get!
         romstring = ""
-        for c in header:
+        for c in header + self.rom + self.chr:
             romstring += "%c"%(c&0xff)
-        for b in banks:
-            for c in b.rom: romstring += "%c"%(c&0xff)
         return romstring, self.errors
 
 
