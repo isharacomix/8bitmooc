@@ -6,12 +6,34 @@ from students.models import Student
 from world.models import BaseChallenge, BaseChallengeResponse
 
 
+# The Kernal table stores assembly code to be invoked when ".include" is called.
+class Kernal(models.Model):
+    name = models.SlugField("name", unique=True)
+    code = models.TextField("code")
+    
+    def __unicode__(self):
+        return u'Kernal %s'%(self.name)
+
+
+# The Pattern table stores binary data and adds it when ".incbin" is called.
+# The data is actually stored in ASCII Hex (maybe upgrade to ASCII85 in the
+# future).
+class Pattern(models.Model):
+    name = models.SlugField("name", unique=True)
+    code = models.TextField("code")
+
+    def __unicode__(self):
+        return u'Pattern %s'%(self.name)
+
+
 # Challenge type: Assembly Program
 class AssemblyChallenge(BaseChallenge):
     preamble    = models.TextField("preamble",
                         help_text="Code that comes before the user's code.")
     postamble   = models.TextField("postamble",
                         help_text="Code that comes after the user's code.")
+    pattern     = models.ForeignKey(Pattern, verbose_name="pattern", blank=True,
+                                    null=True, help_text="CHR sprite sheet.")
     autograde   = models.SlugField("autograde function")
     #TODO - we need to map this to functions that will do the evaluation.
 
@@ -31,6 +53,8 @@ class AssemblyChallengeResponse(BaseChallengeResponse):
     student   = models.ForeignKey(Student, verbose_name="student", blank=True,
                                   null=True)
     code      = models.TextField("code", blank=True)
+    pattern   = models.ForeignKey(Pattern, verbose_name="pattern", blank=True,
+                                  null=True, help_text="CHR sprite sheet.")
     timestamp = models.DateTimeField("timestamp", auto_now_add=True)
     public    = models.BooleanField("public", default=False)
     name      = models.SlugField("name", blank=True, null=True)
@@ -41,24 +65,4 @@ class AssemblyChallengeResponse(BaseChallengeResponse):
     
     def __unicode__(self):
         return u'AssemblyResponse %d from %s'%(self.id,self.student.username)
-
-
-# The Kernal table stores assembly code to be invoked when ".include" is called.
-class Kernal(models.Model):
-    name = models.SlugField("name", unique=True)
-    code = models.TextField("code")
-    
-    def __unicode__(self):
-        return u'Kernal %s'%(self.name)
-
-
-# The Pattern table stores binary data and adds it when ".incbin" is called.
-# The data is actually stored in ASCII Hex (maybe upgrade to ASCII85 in the
-# future).
-class Pattern(models.Model):
-    name = models.SlugField("name", unique=True)
-    code = models.TextField("code")
-
-    def __unicode__(self):
-        return u'Pattern %s'%(self.name)
 

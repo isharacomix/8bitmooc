@@ -15,7 +15,7 @@ from world.models import Stage, World
 
 from assembler import autograde
 from assembler.asm import Assembler
-from assembler.models import AssemblyChallengeResponse
+from assembler.models import AssemblyChallengeResponse, Pattern
 from students.models import Student
 from world.models import ChallengeSOS
 from django.contrib.auth.models import User
@@ -27,7 +27,7 @@ import random
 def view_playground(request):
     if request.method == 'POST':
         return do_playground(request)
-    return render( request, "assembler_playground.html")
+    return render( request, "assembler_playground.html", {"patterns":Pattern.objects.all()})
 
 
 # The 'do' method runs when we get the POST request. This compiles the ROM,
@@ -37,7 +37,6 @@ def view_playground(request):
 def do_playground(request):
     code = request.POST["code"]
     a = Assembler()
-    rom, errors = a.assemble( code )
     
     # Save this in the database.
     ACR = AssemblyChallengeResponse()
@@ -52,7 +51,11 @@ def do_playground(request):
                 ACR.name += c
     if "public" in request.POST and request.POST["public"]=="True":
         ACR.public = True
+    if "pattern" in request.POST:
+        try: ACR.pattern = Pattern.objects.get(name=request.POST["pattern"])
+        except exceptions.ObjectDoesNotExist: pass
     ACR.save()
+    rom, errors = a.assemble( ACR.code, ACR.pattern )
     
     # Either run the game in the browser or download it.
     request.session["rom"] = rom
@@ -63,7 +66,9 @@ def do_playground(request):
     if "run" in request.POST or len(errors)>0:
         return render( request, "assembler_playground.html", {"name": ACR.name,
                                                               "source_code": code,
-                                                              "alerts": alerts})
+                                                              "alerts": alerts,
+                                                              "patterns": Pattern.objects.all(),
+                                                              "mypattern": ACR.pattern})
     else:
         return get_rom(request, ACR.name)
 
@@ -123,11 +128,14 @@ def get_library_game(request, username, gamename):
     
     # Now try to load the code and compile it.
     code = ""
-    if len(subs) > 0: code = subs[0].code
+    pattern = None
+    if len(subs) > 0:
+        code = subs[0].code
+        pattern = subs[0].pattern
     else: alerts = [{"tags":"alert-error",
                      "content":"No such game was found in the library."}]
     a = Assembler()
-    rom, errors = a.assemble( code )
+    rom, errors = a.assemble( code, pattern )
     
     # Set the rom session parameter and run the ROM (or show us the errors).
     request.session["rom"] = rom
@@ -136,7 +144,9 @@ def get_library_game(request, username, gamename):
                         "content":e} )
     return render( request, "assembler_playground.html", {"name":gamename,
                                                           "source_code": code,
-                                                          "alerts": alerts})
+                                                          "alerts": alerts,
+                                                          "patterns": Pattern.objects.all(),
+                                                          "mypattern": pattern})
 
 
 # The get_rom view simply returns the current ROM that is in the session
@@ -168,7 +178,7 @@ def do_assemblychallenge( request, world, stage, challenge ):
     code = request.POST["code"] if "code" in request.POST else ""
     student = Student.from_request(request)
     a = Assembler()
-    rom, errors = a.assemble( code, challenge.preamble, challenge.postamble )
+    rom, errors = a.assemble( code, challenge.pattern, challenge.preamble, challenge.postamble )
     completed = student in here.completed_by.all()
     correct = autograde.grade( challenge, student, code, completed )
     

@@ -18,9 +18,19 @@
 <input class="input-block-level" type="text" placeholder="Enter the name of your program here" name="name" value="{{ name }}"></input>
 {% if user.is_authenticated %}
 <label class="checkbox">
-    <input type="checkbox" name="public" value="True" />Save this program to your public game library?
+    Save this program to your public game library?
+    <input type="checkbox" name="public" value="True" />
 </label>
 {% endif %}
+<select name="pattern">
+{% if mypattern %}
+    <option value="{{p.name}}">Current sprite sheet: {{mypattern.name}}</option>
+{% endif %}
+{% for p in patterns %}
+    <option value="{{p.name}}">Sprite sheet: {{p.name}}</option>
+{% endfor %}
+</select>
+
 <textarea class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ source_code }}</textarea>
 
             </div>

@@ -86,7 +86,7 @@ class Assembler(object):
     def __init__(self):
         self.org = 0
         self.start = 0xC000
-        self.rom = [0xff]*0x4000
+        self.prg = [0xff]*0x4000
         self.chr = [0xff]*0x2000
         self.labels = {}
         self.errors = []
@@ -97,10 +97,20 @@ class Assembler(object):
     #   .error  Which contains a list of all errors and warnings.
     #
     # If there was an error, we return a binary of length 0.
-    def assemble(self, code, preamble="", postamble=""):
+    def assemble(self, code, pattern=None, preamble="", postamble=""):
         pre_elements = []
         post_elements = []
         
+        # Try to load the sprite sheet for this code. We expect it to be an
+        # actual pattern object.
+        if pattern is not None:
+            try:
+                for i in range(len(pattern.code)/2):
+                    self.chr[i] = int(pattern.code[i*2:i*2+2],16)
+            except:
+                self.err("The pattern %s is corrupt"%pattern)
+        
+        # Tokenize the code, preamble, and postamble.
         if preamble != "": pre_elements = self.parse(preamble, "preamble")
         if postamble != "": post_elements = self.parse(postamble, "postamble")
         elements = self.parse(code)
@@ -188,18 +198,18 @@ class Assembler(object):
                 self.org = self.num(arg)
             elif op == '.byte':
                 self.labels["*"] = self.org+1
-                self.rom[self.org-self.start] = self.num(arg)&0xff
+                self.prg[self.org-self.start] = self.num(arg)&0xff
                 self.org += 1
             elif op == '.word' or op == '.dw':
                 self.labels["*"] = self.org+2
                 val = self.num(arg)
-                self.rom[self.org-self.start] = val&0xff
-                self.rom[self.org-self.start+1] = (val>>8)&0xff
+                self.prg[self.org-self.start] = val&0xff
+                self.prg[self.org-self.start+1] = (val>>8)&0xff
                 self.org += 2
             elif op == '.bytes' or op == '.db':
                 for byte in arg.split(','):
                     self.labels["*"] = self.org+1
-                    self.rom[self.org-self.start] = self.num(byte.strip())&0xff
+                    self.prg[self.org-self.start] = self.num(byte.strip())&0xff
                     self.org += 1
             elif op in ["stx","ldx"]:
                 arg = arg.replace(",y",",x")
@@ -211,46 +221,46 @@ class Assembler(object):
                 val = self.num(argnum)
                 if not symbol:
                     self.err("Incorrect addressing mode for %s"%op)
-                self.rom[self.org-self.start] = symbol
-                self.rom[self.org-self.start+1] = val&0xff
+                self.prg[self.org-self.start] = symbol
+                self.prg[self.org-self.start+1] = val&0xff
                 self.org += 2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
-                    self.rom[self.org-self.start] = (val>>8)&0xff
+                    self.prg[self.org-self.start] = (val>>8)&0xff
                     self.org += 1
             elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]:
                 self.labels["*"] = self.org+2
-                self.rom[self.org-self.start] = SYMBOL_TABLE[op]
-                self.rom[self.org-self.start+1] = self.num(arg)&0xff
+                self.prg[self.org-self.start] = SYMBOL_TABLE[op]
+                self.prg[self.org-self.start+1] = self.num(arg)&0xff
                 self.org += 2
             elif op == 'jsr':
                 self.labels["*"] = self.org+3
-                self.rom[self.org-self.start] = SYMBOL_TABLE[op]
+                self.prg[self.org-self.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
-                self.rom[self.org-self.start+1] = val&0xff
-                self.rom[self.org-self.start+2] = (val>>8)&0xff
+                self.prg[self.org-self.start+1] = val&0xff
+                self.prg[self.org-self.start+2] = (val>>8)&0xff
                 self.org += 3
             elif op == 'jmp':
                 self.labels["*"] = self.org+3
                 if arg.startswith('(') and arg.endswith(')'):
-                    self.rom[self.org-self.start] = SYMBOL_TABLE[op][1]
+                    self.prg[self.org-self.start] = SYMBOL_TABLE[op][1]
                     arg = arg[1:-1]
                 else:
-                    self.rom[self.org-self.start] = SYMBOL_TABLE[op][0]
+                    self.prg[self.org-self.start] = SYMBOL_TABLE[op][0]
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_ZEROPAGE, M_ABSOLUTE]:
                     self.err("Incorrect addressing mode for %s"%op)
                 val = self.num(argnum)
-                self.rom[self.org-self.start+1] = val&0xff
-                self.rom[self.org-self.start+2] = (val>>8)&0xff
+                self.prg[self.org-self.start+1] = val&0xff
+                self.prg[self.org-self.start+2] = (val>>8)&0xff
                 self.org += 3
             elif op == 'brk':
                 self.labels["*"] = self.org+2
-                self.rom[self.org-self.start] = SYMBOL_TABLE[op]
+                self.prg[self.org-self.start] = SYMBOL_TABLE[op]
                 val = self.num(arg)
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_IMMEDIATE]:
                     self.err("Incorrect addressing mode for %s"%op)
-                self.rom[self.org-self.start+1] = val&0xff
+                self.prg[self.org-self.start+1] = val&0xff
                 self.org += 2
             elif op in SYMBOL_TABLE:
                 mode, argnum = self.addrmode(arg)
@@ -262,15 +272,15 @@ class Assembler(object):
                     self.labels["*"] = self.org+3
                 if mode in [M_IMPLIED,M_REGISTER]:
                     self.labels["*"] = self.org+1
-                    self.rom[self.org-self.start] = symbol
+                    self.prg[self.org-self.start] = symbol
                     self.org += 1
                 else:
                     val = self.num(argnum)
-                    self.rom[self.org-self.start] = symbol
-                    self.rom[self.org-self.start+1] = val&0xff
+                    self.prg[self.org-self.start] = symbol
+                    self.prg[self.org-self.start+1] = val&0xff
                     self.org += 2
                     if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
-                        self.rom[self.org-self.start] = (val>>8)&0xff
+                        self.prg[self.org-self.start] = (val>>8)&0xff
                         self.org += 1
             elif op is None or op == "": pass
             else: self.err("Illegal opcode/directive %s"%op)
@@ -284,7 +294,7 @@ class Assembler(object):
         
         # Otherwise, put it all together and see what we get!
         romstring = ""
-        for c in header + self.rom + self.chr:
+        for c in header + self.prg + self.chr:
             romstring += "%c"%(c&0xff)
         return romstring, self.errors
 
@@ -446,15 +456,4 @@ class Assembler(object):
     def err(self,s):
         if len(self.errors) < 100:
             self.errors.append("["+s+"] "+self.lastline)
-
-
-def test(s):
-    code = open(s).read()
-    a = Assembler()
-    x,w = a.assemble(code)
-    out = open("test.nes","wb")
-    for e in w:
-        print e
-    out.write(x)
-    out.close()
 
