@@ -84,7 +84,7 @@ SYMBOL_TABLE = {   #IMP, REG, IMM, ZPG, ZPX, ABS, ABX, ABY, INX, INY,
 #
 class Assembler(object):
     def __init__(self):
-        self.org = 0
+        self.org = 0x0000
         self.start = 0xC000
         self.prg = [0xff]*0x4000
         self.chr = [0xff]*0x2000
@@ -198,18 +198,18 @@ class Assembler(object):
                 self.org = self.num(arg)
             elif op == '.byte':
                 self.labels["*"] = self.org+1
-                self.prg[self.org-self.start] = self.num(arg)&0xff
+                self.write_prg( self.num(arg), self.org )
                 self.org += 1
             elif op == '.word' or op == '.dw':
                 self.labels["*"] = self.org+2
                 val = self.num(arg)
-                self.prg[self.org-self.start] = val&0xff
-                self.prg[self.org-self.start+1] = (val>>8)&0xff
+                self.write_prg( val, self.org )
+                self.write_prg( val>>8, self.org+1 )
                 self.org += 2
             elif op == '.bytes' or op == '.db':
                 for byte in arg.split(','):
                     self.labels["*"] = self.org+1
-                    self.prg[self.org-self.start] = self.num(byte.strip())&0xff
+                    self.write_prg( self.num(byte.strip()), self.org )
                     self.org += 1
             elif op in ["stx","ldx"]:
                 arg = arg.replace(",y",",x")
@@ -221,46 +221,46 @@ class Assembler(object):
                 val = self.num(argnum)
                 if not symbol:
                     self.err("Incorrect addressing mode for %s"%op)
-                self.prg[self.org-self.start] = symbol
-                self.prg[self.org-self.start+1] = val&0xff
+                self.write_prg( symbol, self.org )
+                self.write_prg( val, self.org+1 )
                 self.org += 2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X]:
-                    self.prg[self.org-self.start] = (val>>8)&0xff
+                    self.write_prg( val>>8, self.org )
                     self.org += 1
             elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]:
                 self.labels["*"] = self.org+2
-                self.prg[self.org-self.start] = SYMBOL_TABLE[op]
-                self.prg[self.org-self.start+1] = self.num(arg)&0xff
+                self.write_prg( SYMBOL_TABLE[op], self.org )
+                self.write_prg( self.num(arg)-self.org-2, self.org+1 )
                 self.org += 2
             elif op == 'jsr':
                 self.labels["*"] = self.org+3
-                self.prg[self.org-self.start] = SYMBOL_TABLE[op]
+                self.write_prg( SYMBOL_TABLE[op], self.org )
                 val = self.num(arg)
-                self.prg[self.org-self.start+1] = val&0xff
-                self.prg[self.org-self.start+2] = (val>>8)&0xff
+                self.write_prg( val, self.org+1 )
+                self.write_prg( val>>8, self.org+2 )
                 self.org += 3
             elif op == 'jmp':
                 self.labels["*"] = self.org+3
                 if arg.startswith('(') and arg.endswith(')'):
-                    self.prg[self.org-self.start] = SYMBOL_TABLE[op][1]
+                    self.write_prg( SYMBOL_TABLE[op][1], self.org )
                     arg = arg[1:-1]
                 else:
-                    self.prg[self.org-self.start] = SYMBOL_TABLE[op][0]
+                    self.write_prg( SYMBOL_TABLE[op][0], self.org )
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_ZEROPAGE, M_ABSOLUTE]:
                     self.err("Incorrect addressing mode for %s"%op)
                 val = self.num(argnum)
-                self.prg[self.org-self.start+1] = val&0xff
-                self.prg[self.org-self.start+2] = (val>>8)&0xff
+                self.write_prg( val, self.org+1 )
+                self.write_prg( val>>8, self.org+2 )
                 self.org += 3
             elif op == 'brk':
                 self.labels["*"] = self.org+2
-                self.prg[self.org-self.start] = SYMBOL_TABLE[op]
+                self.write_prg( SYMBOL_TABLE[op], self.org )
                 val = self.num(arg)
                 mode, argnum = self.addrmode(arg)
                 if mode not in [M_IMMEDIATE]:
                     self.err("Incorrect addressing mode for %s"%op)
-                self.prg[self.org-self.start+1] = val&0xff
+                self.write_prg( val, self.org+1 )
                 self.org += 2
             elif op in SYMBOL_TABLE:
                 mode, argnum = self.addrmode(arg)
@@ -272,21 +272,21 @@ class Assembler(object):
                     self.labels["*"] = self.org+3
                 if mode in [M_IMPLIED,M_REGISTER]:
                     self.labels["*"] = self.org+1
-                    self.prg[self.org-self.start] = symbol
+                    self.write_prg( symbol, self.org )
                     self.org += 1
                 else:
                     val = self.num(argnum)
-                    self.prg[self.org-self.start] = symbol
-                    self.prg[self.org-self.start+1] = val&0xff
+                    self.write_prg( symbol, self.org )
+                    self.write_prg( val, self.org+1 )
                     self.org += 2
                     if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
-                        self.prg[self.org-self.start] = (val>>8)&0xff
+                        self.write_prg( val>>8, self.org )
                         self.org += 1
             elif op is None or op == "": pass
             else: self.err("Illegal opcode/directive %s"%op)
         
         # Set the ines header. We don't honor different mapper bits.
-        header = [ 0x4E, 0x45, 0x53, 0x1A, 1, 1, 0, 1,
+        header = [ 0x4E, 0x45, 0x53, 0x1A, 1, 1, 1, 0,
                    0, 0, 0 , 0, 0, 0, 0 , 0]
         
         # If there are any errors, nothing is assembled.
@@ -298,6 +298,15 @@ class Assembler(object):
             romstring += "%c"%(c&0xff)
         return romstring, self.errors
 
+    
+    # This writes to the code, getting rid of out-of-bounds exceptions.
+    def write_prg(self, byte, i):
+        i = i-self.start
+        if i >= 0 and i < 0x4000:
+            self.prg[i] = byte & 0xff
+        else:
+            self.err("Wrote outside of valid ROM")
+        
 
     # This takes a string of sourcecode (seperated by newlines) and then breaks
     # it into four-tuples: label, opcode, arg, original line w/ line number.
@@ -455,5 +464,7 @@ class Assembler(object):
     # Add an error string to the list of errors.
     def err(self,s):
         if len(self.errors) < 100:
-            self.errors.append("["+s+"] "+self.lastline)
+            e = "["+s+"] "+self.lastline
+            if e not in self.errors:
+                self.errors.append(e)
 
