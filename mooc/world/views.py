@@ -8,12 +8,12 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from wiki.models import Page
-from world.models import Stage, World, ChallengeSOS
+from world.models import Stage, World, ChallengeSOS, SOSResponse
 from world.models import QuizAnswer, QuizChallengeResponse
 from students.models import Student
 
 from assembler.models import AssemblyChallenge
-from assembler.views import view_assemblychallenge
+from assembler.views import view_assemblychallenge, respond_assemblysos
 
 import random
 
@@ -163,22 +163,61 @@ def view_challenge(request, world, stage):
 # This is a response to an SOS call for peer assistance. Based on the challenge
 # type, a different SOS response is used (for example, there is an assembly
 # challenge response SOS, but not a quiz challenge sos).
-def sos_response(request, world, stage):
+def respond_sos(request, world, stage):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
     # Redirect the user to the world map if they can't access that page yet.
-    # TODO: Also redirect if the user hasn't COMPLETED the stage
     here = Stage.get_stage(world, stage)
+    if request.method == 'POST':
+        if request.session.get("sos"+str(request.POST.get("id"))) == "OK":
+            SR = SOSResponse()
+            SR.SOS = ChallengeSOS.objects.get(id=int(request.POST["id"]))
+            SR.author = student
+            SR.response = request.POST["response"]
+            SR.save()
+            
+            # Give the student some points if they helped.
+            if SR.too_hard: student.score += 5
+            else: student.score += 50
+            student.save()
+            
+            # If the student has gotten 3 help, we close the SOS.
+            if len( SR.SOS.sosresponse_set.exclude(too_hard = True) ) >= 3:
+                SR.SOS.active = False
+                SR.SOS.save()
+            
+            request.session["sos"+str(request.POST["id"])] = None
+        return redirect( "world_map", world = world )
+    
     if not is_open(student, here): raise Http404()
     if not here.challenge:
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
         else: raise Http404()
+    if not here in student.stage_set.all(): raise Http404()
     
-    # These are the types of challenges.
+    # These are the types of challenges. Choose a random SOS out of the mix.
     c = here.challenge
+    s = list(ChallengeSOS.objects.filter(challenge=c,active=True).exclude(student=student))
+    random.shuffle(s)
+    
+    # Pick a random SOS for this challenge. Only get one that the student has
+    # not answered yet.
+    sos = None
+    while not sos and len(s) > 0:
+        sos = s.pop()
+        if len(sos.sosresponse_set.filter(author=student))>0:
+            sos = None
+    
+    if sos == None: return redirect( "world_map", world = world )
     if hasattr(c, "quizchallenge"): raise Http404()
+    if hasattr(c, "assemblychallenge"): return respond_assemblysos(request,
+                                                                   world,
+                                                                   stage,
+                                                                   c.assemblychallenge,
+                                                                   sos)
     raise Http404()
+
 
 # This is a quizchallenge. This is pretty tricky to do since we have to be able
 # to randomize the quizzes for the user without revealing any of the internal

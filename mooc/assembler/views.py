@@ -56,9 +56,9 @@ def do_playground(request):
         except exceptions.ObjectDoesNotExist: pass
     ACR.save()
     rom, errors = a.assemble( ACR.code, ACR.pattern )
+    request.session["rom"] = rom
     
     # Either run the game in the browser or download it.
-    request.session["rom"] = rom
     alerts = []
     for e in errors:
         alerts.append( {"tags":"alert-error",
@@ -179,6 +179,7 @@ def do_assemblychallenge( request, world, stage, challenge ):
     student = Student.from_request(request)
     a = Assembler()
     rom, errors = a.assemble( code, challenge.pattern, challenge.preamble, challenge.postamble )
+    request.session["rom"] = rom
     completed = student in here.completed_by.all()
     correct = autograde.grade( challenge, student, code, completed )
     
@@ -200,16 +201,19 @@ def do_assemblychallenge( request, world, stage, challenge ):
         SOS.save()
     
     # Do the autograding.
-    if correct:
+    if correct is not None:
         here.completed_by.add(student)
         here.save()
     
-    # Either run the game in the browser or download it.
-    request.session["rom"] = rom
     alerts = []
     for e in errors:
         alerts.append( {"tags":"alert-error",
                         "content":e} )
+    if correct is not None:
+        alerts.append( {"tags":"alert-success",
+                        "content":correct} )
+    
+    # Either run the game in the browser or download it.
     if "run" in request.POST or "sos" in request.POST or len(errors)>0:
         return render( request, "assembly_challenge.html", {"name": ACR.name,
                                                             "source_code": code,
@@ -218,4 +222,29 @@ def do_assemblychallenge( request, world, stage, challenge ):
                                                             "stage": here})
     else:
         return get_rom(request, here.world.shortname+"-"+here.shortname)
+
+
+# This is a response to an SOS for an assembly challenge. Here the student sees
+# the SOS code and stuff.
+def respond_assemblysos(request, world, stage, challenge, sos):
+    here = Stage.get_stage(world, stage)
+    
+    a = Assembler()
+    ACR = sos.challengeresponse.assemblychallengeresponse
+    rom, errors = a.assemble( ACR.code, challenge.pattern, challenge.preamble,
+                              challenge.postamble )
+    request.session["rom"] = rom
+    request.session["sos"+str(sos.id)] = "OK"
+    
+    alerts = []
+    for e in errors:
+        alerts.append( {"tags":"alert-error",
+                        "content":e} )
+    
+    return render( request, "assembly_sos.html", {"name": ACR.name,
+                                                  "source_code": ACR.code,
+                                                  "alerts": alerts,
+                                                  "world": here.world,
+                                                  "stage": here,
+                                                  "sos": sos})
 

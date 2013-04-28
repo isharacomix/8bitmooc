@@ -1,0 +1,76 @@
+{% extends "layout_base.html" %}
+{% load creole %}
+{% load static from staticfiles %}
+
+{% block title %}Responding to SOS for Challenge {{ world.shortname }}-{{ stage.shortname }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8">
+        
+            <div>
+            {% for e in errors %}
+            <p>{{ e }}</p>
+            {% endfor %}
+            </div>
+            <div>
+
+            <div>
+                {{ stage.challenge.content|creole }}
+            </div>
+
+<textarea class="input-block-level code-input" disabled rows="20" name="code" wrap="soft">{{ source_code }}</textarea>
+
+            </div>
+            
+            
+            <div>
+            Your fellow student has posed the following question. Please try to
+            respond to it without solving the assignment for them. Even if you
+            can't help, please indicate why you can't.
+            
+            
+            <div class="well">
+            {{ sos.content | creole }}
+            
+            <div>
+            <form name="input" action="{% url 'sos' world=world.shortname stage=stage.shortname %}" method="post">{% csrf_token %}
+            <input type="hidden" name="id" value="{{sos.id}}" />
+            <textarea class="input-block-level" name="response" wrap="soft"></textarea>
+            <button class="btn btn-success" type="submit" name="Respond" value="respond">Respond!</button>
+            
+            </form>
+            </div>
+            </div>
+            </div>
+                
+            
+        </div>
+        
+        
+        <div class="span4">
+            <div id="emulator"></div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    <script src="{% static 'js/dynamicaudio-min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/jsnes.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+        var nes;
+        $(function() {
+            nes = new JSNES({
+                'swfPath': '{% static "js/" %}',
+                'ui': $('#emulator').JSNESUI("/rom/")
+            });
+        });
+    </script>
+    <!--[if IE]>
+        <script type="text/vbscript" src="source/jsnes-ie-hacks.vbscript"></script>
+    <![endif]-->
+{% endblock scripts %}
+
