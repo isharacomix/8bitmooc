@@ -16,7 +16,6 @@ from world.models import Stage, World
 from assembler import autograde
 from assembler.asm import Assembler
 from assembler.models import AssemblyChallengeResponse, Pattern
-from students.models import Student
 from world.models import ChallengeSOS
 from django.contrib.auth.models import User
 
@@ -162,13 +161,15 @@ def get_rom(request, gamename="rom"):
 
 # The view for an assembly challenge. Invoked by world.assemblychallenge
 def view_assemblychallenge(request, world, stage, challenge):
+    student = Student.from_request(request)
     here = Stage.get_stage(world, stage)
     if request.method == 'POST':
         return do_assemblychallenge(request, world, stage, challenge)
         return redirect("challenge", world = world, stage = stage)
 
     return render( request, "assembly_challenge.html", { 'world': here.world,
-                                                         'stage': here } )
+                                                         'stage': here,
+                                                         'feedback': here.is_feedback(student) } )
 
 # This is where POST requests are done.
 def do_assemblychallenge( request, world, stage, challenge ):
@@ -219,7 +220,8 @@ def do_assemblychallenge( request, world, stage, challenge ):
                                                             "source_code": code,
                                                             "alerts": alerts,
                                                             "world": here.world,
-                                                            "stage": here})
+                                                            "stage": here,
+                                                            'feedback': here.is_feedback(student)})
     else:
         return get_rom(request, here.world.shortname+"-"+here.shortname)
 

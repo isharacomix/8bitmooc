@@ -15,6 +15,8 @@ urlpatterns = patterns('',
                                                           name='lesson'),
     url(r'^(?P<world>[\w-]+)/(?P<stage>[\w-]+)/challenge/$', views.view_challenge,
                                                              name='challenge'),
+    url(r'^(?P<world>[\w-]+)/(?P<stage>[\w-]+)/feedback/$', views.view_feedback,
+                                                            name='feedback'),
     url(r'^(?P<world>[\w-]+)/(?P<stage>[\w-]+)/sos/$', views.respond_sos,
                                                        name='sos'),
 )

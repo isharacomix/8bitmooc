@@ -1,0 +1,69 @@
+{% extends "layout_base.html" %}
+{% load creole %}
+
+{% block title %}Feedback for {{ world.shortname }}-{{ stage.shortname }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8">
+            <ul class="nav nav-tabs">
+            {% if stage.lesson %}
+            <li><a href="{% url 'lesson' world=world.shortname stage=stage.shortname %}">Lesson</a></li>
+            {% endif %}
+            {% if stage.challenge %}
+            <li><a href="{% url 'challenge' world=world.shortname stage=stage.shortname %}">Challenge</a></li>
+            {% endif %}
+            <li class="active"><a href="#">Feedback</a></li>
+            </ul>
+
+        
+        <div class="accordion" id="feedbacks">
+      
+        {% for sos in sos_feedback %}  
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <div class="accordion-inner">
+                {{ sos.content|creole}}
+                </div>
+            
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#selector" href="#collapse{{ sos.id }}">
+View Feedback
+                </a>
+            </div>
+            <div id="collapse{{ sos.id }}" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    {% for r in sos.sosresponse_set.all %}
+                    <div class="well">
+                    {{ r.response|creole }}
+                    
+                    {% if r.helpful == None %}
+                    <hr />
+                    <p><em>Was this answer helpful?</em>
+<a href="{% url 'feedback' world=world.shortname stage=stage.shortname %}?approve={{r.id}}" class="btn btn-success btn-mini">Yes</a>
+<a href="{% url 'feedback' world=world.shortname stage=stage.shortname %}?reject={{r.id}}" class="btn btn-danger btn-mini">No</a></p>
+                    {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        
+
+        {% endfor %}
+    </div>
+        
+
+        </div>
+        <div class="span4">
+            {% include "chatroom.html" %}
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block scripts %}
+    {% include 'chatroom_footer.html' %}
+{% endblock scripts %}
+

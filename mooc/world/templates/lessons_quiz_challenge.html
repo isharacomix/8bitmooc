@@ -12,6 +12,9 @@
             <li><a href="{% url 'lesson' world=world.shortname stage=stage.shortname %}">Lesson</a></li>
             {% endif %}
             <li class="active"><a href="#">Challenge</a></li>
+            {% if feedback %}
+            <li><a href="{% url 'feedback' world=world.shortname stage=stage.shortname %}">Feedback</a></li>
+            {% endif %}
             </ul>
         
         
