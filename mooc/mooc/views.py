@@ -20,7 +20,7 @@ import feedparser
 
 # Display the website index. We have to parse the blog feed for this.
 def view_index(request):
-    try:    feed = feedparser.parse(r'http://8bitmooc.org/rss').entries[:3]
+    try:    feed = feedparser.parse(r'http://blog.8bitmooc.org/rss').entries[:3]
     except: feed = []
     return render( request, 'index.html', {'feed': feed} )
 
