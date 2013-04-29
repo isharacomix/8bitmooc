@@ -91,7 +91,7 @@
             <div>
               <ul class="thumbnails">
                 {% for s in student.stage_set.all %}
-                  <li class="span2">
+                  <li class="span1">
                   <div class="thumbnail">
                   <a href="#" class="thumbnail">
                   <img src="{% get_static_prefix %}img/{{s.graphic}}.png" alt="World {{ s.world.shortname }}-{{ s.shortname }}" title="World {{ s.world.shortname }}-{{ s.shortname }}" />
@@ -106,7 +106,7 @@
             <div>
               <ul class="thumbnails">
                 {% for a in student.achievement_set.all %}
-                  <li class="span2">
+                  <li class="span1">
                   <div class="thumbnail">
                   <a href="#" class="thumbnail">
                   <img src="{% get_static_prefix %}img/{{a.graphic}}.png" alt="{{a.name}}" title="{{a.name}}" />

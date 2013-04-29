@@ -157,6 +157,13 @@ class Stage(models.Model):
             return stage
         except exceptions.ObjectDoesNotExist: raise Http404()
     
+    # Returns true if the given student has feedback from this stage.
+    def is_feedback(self, student):
+        if self.challenge and len( ChallengeSOS.objects.filter(student=student,
+                                                               challenge=self.challenge)) > 0:
+            return True
+        return False
+    
     class Meta:
         ordering = ('ordering',)
     
@@ -271,10 +278,14 @@ class SOSResponse(models.Model):
     timestamp   = models.DateTimeField("timestamp", auto_now_add=True)
     author      = models.ForeignKey(Student, verbose_name="author",
                         help_text="The student asking this question.")
-    too_hard    = models.BooleanField("too hard", default=False,
-                        help_text="Helper decides not to help because too hard.")
-    vague       = models.BooleanField("vague", default=False,
-                        help_text="Helper decides not to help because question is vague.")
+    confidence  = models.BooleanField("confidence", default=False,
+                        help_text="Helper was confident in his answer.")
+    clarity     = models.BooleanField("clarity", default=False,
+                        help_text="Helper believed the question was clear.")
+    good        = models.BooleanField("good", default=False,
+                        help_text="Helper thought it was a good question.")
+    helpful     = models.NullBooleanField("helpful", default=None, null=True,
+                        help_text="Asker of SOS thought response was helpful.")
     
     # Representation of the SOS response.
     def __unicode__(self):

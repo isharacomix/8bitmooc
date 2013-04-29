@@ -11,3 +11,4 @@ admin.site.register(Stage)
 admin.site.register(QuizChallenge)
 admin.site.register(QuizQuestion)
 
+

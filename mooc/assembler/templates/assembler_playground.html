@@ -9,11 +9,6 @@
         <form name="input" action="{% url 'playground' %}" method="post">{% csrf_token %}
         <div class="span8">
             <div>
-            {% for e in errors %}
-            <p>{{ e }}</p>
-            {% endfor %}
-            </div>
-            <div>
 
 <input class="input-block-level" type="text" placeholder="Enter the name of your program here" name="name" value="{{ name }}"></input>
 {% if user.is_authenticated %}

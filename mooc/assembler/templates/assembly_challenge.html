@@ -10,11 +10,7 @@
         <form name="input" action="{% url 'challenge' world=world.shortname stage=stage.shortname %}" method="post">{% csrf_token %}
         <div class="span8">
         
-            <div>
-            {% for e in errors %}
-            <p>{{ e }}</p>
-            {% endfor %}
-            </div>
+
             <div>
             
         <ul class="nav nav-tabs">
@@ -22,6 +18,9 @@
         <li><a href="{% url 'lesson' world=world.shortname stage=stage.shortname %}">Lesson</a></li>
         {% endif %}
         <li class="active"><a href="#">Challenge</a></li>
+        {% if feedback %}
+        <li><a href="{% url 'feedback' world=world.shortname stage=stage.shortname %}">Feedback</a></li>
+        {% endif %}
         </ul>
 
             <div>
