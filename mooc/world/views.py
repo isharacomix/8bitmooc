@@ -8,12 +8,12 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from wiki.models import Page
-from world.models import Stage, World, ChallengeSOS
+from world.models import Stage, World, ChallengeSOS, SOSResponse
 from world.models import QuizAnswer, QuizChallengeResponse
 from students.models import Student
 
 from assembler.models import AssemblyChallenge
-from assembler.views import view_assemblychallenge
+from assembler.views import view_assemblychallenge, respond_assemblysos
 
 import random
 
@@ -129,7 +129,8 @@ def view_lesson(request, world, stage):
     
     #TODO log this as read.
     return render( request, "lessons_lesson.html", {'world': here.world,
-                                                    'stage': here } )
+                                                    'stage': here,
+                                                    'feedback': here.is_feedback(student) } )
 
 
 # We load the challenge which looks different depending on which challenge
@@ -163,22 +164,106 @@ def view_challenge(request, world, stage):
 # This is a response to an SOS call for peer assistance. Based on the challenge
 # type, a different SOS response is used (for example, there is an assembly
 # challenge response SOS, but not a quiz challenge sos).
-def sos_response(request, world, stage):
+def respond_sos(request, world, stage):
     try: student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
     # Redirect the user to the world map if they can't access that page yet.
-    # TODO: Also redirect if the user hasn't COMPLETED the stage
     here = Stage.get_stage(world, stage)
+    if request.method == 'POST':
+        if request.session.get("sos"+str(request.POST.get("id"))) == "OK":
+            SR = SOSResponse()
+            SR.SOS = ChallengeSOS.objects.get(id=int(request.POST["id"]))
+            SR.author = student
+            SR.response = str(request.POST.get("response"))
+            SR.confidence = True if request.POST.get("confidence") else False
+            SR.clarity = True if request.POST.get("clarity") else False
+            SR.good = True if request.POST.get("good") else False
+            SR.save()
+            
+            # Give the student some points for trying to help. They get more
+            # if it turned out to be helpful.
+            student.score += 25
+            student.save()
+            
+            # If it was a good question, then the student gets some points too.
+            if SR.good:
+                SR.SOS.student.score += 5
+                SR.SOS.student.save()
+            
+            # If the student has gotten 3 help, we close the SOS.
+            if len( SR.SOS.sosresponse_set.all() ) >= 3:
+                SR.SOS.active = False
+                SR.SOS.save()
+            
+            request.session["sos"+str(request.POST["id"])] = None
+        return redirect( "world_map", world = world )
+    
     if not is_open(student, here): raise Http404()
     if not here.challenge:
         if here.lesson: return redirect( "lesson", world = world, stage = stage )
         else: raise Http404()
+    if not here in student.stage_set.all(): raise Http404()
     
-    # These are the types of challenges.
+    # These are the types of challenges. Choose a random SOS out of the mix.
     c = here.challenge
+    s = list(ChallengeSOS.objects.filter(challenge=c,active=True).exclude(student=student))
+    random.shuffle(s)
+    
+    # Pick a random SOS for this challenge. Only get one that the student has
+    # not answered yet.
+    sos = None
+    while not sos and len(s) > 0:
+        sos = s.pop()
+        if len(sos.sosresponse_set.filter(author=student))>0:
+            sos = None
+    
+    if sos == None: return redirect( "world_map", world = world )
     if hasattr(c, "quizchallenge"): raise Http404()
+    if hasattr(c, "assemblychallenge"): return respond_assemblysos(request,
+                                                                   world,
+                                                                   stage,
+                                                                   c.assemblychallenge,
+                                                                   sos)
     raise Http404()
+
+
+# This is where feedback from SOSses and peer graded assignments go.
+def view_feedback(request, world, stage):
+    try: student = Student.from_request(request)
+    except exceptions.ObjectDoesNotExist: return redirect("login")
+    
+    here = Stage.get_stage(world, stage)
+    
+    # Allow a student to say whether an SOS response was helpful or no. We're
+    # using GET requests, making it slightly insecure, but it's not a big deal.
+    meta = None
+    response = 0
+    if "approve" in request.GET: meta, response = "approve", request.GET["approve"]
+    if "reject" in request.GET: meta, response = "reject", request.GET["reject"]
+    try:
+        r = SOSResponse.objects.get(id=response)
+        if r.SOS.student == student and r.helpful is None:
+            if meta == "approve":
+                r.helpful = True
+                r.save()
+                r.author.score += 50
+                r.author.save()
+            if meta == "reject":
+                r.helpful = False
+                r.save()
+    except: pass
+    
+    # Right now the only feedback are the SOSes. We pass a list of SOS
+    # questions asked by the student, followed by a list of all of the responses.
+    SOSs = ChallengeSOS.objects.filter(student=student, challenge=here.challenge)
+    
+    
+    return render( request, "lessons_feedback.html", {'world': here.world,
+                                                      'stage': here,
+                                                      'sos_feedback': SOSs } )
+    
+
 
 # This is a quizchallenge. This is pretty tricky to do since we have to be able
 # to randomize the quizzes for the user without revealing any of the internal
@@ -249,7 +334,8 @@ def view_quizchallenge( request, world, stage, challenge ):
                    {'questions': questions,
                     'world': here.world,
                     'stage': here,
-                    'quizID': quizID } )
+                    'quizID': quizID,
+                    'feedback': here.is_feedback(student) } )
 
 
 # This processes the quizchallenge and creates a QuizChallengeResponse for the
@@ -331,6 +417,6 @@ def do_quizchallenge( request, world, stage, challenge ):
             QCR.student.stage_set.add(here)
             QCR.student.save()
     
-    # return useful information
+    # TODO return useful information
     return HttpResponse( "")
 

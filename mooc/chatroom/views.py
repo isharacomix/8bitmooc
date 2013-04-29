@@ -44,7 +44,7 @@ def do_chat(request):
             messages = []
             log['state'] = state + count - state
             for l in lines:
-                gimg = gravatar.gravatar_img_for_user(l.author, size=32).replace(' alt="',' alt="" class="media-object" title="')
+                gimg = gravatar.gravatar_img_for_user(l.author.user, size=32).replace(' alt="',' alt="" class="media-object" title="')
                 
                 # Calculate the score (upvote-downvote)
                 up = l.endorsed_by.all()
@@ -70,12 +70,18 @@ def do_chat(request):
             l = Chat.objects.get(id=int(request.POST.get("comment")))
             l.endorsed_by.add(student)
             l.save()
+            student.score += 1
+            l.author.score += 3
+            student.save()
+            l.author.save()
         except: pass
     elif function == "downvote": 
         try:
             l = Chat.objects.get(id=int(request.POST.get("comment")))
             l.dismissed_by.add(student)
             l.save()
+            student.score += 1
+            student.save()
         except: pass
     elif function == "send": 
         message = request.POST.get("message")

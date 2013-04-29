@@ -12,7 +12,7 @@ from assembler.models import Kernal, Pattern
 
 # Test autograded assignment.
 def test(challenge, student, code, completed):
-    return True
+    return "You always pass this assignment"
 
 
 # This function actually runs the autograder, mapping strings to functions.
@@ -26,7 +26,7 @@ def grade(challenge, student, code, completed):
         func = AUTOGRADE_FUNCTIONS[challenge.autograde]
         return func(challenge, student, code, completed)
     else:
-        return False
+        return None
 
 
     
