@@ -3,6 +3,15 @@
 # My NES Emulator. It's not perfect, and doesn't really utilize any sort of
 # audio/visual elements, but focuses on the register values of the hardware.
 
+# This emulator exists in order to allow 8bitmooc to autograde assignments.
+# To grade an assignment, create the emulator and pass the student's PRG and
+# CHR ROM. Then, in a loop, run the step command. If you are trying to simulate
+# gameplay and intend to draw frames, NMIs are fired every 10000 steps.
+
+# The .read and .write methods handle the hardware register magic. When grading,
+# use the variables set forth in the initializer. It's suggested to read the raw
+# arrays instead when looking at RAM and such.
+
 BUTTON_A = 0
 BUTTON_B = 1
 BUTTON_START = 2
@@ -24,6 +33,10 @@ class Emulator(object):
         self.vram = [0x00]*0x4000   # PPU RAM
         self.oam = [0x00]*4*64      # OAM (sprite data)
         self.vram_mirror = 1        # 0 all mirror, 1 vert, 2 horiz, 3 unique
+        
+        # vblank interval can be reprogrammed if needed
+        self.vblank_interval = 10000
+        self.next_vblank = self.vblank_interval
         
         # CPU Registers
         self.A = 0x00               # Accumulator
@@ -209,7 +222,13 @@ class Emulator(object):
         elif where >= 0x4000: return self.read_apu( where-0x4000 )
         elif where >= 0x2000: return self.read_ppu( where % 0x8 )
         else: return self.ram[ where % 0x800 ]
-
+    
+    
+    # The actual emulation.
+    def next_instruction(self):
+        pass
+    
+    
     # These allow you to push buttons on a controller. When the controller is
     # strobed, the buttons will be released automatically.
     # A, B, Select, Start, Up, Down, Left, Right, All
@@ -227,10 +246,13 @@ class Emulator(object):
 
     # This steps through one instruction. It returns something TODO
     def step(self):
-        if False: #vblank
+        self.next_vblank -= 1
+        if next_vblank <= 0:
+            self.next_vblank = self.vblank_interval
             self.vblank = True
             if self.vblank_nmi:
                 pass #fire an NMI
-            
-        pass
+        
+        # read the next instruction and run it
+        self.next_instruction()
 
