@@ -43,9 +43,12 @@ def view_dashboard(request):
     except exceptions.ObjectDoesNotExist: return redirect("login")
     
     # TODO - filter out worlds that the user should not be able to see yet.
-    worlds = World.objects.all()
-    
-    
+    achievements = student.achievement_set.all()
+    world_candidates = World.objects.all()
+    worlds = []
+    for w in world_candidates:
+        if w.prereq is None or w.prereq in achievements:
+            worlds.append(w)
     worldnums = range(len(worlds)+1)[1:]
     
     return render( request, 'lessons_dash.html', { "worlds": worlds,
