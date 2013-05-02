@@ -169,7 +169,9 @@ def view_assemblychallenge(request, world, stage, challenge):
 
     return render( request, "assembly_challenge.html", { 'world': here.world,
                                                          'stage': here,
-                                                         'feedback': here.is_feedback(student) } )
+                                                         'feedback': here.is_feedback(student),
+                                                         'preamble': challenge.preamble,
+                                                         'postamble': challenge.postamble } )
 
 # This is where POST requests are done.
 def do_assemblychallenge( request, world, stage, challenge ):
@@ -218,6 +220,8 @@ def do_assemblychallenge( request, world, stage, challenge ):
     if "run" in request.POST or "sos" in request.POST or len(errors)>0:
         return render( request, "assembly_challenge.html", {"name": ACR.name,
                                                             "source_code": code,
+                                                            'preamble': challenge.preamble,
+                                                            'postamble': challenge.postamble,
                                                             "alerts": alerts,
                                                             "world": here.world,
                                                             "stage": here,

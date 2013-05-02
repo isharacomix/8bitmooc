@@ -29,13 +29,48 @@
 
             </div>
 
+        <div class="accordion" id="preamble">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#selector" href="#collapse_preamble">
+    View Preamble
+                    </a>
+                </div>
+                <div id="collapse_preamble" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <pre>{{ preamble }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <textarea class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ source_code }}</textarea>
 
+        <div class="accordion" id="postamble">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#selector" href="#collapse_postamble">
+    View Postamble
+                    </a>
+                </div>
+                <div id="collapse_postamble" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <pre>{{ postamble }}</pre>
+                    </div>
+                </div>
             </div>
+        </div>
+
+            </div>
+            
+            
             <div class="well">
               {% include "assembler_cheatsheet.html" %}
             </div>
         </div>
+        
+        
+        
         
         
         <div class="span4">
