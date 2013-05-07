@@ -32,11 +32,13 @@ class Achievement(models.Model):
     graphic     = models.SlugField("graphic",
                             help_text="Filename of the glyph in the Milestone "+
                                       "img directory.")
-    ordering    = models.IntegerField("ordering", blank=True,
+    ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Milestones are ordered from lowest to "+
                                       "to highest when displayed in lists.")
     awarded_to  = models.ManyToManyField(Student, blank=True,
-                            help_text="Who has obtained this achievement?")   
+                            help_text="Who has obtained this achievement?")  
+    won_in = models.ForeignKey("world.World", verbose_name="won_in",
+                               blank=True, null=True)
 
     class Meta:
         ordering = ('ordering',)
@@ -63,7 +65,7 @@ class World(models.Model):
     prereq      = models.ForeignKey(Achievement, verbose_name="prereq",
                             blank=True, null=True,
                             help_text="Which prerequisite is needed to start "+
-                                      "this module?")
+                                      "this module?", related_name="prereq_for")
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Modules are ordered from lowest to "+
                                       "to highest when displayed in lists.")

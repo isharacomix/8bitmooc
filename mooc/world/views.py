@@ -39,21 +39,7 @@ def is_open(student, stage):
 
 # This displays the dashboard/world select screen.
 def view_dashboard(request):
-    try: student = Student.from_request(request)
-    except exceptions.ObjectDoesNotExist: return redirect("login")
-    
-    # TODO - filter out worlds that the user should not be able to see yet.
-    achievements = student.achievement_set.all()
-    world_candidates = World.objects.all()
-    worlds = []
-    for w in world_candidates:
-        if w.prereq is None or w.prereq in achievements:
-            worlds.append(w)
-    worldnums = range(len(worlds)+1)[1:]
-    
-    return render( request, 'lessons_dash.html', { "worlds": worlds,
-                                                   "worldnums": worldnums } )
-
+    return redirect("index")
 
 # This displays the world map, which is actually just a collection of thumbnails.
 # Yes, I made a compromise.
@@ -128,6 +114,7 @@ def view_lesson(request, world, stage):
     
     # Log the visit.
     student.recent_stage = here
+    student.recent_world = here.world
     student.save()
     
     #TODO log this as read.
@@ -151,6 +138,7 @@ def view_challenge(request, world, stage):
     
     # Log the visit.
     student.recent_stage = here
+    student.recent_world = here.world
     student.save()
     
     # These are all of the types of challenges.

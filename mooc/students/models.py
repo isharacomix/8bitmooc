@@ -46,6 +46,8 @@ class Student(models.Model):
     # Most recently-viewed stage.
     recent_stage    = models.ForeignKey("world.Stage", verbose_name="Recent Stage", blank=True,
                         null=True, help_text="Most recently-visited stage.")
+    recent_world    = models.ForeignKey("world.World", verbose_name="Recent World", blank=True,
+                        null=True, help_text="Most recently-visited world.")
     
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.

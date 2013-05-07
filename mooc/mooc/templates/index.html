@@ -1,4 +1,5 @@
 {% extends "layout_base.html" %}
+{% load gravatar %}
 
 {% block title %}Welcome{% endblock title %}
 
@@ -25,8 +26,20 @@
             </form>
         {% else %}
         <div class="well">
-        Put some hotlinks here bro
-            
+        {% for w, c, students, progress in worlds %}
+        <div>
+        <a href="{% url 'world_map' w.shortname %}">World {{ w.shortname }}</a>: {{w.name}} <br />
+        <i class="icon-user"></i> {{ c }}
+        {% for s in students %}
+        <a href="{% url 'profile' s.user %}">
+        <img class="gravatar" alt="" title="{{s.username}}" src="{% gravatar_for_email s.email 20 %}" />
+        </a>
+        {% endfor %}
+        <div class="progress progress-striped progress-success {% if progress < 100 %}active{% endif %} ">
+            <div class="bar" style="width: {{ progress }}%;"></div>
+        </div>
+        </div>
+        {% endfor %}
         </div>
         {% endif %}
         </div>

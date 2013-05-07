@@ -49,7 +49,9 @@
                 {% else %}
                 <i class="icon-user"></i> {{student_count}}
                 {% for s in students %}
+                    <a href="{% url 'profile' s.user %}">
                     <img class="gravatar" alt="" title="{{s.username}}" src="{% gravatar_for_email s.email 20 %}" />
+                    </a>
                 {% endfor %}
                 {% endif %}
                 </div>
