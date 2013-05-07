@@ -34,7 +34,6 @@ class LessonTests(TestCase):
         # Let's create a world with three stages.
         self.W = World( name = "Fun World",
                         shortname = "1",
-                        graphic = "foo",
                         description = "The best world ever." )
         self.W.save()
         self.Q = QuizChallenge( shortname = "quiz1",
@@ -50,13 +49,11 @@ class LessonTests(TestCase):
         self.l2 = Stage( name = "Fun Level 2",
                          shortname = "2",
                          lesson = self.t2,
-                         world = self.W,
-                         graphic = "foo")
+                         world = self.W)
         self.l3 = Stage( name = "Fun Level 3",
                          shortname = "3",
                          challenge = self.Q,
                          world = self.W,
-                         graphic = "foo",
                          hidden = True)
         self.l1.save()
         self.l2.save()

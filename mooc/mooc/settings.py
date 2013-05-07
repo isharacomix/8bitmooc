@@ -52,6 +52,8 @@ MEDIA_URL = '/media/'
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(PUBLIC_DIR, 'static')
+if 'OPENSHIFT_REPO_DIR' in os.environ:
+    STATIC_ROOT = os.path.join(os.environ.get('OPENSHIFT_REPO_DIR'), 'wsgi', 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"

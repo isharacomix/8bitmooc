@@ -32,13 +32,13 @@ class Achievement(models.Model):
     graphic     = models.SlugField("graphic",
                             help_text="Filename of the glyph in the Milestone "+
                                       "img directory.")
+    won_in      = models.ForeignKey("world.World", verbose_name="won_in",
+                                    blank=True, null=True)
     ordering    = models.IntegerField("ordering", blank=True, null=True,
                             help_text="Milestones are ordered from lowest to "+
                                       "to highest when displayed in lists.")
     awarded_to  = models.ManyToManyField(Student, blank=True,
                             help_text="Who has obtained this achievement?")  
-    won_in = models.ForeignKey("world.World", verbose_name="won_in",
-                               blank=True, null=True)
 
     class Meta:
         ordering = ('ordering',)
@@ -56,9 +56,6 @@ class World(models.Model):
                             help_text="Human-readable module name.")
     shortname   = models.SlugField("shortname", max_length=8, unique=True,
                             help_text="Short world name, usually a number.")
-    graphic     = models.SlugField("graphic",
-                            help_text="Filename of the carousel card in the Module "+
-                                      "img directory.")
     description = models.TextField("description",
                         help_text="A description of the world in a "+
                                   "human-readable format.")
