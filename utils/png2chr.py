@@ -6,21 +6,18 @@
 
 # Usage: ./png2chr.py <png> <chr>
 
-# Using Pygame...
-import pygame
+import png
 import sys
 
 chrfile = sys.argv[2]
 pngfile = sys.argv[1]
 
 # Generate the surface we'll be using.
-pygame.init()
-surf = pygame.Surface( (128*2,128) )
-surf.fill((255,255,255))
-surf.blit( pygame.image.load( pngfile ), (0,0) )
-spr = pygame.Surface( (8,8) )
-
 chrdata = ""
+w, h, pixelstream, meta = png.Reader(filename=pngfile).asDirect()
+pixels = []
+for p in pixelstream:
+    pixels.append(p)
 
 # Returns 0 to 3 based on the color.
 def bitval( col ):
@@ -28,12 +25,15 @@ def bitval( col ):
     if col[0] > 120: return 1
     if col[0] > 45: return 2
     return 3
+def get_at( pix, x, y ):
+    pixelrow = pix[y]
+    return pix[y][ x*3 : x*3+3 ]
 
 # The 'z' refers to the sprite vs the background pattern table.
 for z in [0,1]:
     for y in range(16):
         for x in range(16):
-            spr.blit( surf, (0,0), ((x*8+128*z,y*8),(8,8)) )
+            #spr.blit( surf, (0,0), ((x*8+128*z,y*8),(8,8)) )
             
             pix = [[0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0],
@@ -46,7 +46,7 @@ for z in [0,1]:
                    
             for a in range(8):
                 for b in range(8):
-                    pix[a][b] = bitval(spr.get_at( (a,b) ))
+                    pix[a][b] = bitval( get_at( pixels, a+(x*8+128*z) ,b+(y*8) ))
             
             hi = ""
             lo = ""

@@ -19,7 +19,7 @@
 {% endif %}
 <select name="pattern">
 {% if mypattern %}
-    <option value="{{p.name}}">Current sprite sheet: {{mypattern.name}}</option>
+    <option value="{{mypattern.name}}">Current sprite sheet: {{mypattern.name}}</option>
 {% endif %}
 {% for p in patterns %}
     <option value="{{p.name}}">Sprite sheet: {{p.name}}</option>

@@ -3,19 +3,7 @@
 ; PING PONG
 ; An NES Game
 ;
-;
-; iNES header
 ;----------------------------------------
-        .inesprg 1                      ; 1x 16KB PRG code
-        .ineschr 1                      ; 1x  8KB CHR data
-        .inesmap 0                      ; mapper 0 = NROM, no bank swapping
-        .inesmir 1                      ; background mirroring
-;----------------------------------------
-;
-;
-; Bank 0 - The main program code.
-;----------------------------------------
-        .bank 0=$C000                   ;
         .org $C000                      ;
 ;----------------------------------------
 ;
@@ -41,7 +29,7 @@ RESET:                                  ;
         STX $4010                       ; Disable DMC IRQs
 vblankwait1:                            ; Wait for the first vertical blank to
         BIT $2002                       ;    ensure PPU is ready.
-        BPL vblankwait1-*               ;
+        BPL vblankwait1                 ;
 clrmem:                                 ; Zero out all memory
         LDA #$00                        ;
         STA $0000, x                    ;
@@ -54,10 +42,10 @@ clrmem:                                 ; Zero out all memory
         LDA #$FE                        ;
         STA $0300, x                    ;
         INX                             ;
-        BNE clrmem-*                    ;
+        BNE clrmem                      ;
 vblankwait2:                            ; After 2 vertical blanks, the PPU is
         BIT $2002                       ;    is ready to go.
-        BPL vblankwait2-*               ;
+        BPL vblankwait2                 ;
                                         ;
 ;----------------------------------------
 ;
@@ -75,7 +63,7 @@ loadpalettes:                           ;
         STA $2007                       ; write to PPU
         INX                             ; X = X + 1
         CPX #$20                        ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
-        BNE loadpalettes-*              ; Branch to LoadPalettesLoop if compare was Not Equal to zero
+        BNE loadpalettes                ; Branch to LoadPalettesLoop if compare was Not Equal to zero
                                         ; if compare was equal to 32, keep going down
         LDA #%10000000                  ; enable NMI, sprites from Pattern Table 1
         STA $2000                       ;
@@ -170,12 +158,12 @@ controller:                             ;
         LDA $4016                       ;
         LDA $4016                       ; Now we check and see if Up is pressed.
         AND #%00000001                  ;
-        BEQ upnotpressed-*              ;
+        BEQ upnotpressed                ;
         DEC PADDLE_1Y                   ;
 upnotpressed:                           ;
         LDA $4016                       ; Now check and see if Down is pressed.
         AND #%00000001                  ;
-        BEQ downnotpressed-*            ;
+        BEQ downnotpressed              ;
         INC PADDLE_1Y                   ;
 downnotpressed:                         ; We don't check left or right.
         RTS                             ; No need to clean up. We're done.
@@ -205,9 +193,9 @@ ai:                                     ;
 ;----------------------------------------
 collisions:                             ;
         CPY #$E0
-        BCS hitbottom-*
+        BCS hitbottom  
         CPY #$08
-        BCC hitbottom-*
+        BCC hitbottom  
         JMP checksides
 hitbottom:
         LDA BALL_DY
@@ -217,27 +205,27 @@ hitbottom:
 checksides:
         TYA
         CPX #$2
-        BCC crossleft-*
+        BCC crossleft  
         CPX #$FD
-        BCS crossright-*
+        BCS crossright  
         CPX #24
-        BEQ leftpaddle-*
+        BEQ leftpaddle  
         CPX #222
-        BEQ rightpaddle-*
+        BEQ rightpaddle  
         JMP endcollisions
 leftpaddle:
         SEC
         SBC PADDLE_1Y
         ADC #8
         CMP #40
-        BCC flipflop-*
+        BCC flipflop  
         JMP endcollisions
 rightpaddle:
         SEC
         SBC PADDLE_2Y
         ADC #8
         CMP #40
-        BCC flipflop-*
+        BCC flipflop  
         JMP endcollisions
 crossleft:
         INC P2_SCORE
@@ -333,7 +321,6 @@ draw:                                   ;
 ;
 ; Bank 1 - ROM Data segment and interrupt table
 ;----------------------------------------
-        .bank 1=$E000                   ;
         .org $E000                      ;
 palette:                                ;
         .db $0F,$31,$32,$33             ;
@@ -360,14 +347,5 @@ sprites:                                ; vert tile attr horiz
         .dw RESET                       ; When the processor first turns on or
                                         ;   is reset, it will jump to RESET
         .dw 0                           ; External interrupt IRQ is not used
-;----------------------------------------
-;
-;
-; Bank 2 - Pattern table
-; Contains our sprite sheet.
-;----------------------------------------
-        .bank 2=$0000                   ;
-        .org $0000                      ;
-        ;.incbin "empty"                 ; Include an 8-kb "empty" palette #TODO
 ;----------------------------------------
 

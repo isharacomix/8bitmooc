@@ -7,5 +7,5 @@ pytz
 django-redis
 Creoleparser
 Pygments
-tweepy
 feedparser
+pypng
