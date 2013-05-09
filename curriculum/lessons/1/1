@@ -5,3 +5,24 @@
 %% hidden: 
 %% achievement_prereqs:
 %% stage_prereqs: 
+
+
+% quiz
+%% score: 1000
+%% randomize: true
+
+nonsense goes here
+
+% question 1
+%% ordering: 1
+Is the sky blue?
+
+%% a:
+What kind of question is that?
+
+%% b: correct
+Yes it is!
+
+%% c:
+potato
+

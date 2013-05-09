@@ -3,7 +3,7 @@ from django.conf import settings
 
 from world.models import World, Stage, Achievement
 from world.models import QuizChallenge, QuizQuestion
-from assembler.models import AssemblyChallenge
+from assembler.models import AssemblyChallenge, Pattern
 from wiki.models import Page
 
 import os
@@ -114,13 +114,16 @@ class Command(BaseCommand):
                     f.close()
                     
                     # Now try to make a stage or get one already there.
-                    try: s = Stage.objects.get(world=w, shortname=slug)
-                    except: s = Stage(world=w, shortname=slug)
+                    try: s, ok = Stage.objects.get(world=w, shortname=slug), False
+                    except: s, ok = Stage(world=w, shortname=slug), True
                     
                     c = None
+                    cq = None
+                    kind = None
+                    stage = "content"
                     prereqs2 = []
                     for l in data.splitlines():
-                        if c is None:
+                        if kind is None:
                             if l.startswith("%% "):
                                 l = l[3:].strip()
                                 if l.startswith("name:"): s.name = l[5:].strip()
@@ -131,8 +134,62 @@ class Command(BaseCommand):
                                 elif l.startswith("achievement_prereqs:"): prereqs2 += l[20:].strip().split()
                                 elif l.startswith("stage_prereqs:"):
                                     prereqs["%s/%s"%(w.shortname, s.shortname)] = l[14:].strip().split()
-                        else:
-                            pass
+                            elif l.startswith("% "):
+                                if l[2:].strip() == "quiz" and ok:
+                                    kind = "quiz"
+                                    c = QuizChallenge()
+                                    c.content = ""
+                                elif l[2:].strip() == "assembly" and ok:
+                                    kind = "assembly"
+                                    c = AssemblyChallenge()
+                                    c.content = ""
+                                    c.preamble = ""
+                                    c.postamble = ""
+                        elif kind == "quiz":
+                            if l.startswith("% "):
+                                if cq:
+                                    cq.save()
+                                    c.questions.add(cq)
+                                cq = QuizQuestion()
+                                stage = "question"
+                            elif cq is None:
+                                if l.startswith("%% "):
+                                    l = l[3:].strip()
+                                    if l.startswith("randomize:"): c.randomize = True if l[10:].strip() else False
+                                    elif l.startswith("score:"): c.score = int(l[6:].strip())
+                                else:
+                                    c.content += l+"\n"
+                            else:
+                                if l.startswith("%% "):
+                                    l = l[3:].strip()
+                                    if l.startswith("a:"): stage = "a"; cq.correctA = True if l[2:].strip() else False
+                                    elif l.startswith("b:"): stage = "b"; cq.correctB = True if l[2:].strip() else False
+                                    elif l.startswith("c:"): stage = "c"; cq.correctC = True if l[2:].strip() else False
+                                    elif l.startswith("d:"): stage = "d"; cq.correctD = True if l[2:].strip() else False
+                                    elif l.startswith("e:"): stage = "e"; cq.correctE = True if l[2:].strip() else False
+                                    elif l.startswith("random_ok:"): cq.random_ok = True if l[10:].strip() else False
+                                    elif l.startswith("multiple_ok:"): cq.multiple_ok = True if l[12:].strip() else False
+                                    elif l.startswith("ordering:"): cq.ordering = int(l[9:].strip())
+                                elif stage == "question": cq.question += l+"\n"
+                                elif stage == "a": cq.choiceA += l+"\n"
+                                elif stage == "b": cq.choiceB += l+"\n"
+                                elif stage == "c": cq.choiceC += l+"\n"
+                                elif stage == "d": cq.choiceD += l+"\n"
+                                elif stage == "e": cq.choiceE += l+"\n"
+                        elif kind == "assembly":
+                            if l.startswith("%% "):
+                                l = l[3:].strip()
+                                if l.startswith("pattern:"): c.pattern = Pattern.objects.get(name=l[8:].strip())
+                                elif l.startswith("autograde:"): c.autograde = l[10:].strip()
+                            elif l.startswith("% "):
+                                stage = l[2:].strip()
+                            elif stage == "content": c.content += l+"\n"
+                            elif stage == "preamble": c.preamble += l+"\n"
+                            elif stage == "postamble": c.postamble += l+"\n"
+                    if cq:
+                        cq.save()
+                        c.save()
+                        c.questions.add(cq)
                     if c: c.save()
                     s.challenge = c
                     s.save()

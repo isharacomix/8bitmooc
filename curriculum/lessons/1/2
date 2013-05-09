@@ -5,3 +5,17 @@
 %% hidden: 
 %% achievement_prereqs:
 %% stage_prereqs: 1/1
+
+% assembly
+%% autograde: test
+
+Wooooo
+
+% preamble
+
+; foo
+
+% postamble
+
+; bar
+
