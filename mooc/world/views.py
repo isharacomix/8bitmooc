@@ -260,9 +260,12 @@ def view_feedback(request, world, stage):
 # to randomize the quizzes for the user without revealing any of the internal
 # structure. To do so, we keep all of the models in the session parameter
 # so we can map between the users choices to what they 'really are'.
-def view_quizchallenge( request, world, stage, challenge ):
+def view_quizchallenge( request, world, stage, challenge, alerts=[] ):
+    try: student = Student.from_request(request)
+    except exceptions.ObjectDoesNotExist: return redirect("login")
+    
     here = Stage.get_stage(world, stage)
-    if request.method == 'POST':
+    if request.method == 'POST' and alerts==[]:
         return do_quizchallenge(request, world, stage, challenge)
         return redirect("challenge", world = world, stage = stage)
     
@@ -326,7 +329,8 @@ def view_quizchallenge( request, world, stage, challenge ):
                     'world': here.world,
                     'stage': here,
                     'quizID': quizID,
-                    'feedback': here.is_feedback(student) } )
+                    'feedback': here.is_feedback(student),
+                    'alerts':alerts } )
 
 
 # This processes the quizchallenge and creates a QuizChallengeResponse for the
@@ -335,6 +339,9 @@ def view_quizchallenge( request, world, stage, challenge ):
 # questions with values "A-E". We create a QuizAnswer for each question
 # in the list, and then create a QuizChallengeResponse to hold them all.
 def do_quizchallenge( request, world, stage, challenge ):
+    try: student = Student.from_request(request)
+    except exceptions.ObjectDoesNotExist: return redirect("login")
+    
     here = Stage.get_stage(world, stage)
     quizID = request.POST.get("quizID")
     challenge, answer_map = request.session.get(quizID)
@@ -408,6 +415,16 @@ def do_quizchallenge( request, world, stage, challenge ):
             QCR.student.stage_set.add(here)
             QCR.student.save()
     
-    # TODO return useful information
-    return HttpResponse( "")
+    # Return an alert showing the student how well they did.
+    alerts = []
+    if QCR.correct:
+        alerts.append( {"tags":"alert-success",
+                        "content":"Great job! You answered all of the questions "+
+                                  "correctly and have completed this challenge!"} )
+    else:
+        alerts.append( {"tags":"alert-error",
+                        "content":"Out of the %d questions in this challenge, you "%(total)+
+                                  "answered %d of them correctly. Why don't you "%(score)+
+                                  "try again?"} )
+    return view_quizchallenge( request, world, stage, challenge, alerts )
 

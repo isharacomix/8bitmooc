@@ -2,6 +2,7 @@
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.core import exceptions
 from wiki.models import Page
 from students.models import Student
 
