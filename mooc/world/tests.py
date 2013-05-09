@@ -36,8 +36,7 @@ class LessonTests(TestCase):
                         shortname = "1",
                         description = "The best world ever." )
         self.W.save()
-        self.Q = QuizChallenge( shortname = "quiz1",
-                                content = "foo",
+        self.Q = QuizChallenge( content = "foo",
                                 score = 10 )
         self.Q.save()
         self.l1 = Stage( name = "Fun Level 1",

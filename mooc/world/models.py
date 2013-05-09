@@ -23,6 +23,8 @@ from students.models import Student
 class Achievement(models.Model):
     name        = models.CharField("name", max_length=128,
                             help_text="Human-readable milestone name.")
+    shortname   = models.SlugField("shortname", max_length=8, unique=True,
+                            help_text="Short world name, usually a number.")
     hidden      = models.BooleanField("hidden", default=False,
                         help_text="If this is set, then the student can only "+
                                   " see the milestone's requirements when they have it.")
@@ -80,8 +82,6 @@ class World(models.Model):
 # hard-coding here, so the challenge types need to be manually added in your
 # code.
 class BaseChallenge(models.Model):
-    shortname       = models.SlugField("shortname", unique=True,
-                        help_text="Short name for the challenge")
     content         = models.TextField("content",
                         help_text="Challenge content, in wikicreole.")
     
@@ -94,7 +94,7 @@ class BaseChallenge(models.Model):
     
     # Unicode baby!
     def __unicode__(self):
-        return u"%s: %s"%(self.challenge_type(), self.shortname)
+        return u"%s: %s"%(self.challenge_type(), self.content[:64])
 
 
 # This is the abstract ChallengeResponse class. A ChallengeResponse is the
@@ -174,8 +174,6 @@ class Stage(models.Model):
 # radio buttons (where selecting any correct answer wins) and checkboxes
 # (where selecting them all wins).
 class QuizQuestion(models.Model):
-    shortname   = models.SlugField("shortname",
-                        help_text="Short codename for the question.")
     question    = models.TextField("question",
                         help_text="The question in wiki-creole format.")
     choiceA     = models.TextField("choice A" )
@@ -205,7 +203,7 @@ class QuizQuestion(models.Model):
         ordering = ('ordering',)
     
     def __unicode__(self):
-        return u"%s: %s..." % (self.shortname, self.question[:64])
+        return u"%s..." % (self.question[:64])
 
 
 # Challenge type: Multiple Choice Quiz
@@ -218,6 +216,7 @@ class QuizChallenge(BaseChallenge):
                                   "randomized each time they are seen")
     score       = models.IntegerField("score",
                                       help_text="How many points is this worth?")
+    
 
 
 # An answer to a single quiz question.

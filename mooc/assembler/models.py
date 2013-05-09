@@ -38,6 +38,7 @@ class AssemblyChallenge(BaseChallenge):
     #TODO - we need to map this to functions that will do the evaluation.
 
 
+
 # The form submitted when an assembly challenge is attempted. These challenge
 # responses contain the entire source code of every student submission.
 # If the challenge variable is null, that means that the challenge was submitted

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from textbook.models import Page
+from wiki.models import Page
 
 import os
 
