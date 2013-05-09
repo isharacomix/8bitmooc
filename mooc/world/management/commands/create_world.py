@@ -4,6 +4,7 @@ from django.conf import settings
 from world.models import World, Stage, Achievement
 from world.models import QuizChallenge, QuizQuestion
 from assembler.models import AssemblyChallenge
+from wiki.models import Page
 
 import os
 
@@ -59,12 +60,12 @@ class Command(BaseCommand):
             w.name = worlds[slug]["name"]
             w.description = worlds[slug]["description"]
             w.ordering = worlds[slug]["ordering"]
+            w.prereq = None
             w.save()
             if worlds[slug]["prereq"]: prereqs[worlds[slug]["prereq"]] = w
         
         self.stdout.write('Successfully compiled the worlds!\n')
         
-        """
         # Now load up all of the achievements.
         achievement_listing = os.listdir( os.path.join(base_dir, "achievements") )
         for slug in achievement_listing:
@@ -78,35 +79,37 @@ class Command(BaseCommand):
                 try: a = Achievement.objects.get(shortname=slug)
                 except: a = Achievement(shortname=slug)
                 
-                a.name=
-                a.hidden=
-                a.description=
-                a.graphic=
-                a.ordering=
-                a.won_in=
-                if shortname in prereqs:
-                    a.prereq = prereqs[shortname]
+                a.description = ""
+                for l in data.splitlines():
+                    if l.startswith("%% "):
+                        l = l[3:].strip()
+                        if l.startswith("name:"): a.name = l[5:].strip()
+                        elif l.startswith("hidden:"): a.hidden = True if l[7:].strip() else False
+                        elif l.startswith("won_in:"): a.won_in = World.objects.get(shortname=l[7:].strip())
+                        elif l.startswith("graphic:"): a.graphic = l[8:].strip()
+                        elif l.startswith("ordering:"): a.ordering = int(l[9:].strip())
+                    else: a.description += l+"\n"
+                if slug in prereqs:
+                    a.prereq_for.add(prereqs[slug])
                 a.save()
-                #XXX !!! XXX !!! XXX !!! XXX
                 
                 self.stdout.write('Wrote achievement: %s\n'%slug)
                 
             except: self.stderr.write('Skipped achievement: %s\n'%slug)
         
         self.stdout.write('Successfully compiled achievements\n')
-        """
+        
         
         # For each world, go through and load the stages. However, we have to
         # save all the stages before we can set the prereqs.
-        """
         prereqs = {}
         for w in World.objects.all():
-            stage_listing = os.listdir( os.path.join(base_dir, "world%s"%(w.shortname) ) )
+            stage_listing = os.listdir( os.path.join(base_dir, "%s"%(w.shortname) ) )
             
             for slug in stage_listing:
                 try:
                     data = ""
-                    f = open(os.path.join(base_dir, "world%s"%(w.shortname), slug))
+                    f = open(os.path.join(base_dir, "%s"%(w.shortname), slug))
                     data = f.read()
                     f.close()
                     
@@ -114,17 +117,31 @@ class Command(BaseCommand):
                     try: s = Stage.objects.get(world=w, shortname=slug)
                     except: s = Stage(world=w, shortname=slug)
                     
-                    # Create the challenge as well.
-                    
-                    
-                    s.lesson = (wiki page)
-                    s.challenge = (the one we just made)
-                    s.prereqs = (all of the achievemenst)
-                    s.hidden = 
-                    s.graphic = 
-                    s.ordering =
+                    c = None
+                    prereqs2 = []
+                    for l in data.splitlines():
+                        if c is None:
+                            if l.startswith("%% "):
+                                l = l[3:].strip()
+                                if l.startswith("name:"): s.name = l[5:].strip()
+                                elif l.startswith("hidden:"): s.hidden = True if l[7:].strip() else False
+                                elif l.startswith("graphic:"): s.graphic = l[8:].strip()
+                                elif l.startswith("ordering:"): s.ordering = int(l[9:].strip())
+                                elif l.startswith("lesson:"): s.lesson = Page.objects.get(title=l[8:].strip())
+                                elif l.startswith("achievement_prereqs:"): prereqs2 += l[20:].strip().split()
+                                elif l.startswith("stage_prereqs:"):
+                                    prereqs["%s/%s"%(w.shortname, s.shortname)] = l[14:].strip().split()
+                        else:
+                            pass
+                    if c: c.save()
+                    s.challenge = c
                     s.save()
-                    #XXX !!! XXX !!! XXX !!! XXX
+                    
+                    s.prereqs1.clear()
+                    s.prereqs2.clear()
+                    for p in prereqs2:
+                        s.prereqs2.add( Achievement.objects.get(shortname=p) )
+                    s.save()
                     
                     self.stdout.write('Wrote stage: %s-%s\n'%(w.shortname, slug))
                     
@@ -136,10 +153,12 @@ class Command(BaseCommand):
         # Now compile the stage prerequisites. What a mess.
         for p in prereqs:
             world, stage = p.split('/',2)
-            x = Stage.objects.get( world=world, shortname=stage )
-            for s in prereqs[p]:
-                s.prereqs1.add( x )
-                s.save()
+            s1 = Stage.objects.get( world=(World.objects.get(shortname=world)), shortname=stage )
+            for q in prereqs[p]:
+                w, s = q.split('/', 2)
+                s2 = Stage.objects.get( world=(World.objects.get(shortname=w)), shortname=s )
+                s1.prereqs1.add( s2 )
+                s1.save()
         
         self.stdout.write('Successfully compiled stage prereqs\n')
-        """
+

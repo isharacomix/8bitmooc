@@ -7,7 +7,7 @@ Hello!
 
 % 2
 %% name: World Two
-%% prereq: lololol
+%% prereq: test
 
 = This is the second test. Fear me.
 

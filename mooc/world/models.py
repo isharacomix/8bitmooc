@@ -23,8 +23,8 @@ from students.models import Student
 class Achievement(models.Model):
     name        = models.CharField("name", max_length=128,
                             help_text="Human-readable milestone name.")
-    shortname   = models.SlugField("shortname", max_length=8, unique=True,
-                            help_text="Short world name, usually a number.")
+    shortname   = models.SlugField("shortname", unique=True,
+                            help_text="Short achievement name.")
     hidden      = models.BooleanField("hidden", default=False,
                         help_text="If this is set, then the student can only "+
                                   " see the milestone's requirements when they have it.")
