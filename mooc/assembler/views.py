@@ -191,7 +191,7 @@ def do_assemblychallenge( request, world, stage, challenge ):
     ACR.student = student
     ACR.code = code
     ACR.challenge = challenge
-    ACR.correct = correct
+    ACR.correct = True if correct else False
     ACR.save()
     
     # Is there an SOS involved?

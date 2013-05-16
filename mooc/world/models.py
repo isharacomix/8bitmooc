@@ -95,7 +95,7 @@ class BaseChallenge(models.Model):
     
     # Unicode baby!
     def __unicode__(self):
-        return u"%s: %s"%(self.challenge_type(), self.content[:64])
+        return u"%s: %s..."%(self.challenge_type(), self.content[:64])
 
 
 # This is the abstract ChallengeResponse class. A ChallengeResponse is the

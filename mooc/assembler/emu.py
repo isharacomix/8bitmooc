@@ -34,6 +34,11 @@ class Emulator(object):
         self.oam = [0x00]*4*64      # OAM (sprite data)
         self.vram_mirror = 1        # 0 all mirror, 1 vert, 2 horiz, 3 unique
         
+        self.debug = []
+        self.last_op = None
+        self.last_mode = None
+        self.last_arg = None
+        
         # vblank interval can be reprogrammed if needed
         self.vblank_interval = 10000
         self.next_vblank = self.vblank_interval
@@ -94,11 +99,11 @@ class Emulator(object):
         
         # Load the ROM and VRAM with our arguments.
         if prgrom and len(prgrom)<=0x8000:
-            for i in in range(0,len(prgrom)):
-                self.rom[-1-i] = prgrom[-1-i]
+            for i in range(0,len(prgrom)):
+                self.rom[-1-i] = ord(prgrom[-1-i])&0xff
         if chrrom and len(chrrom)==0x2000:
             for i in range(0,0x2000):
-                self.vram[i] = chrrom[i]&0xff
+                self.vram[i] = ord(chrrom[i])&0xff
         self.PC = self.read(0xFFFC) | (self.read(0xFFFD)<<8)
         self.I = True
     
@@ -294,9 +299,11 @@ class Emulator(object):
     def read_PC(self):
         x = self.read(self.PC)
         self.PC = (self.PC+1)&0xFFFF
+        return x
     def read_word_PC(self):
         x = self.read_word(self.PC)
         self.PC = (self.PC+2)&0xFFFF
+        return x
     
     # This handles getting the argument from a full addressing mode operation.
     def get_argmode(self, op, IMM, ZPAGE, ZPAGEX, ABS, ABSX, ABSY, INDX, INDY):
@@ -313,13 +320,15 @@ class Emulator(object):
             if op == ABSX: (addr+self.X)&0xFFFF
             if op == ABSY: (addr+self.Y)&0xFFFF
             arg = self.read(addr)
+        self.last_arg = arg
         return arg
     
     
     # The actual emulation. We emulate at the instruction level, not the clock
     # level, which makes it easier, but less accurate.
     def next_instruction(self):
-        op = self.read_PC( self.PC )
+        op = self.read_PC()
+        self.last_op = op
         
         if op in [0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71]: #ADC
             arg = self.get_argmode(op,0x69,0x65,0x75,0x6D,0x7D,0x79,0x61,0x71)
@@ -345,7 +354,7 @@ class Emulator(object):
                 if op in [0x06, 0x16]:
                     addr = self.read_PC()
                     if addr == 0x16: addr = (addr+self.X)&0xFF
-                else
+                else:
                     addr = self.read_word_PC()
                     if addr == 0x1E: addr = (addr+self.X)&0xFFFF
                 result = self.read(addr) << 1
@@ -405,7 +414,7 @@ class Emulator(object):
             if op in [0xC6, 0xD6]:
                 addr = self.read_PC()
                 if addr == 0xD6: addr = (addr+self.X)&0xFF
-            else
+            else:
                 addr = self.read_word_PC()
                 if addr == 0xDE: addr = (addr+self.X)&0xFFFF
             result = (self.read(addr) - 1)&0xFF
@@ -428,7 +437,7 @@ class Emulator(object):
             if op in [0xE6, 0xF6]:
                 addr = self.read_PC()
                 if addr == 0xF6: addr = (addr+self.X)&0xFF
-            else
+            else:
                 addr = self.read_word_PC()
                 if addr == 0xFE: addr = (addr+self.X)&0xFFFF
             result = (self.read(addr) + 1)&0xFF
@@ -486,7 +495,7 @@ class Emulator(object):
                 if op in [0x46, 0x56]:
                     addr = self.read_PC()
                     if addr == 0x56: addr = (addr+self.X)&0xFF
-                else
+                else:
                     addr = self.read_word_PC()
                     if addr == 0x5E: addr = (addr+self.X)&0xFFFF
                 result = self.read(addr)
@@ -519,7 +528,7 @@ class Emulator(object):
                 if op in [0x26, 0x36]:
                     addr = self.read_PC()
                     if addr == 0x36: addr = (addr+self.X)&0xFF
-                else
+                else:
                     addr = self.read_word_PC()
                     if addr == 0x3E: addr = (addr+self.X)&0xFFFF
                 result = (self.read(addr) << 1) | (1 if self.C else 0)
@@ -538,7 +547,7 @@ class Emulator(object):
                 if op in [0x66, 0x76]:
                     addr = self.read_PC()
                     if addr == 0x76: addr = (addr+self.X)&0xFF
-                else
+                else:
                     addr = self.read_word_PC()
                     if addr == 0x7E: addr = (addr+self.X)&0xFFFF
                 result = self.read(addr) | (0x100 if self.C else 0)
@@ -598,6 +607,10 @@ class Emulator(object):
                 addr = self.read_PC()
                 if op == 0x94: addr = (addr + self.X)&0xFF
             self.write( self.Y, addr )
+        else:
+            return False
+        
+        return True
     
     # The three interrupts.
     def send_reset(self):
@@ -622,7 +635,7 @@ class Emulator(object):
     # A, B, Select, Start, Up, Down, Left, Right, All
     # 0, 1, 2,      3,     4,  5,    6,    7,     8
     # If 'press' is false, then it is released, not pressed.
-    def controller(self, player, button, press=True)
+    def controller(self, player, button, press=True):
         if press:
             k = (1 << button) if button != 8 else 0xff
             if player == 1: self.p1 |= k
@@ -633,10 +646,10 @@ class Emulator(object):
             if player == 2: self.p2 &= k
 
 
-    # This steps through one instruction. It returns something TODO
+    # This steps through one instruction. Returns True if it was legal.
     def step(self):
         self.next_vblank -= 1
-        if next_vblank <= 0:
+        if self.next_vblank <= 0:
             self.next_vblank = self.vblank_interval
             self.vblank = True
             if self.vblank_nmi:
