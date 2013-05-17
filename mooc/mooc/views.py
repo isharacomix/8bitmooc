@@ -49,3 +49,8 @@ def view_index(request):
     return render( request, 'index.html', {'feed': feed,
                                            "worlds": worlds } )
 
+def view_privacy(request):
+    return render( request, 'privacy.html' )
+def view_terms(request):
+    return render( request, 'terms.html' )
+

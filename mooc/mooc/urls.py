@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     # We might make it into a fancy blog feed one day (maybe import the
     # tumblr RSS as a planet-like thing).
     url(r'^$', views.view_index, name='index'),
+    url(r'^privacy$', views.view_privacy, name='privacy'),
+    url(r'^terms$', views.view_terms, name='terms'),
 
     # Apps!
     url(r'^', include('students.urls')),            # /~<user>/     # /profile/
