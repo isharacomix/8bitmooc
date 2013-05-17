@@ -42,12 +42,12 @@ def do_playground(request):
     try: ACR.student = Student.from_request(request)
     except exceptions.ObjectDoesNotExist: pass
     ACR.code = code
-    ACR.name = "untitled"
     if "name" in request.POST:
         ACR.name = ""
         for c in request.POST["name"][:40].lower():
             if c in "abcdefghijklmnopqrstuvwxyz0123456789-_":
                 ACR.name += c
+    if ACR.name == "": ACR.name = "untitled"
     if "public" in request.POST and request.POST["public"]=="True":
         ACR.public = True
     if "pattern" in request.POST:
@@ -150,7 +150,7 @@ def get_library_game(request, username, gamename):
 
 # The get_rom view simply returns the current ROM that is in the session
 # variables.
-def get_rom(request, gamename="rom"):
+def get_rom(request, gamename="untitled"):
     if "rom" in request.session and request.session["rom"] != "":
         response = HttpResponse(request.session["rom"], content_type='application/x-nes-rom')
         response['Content-Disposition'] = 'attachment; filename='+gamename+'.nes'
