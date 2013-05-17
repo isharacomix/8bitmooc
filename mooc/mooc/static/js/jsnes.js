@@ -124,7 +124,7 @@ JSNES.prototype = {
         var cpu = this.cpu;
         var ppu = this.ppu;
         var papu = this.papu;
-        FRAMELOOP: for (;;) {
+        FRAMELOOP: for (;this.running;) {
             if (cpu.cyclesToHalt === 0) {
                 // Execute a CPU instruction
                 cycles = cpu.emulate();
@@ -202,7 +202,7 @@ JSNES.prototype = {
         clearInterval(this.frameInterval);
         clearInterval(this.fpsInterval);
         this.isRunning = false;
-        
+
         $(document).
             unbind('keydown', window.keydownevt).
             unbind('keyup', window.keyupevt).
@@ -621,7 +621,7 @@ JSNES.CPU.prototype = {
                 // *******
                 // * ADC *
                 // *******
-
+                
                 // Add with carry.
                 temp = this.REG_ACC + this.load(addr) + this.F_CARRY;
                 this.F_OVERFLOW = ((!(((this.REG_ACC ^ this.load(addr)) & 0x80)!=0) && (((this.REG_ACC ^ temp) & 0x80))!=0)?1:0);
