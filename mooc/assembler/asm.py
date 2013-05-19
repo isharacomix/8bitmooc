@@ -115,12 +115,12 @@ class Assembler(object):
         if postamble != "": post_elements = self.parse(postamble, "postamble")
         elements = self.parse(code)
         
-        # Pass zero: handle .includes and .incbins, which connect to the
-        # Assembler model. The database stores the includes and incbins as
+        # Pass zero: handle .includes, which connect to the
+        # Assembler model. The database stores the includes as
         # textfiles to be imported
         new_elements = []
         for label, op, arg, original in pre_elements+elements+post_elements:
-            if op in [".include", ".incbin", ".ascii"] and (arg is None or
+            if op in [".include", ".ascii"] and (arg is None or
                             not (arg.startswith('"') and arg.endswith('"'))):
                 self.err("Incorrectly formatted quoted string")
             elif op == ".include":
@@ -130,15 +130,6 @@ class Assembler(object):
                     self.err("No such kernal "+arg)
                 inc_elements = self.parse(kern.code, arg)
                 new_elements += inc_elements
-            elif op == ".incbin":
-                arg = arg[1:-1]
-                try: patt = Pattern.objects.get(name=arg)
-                except exceptions.ObjectDoesNotExist:
-                    self.err("No such pattern "+arg)
-                new_arg = ""
-                for i in range(len(patt.code)/2):
-                    new_arg += "$"+patt.code[i*2:i*2+2]+","
-                new_elements.append((label, ".db", new_arg.strip(','), original))
             elif op == ".ascii":
                 arg = arg[1:-1]
                 new_arg = ""
