@@ -22,6 +22,7 @@ urlpatterns = patterns('',
 
     # Apps!
     url(r'^', include('students.urls')),
+    url(r'^', include('challenges.urls')),
     url(r'^help/', include('pages.urls')),
 
     # Django-admin panel

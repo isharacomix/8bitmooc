@@ -8,7 +8,7 @@ from challenges import views
 urlpatterns = patterns('',
     url(r'^challenge/$', views.challenge_list, name='challenge_list'),
     url(r'^challenge/(?P<name>[\w-]+)/$', views.view_challenge, name='challenge'),
-    url(r'^badge/(?P<challenge>[\w-]+)/$', views.badge, name='badge_details'),
+    url(r'^badge/(?P<challenge>[\w-]+)/$', views.badge_details, name='badge_details'),
     url(r'^badge/(?P<challenge>[\w-]+)/(?P<student>[\w-]+)/$', views.badge_assertion, name='badge_assertion'),
 )
 

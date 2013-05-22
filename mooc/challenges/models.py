@@ -29,6 +29,12 @@ class Challenge(models.Model):
                                        The graphic for the challenge. Should be
                                        a 128x128 PNG.
                                                  """)
+    prereq          = models.ForeignKey("Challenge",
+                                        null=True,
+                                        blank=True,
+                                        help_text="""
+                                        Optional prerequisite for the challenge.
+                                                  """)
     is_badge        = models.BooleanField("Is Badge",
                                           default=False,
                                           help_text="""
@@ -38,7 +44,7 @@ class Challenge(models.Model):
     description     = models.TextField("Description",
                                        help_text="""
                                        Markdown description of the challenge.
-                                       """)
+                                                 """)
     autograde       = models.SlugField("Autograde Function",
                                        blank=True,
                                        help_text="""
@@ -47,7 +53,7 @@ class Challenge(models.Model):
                                        left blank, this is more like an
                                        achievement that is accomplished in the
                                        rest of the MOOC.
-                                       """)
+                                                 """)
     is_jam          = models.BooleanField("Is Jam",
                                           default=False,
                                           help_text="""
@@ -111,7 +117,7 @@ class ChallengeResponse(models.Model):
                                    help_text="""
                                    This is either the code of an autograded
                                    challenge or the URL of a jam.
-                                   """)
+                                             """)
     is_correct  = models.NullBooleanField("Is Correct",
                                           default=None,
                                           help_text="""

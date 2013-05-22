@@ -82,15 +82,15 @@ class Student(models.Model):
     def email(self):
         return self.user.email
     
-    # Grab the Student out of the request. Raises exceptions.ObjectDoesNotExist
-    # if the student does not exist.
+    # Grab the Student out of the request. Returns None if a student is
+    # not logged in. If redirect is True, then an error message will be
+    # added.
     @staticmethod
     def from_request(request):
         if request.user.is_authenticated():
             try:    return request.user.student
-            except: raise exceptions.ObjectDoesNotExist() 
-        else:
-            raise exceptions.ObjectDoesNotExist()
+            except: return None
+        else: return None
 
 
 # This is used for logging page visits.

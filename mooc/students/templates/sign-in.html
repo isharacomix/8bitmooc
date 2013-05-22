@@ -1,0 +1,21 @@
+{% extends "layout_base.html" %}
+
+{% block title %}Login{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span4 offset4">
+            <p>LOGIN HERE YO</p>
+
+            <form action="{% url 'sign-in' %}" method="POST">{% csrf_token %}
+               <input class="input-block-level" type="text" placeholder="Username" name="username"></input>
+               <input class="input-block-level" type="password" placeholder="Password" name="password"></input>
+               <button class="btn btn-large btn-block btn-success" type="submit" name="sign-in" value="sign-in">Login</button>
+               <button class="btn btn-large btn-block btn-primary" type="submit" name="sign-ip" value="sign-up">Sign up!</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock body %}
+

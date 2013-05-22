@@ -21,8 +21,8 @@
                         Hello, {{ user.username }}! <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                         <li><a href="{% url 'index' %} %}">Profile Page</a></li>
-                         <li><a href="{% url 'index' %}">Logout</a></li>
+                         <li><a href="{% url 'profile' username=user.username %}">Profile Page</a></li>
+                         <li><a href="{% url 'sign-out' %}">Logout</a></li>
                     </ul>
                     {% else %}
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
