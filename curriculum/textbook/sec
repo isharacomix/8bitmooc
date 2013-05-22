@@ -1,6 +1,0 @@
-= SEC: SEt Carry
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`SEC`          |$38     | 1      | 2      |
-
-**Flags affected:** C

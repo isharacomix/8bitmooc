@@ -5,7 +5,7 @@ South>=0.7
 py-bcrypt
 pytz
 django-redis
-Creoleparser
 Pygments
 feedparser
 pypng
+markdown

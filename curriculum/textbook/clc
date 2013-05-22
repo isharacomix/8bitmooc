@@ -1,6 +1,0 @@
-= CLC: CLear Carry
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`CLC`          |$18     | 1      | 2      |
-
-**Flags affected:** C

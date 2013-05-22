@@ -1,6 +1,0 @@
-= DEY: DEcrement Y
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`DEY`          |$88     | 1      | 2      |
-
-**Flags affected:** S Z

@@ -8,3 +8,16 @@
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace; 
 }
 
+.btn-huge {
+  padding: 38px 46px;
+  font-size: 30px;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+
+.btn-huge [class^="icon-"],
+.btn-huge [class*=" icon-"] {
+  margin-top: 10px;
+}
+

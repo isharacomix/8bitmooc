@@ -1,9 +1,0 @@
-= BCC: Branch if Carry Clear
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Relative         |`BCC $44`      |$90     | 2      | 2+     |
-
-**Flags affected:** None
-
-This opcode follows the branch if the [[Carry]] Flag is set to zero.
-

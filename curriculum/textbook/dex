@@ -1,6 +1,0 @@
-= DEX: DEcrement X
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`DEX`          |$CA     | 1      | 2      |
-
-**Flags affected:** S Z

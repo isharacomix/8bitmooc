@@ -10,54 +10,43 @@
             <div class="hero-unit">
                 <h1>#8bitmooc</h1>
 
-                <p>IT IS UNDER CONSTRUCTION</p>
+                <p><em>Let's program like it's 1985!</em></p>
             </div>
         </div>
     </div>
-    
+
     <div class="row">
-        <div class="span3">
-        {% if not user.is_authenticated %}
-            <form action="{% url 'login' %}" method="POST">{% csrf_token %}
-               <input class="input-block-level" type="text" placeholder="Username" name="username"></input>
-               <input class="input-block-level" type="password" placeholder="Password" name="password"></input>
-               <button class="btn btn-large btn-block btn-success" type="submit" name="login" value="login">Login</button>
-               <button class="btn btn-large btn-block btn-primary" type="submit" name="register" value="register">Sign up!</button>
-            </form>
-        {% else %}
-        <div class="well">
-        {% for w, c, students, progress in worlds %}
-        <div>
-        <a href="{% url 'world_map' w.shortname %}">World {{ w.shortname }}</a>: {{w.name}} <br />
-        <i class="icon-user"></i> {{ c }}
-        {% for s in students %}
-        <a href="{% url 'profile' s.user %}">
-        <img class="gravatar" alt="" title="{{s.username}}" src="{% gravatar_for_email s.email 20 %}" />
-        </a>
-        {% endfor %}
-        <div class="progress progress-striped progress-success {% if progress < 100 %}active{% endif %} ">
-            <div class="bar" style="width: {{ progress }}%;"></div>
-        </div>
-        </div>
-        {% endfor %}
-        </div>
-        {% endif %}
-        </div>
-        <div class="span9">
-            {% for f in feed %}
-            <div>
-            <h3>{{ f.title }}</h3>
-            <article>
-            {{ f.description|safe }}
-            </article>
+        <div class="span8">
+            <div class="well" style="overflow-y: scroll; height:400px;">
+                <h1>News and Updates</h1>
+                {% for f in feed %}
+                    <hr />
+                    <div>
+                        <h3>{{ f.title }}</h3>
+                        <h5>{{ f.published }}</h5>
+                        <article>
+                            {{ f.description|safe }}
+                        </article>
+                    </div>
+                {% endfor %}
             </div>
-            <hr />
-            {% endfor %}
-            
-            <div>
-            Read more at the <a href="http://blog.8bitmooc.org">#8bitmooc blog</a>!
-            </div>
+        </div>
+        
+        <div class="span4">
+            <ul>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'help' page='about' %}" class="btn btn-huge btn-block"><i class="icon-question-sign"></i> Learn More</a></li>
+                <a href="{% url 'playground' %}" class="btn btn-huge btn-block"><i class="icon-edit"></i> Try it Out!</a></li>
+                <a href="{% url 'index' %}" class="btn btn-huge btn-block"><i class="icon-book"></i> </a></li>
+                <a href="{% url 'sign-up' %}" class="btn btn-huge btn-block"><i class="icon-plus"></i> Sign Up!</a></li>
+            {% else %}
+                <a href="{% url 'project_list' %}" class="btn btn-huge btn-block"><i class="icon-wrench"></i> Projects</a></li>
+                <a href="{% url 'challenge_list' %}" class="btn btn-huge btn-block"><i class="icon-star"></i> Challenges</a></li>
+                <a href="{% url 'help' page='index' %}" class="btn btn-huge btn-block"><i class="icon-book"></i> Help Center</a></li>
+                <a href="{% url 'forum' %}" class="btn btn-huge btn-block"><i class="icon-user"></i> Community</a></li>
+            {% endif %}
         </div>
     </div>
+
 
 {% endblock body %}

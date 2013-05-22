@@ -1,7 +1,0 @@
-= JMP: JMP
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Absolute         |`JMP $4400`    |$4C     | 3      | 3      |
-|Indirect         |`JMP ($4400)`  |$6C     | 3      | 5      |
-
-**Flags affected:** None

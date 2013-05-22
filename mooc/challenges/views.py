@@ -8,15 +8,13 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 
-def user_list(request):
+def challenge_list(request):
     raise Http404()
-def user_profile(request, username):
+def view_challenge(request, name):
     raise Http404()
-def sign_in(request):
+def badge_details(request, challenge):
     raise Http404()
-def sign_up(request):
-    raise Http404()
-def sign_out(request):
+def badge_assertion(request, challenge, student):
     raise Http404()
 
 

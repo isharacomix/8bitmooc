@@ -1,6 +1,0 @@
-= NOP: No OPeration
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`NOP`          |$EA     | 1      | 2      |
-
-**Flags affected:** None

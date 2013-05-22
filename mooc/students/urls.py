@@ -6,9 +6,10 @@ from students import views
 
 # Student Profile URL pattern - includes the internal "edit profile page".
 urlpatterns = patterns('',
-    url(r'^~(?P<username>[\w-]+)/$', views.view_profile, name='profile'),
-    url(r'^login/$', views.login_page, name='login'),
-    url(r'^logout/$', views.logout_page, name='logout'),
-    url(r'^register/$', views.register_page, name='register'),
+    url(r'^user/$', views.user_list, name='users'),
+    url(r'^user/(?P<username>[\w-]+)/$', views.user_profile, name='profile'),
+    url(r'^sign-in/$', views.sign_in, name='sign-in'),
+    url(r'^sign-up/$', views.sign_up, name='sign-up'),
+    url(r'^sign-out/$', views.sign_out, name='sign-out'),
 )
 

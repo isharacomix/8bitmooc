@@ -1,6 +1,0 @@
-= SEI: SEt Interrupt
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`SEI`          |$78     | 1      | 2      |
-
-**Flags affected:** I

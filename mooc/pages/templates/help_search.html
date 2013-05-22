@@ -1,0 +1,26 @@
+{% extends "layout_base.html" %}
+
+{% block title %}Search Results{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            <article class="article">
+                <h2>Search Results for "{{query}}"</h2>
+                <ul>
+                {% if results %}
+                    {% for slug, digest in results %}
+                    
+                        <li><strong><a href="{% url 'help' page=slug%}">{{slug}}</a></strong>: <em> {{digest}}</em></li>
+                    
+                    {% endfor %}
+                {% else %}
+                    No results.
+                {% endif %}
+                </ul>
+            </article>
+        </div>
+    </div>
+
+{% endblock body %}

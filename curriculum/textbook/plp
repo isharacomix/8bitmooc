@@ -1,6 +1,0 @@
-= PLP: PuLl Processor status
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`PLP`          |$28     | 1      | 2      |
-
-**Flags affected:** All

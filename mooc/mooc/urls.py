@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from django.views.generic.base import TemplateView
 
 from mooc import views
 
@@ -14,20 +13,16 @@ urlpatterns = patterns('',
     # url(r'^$', 'mooc.views.home', name='home'),
     # url(r'^mooc/', include('mooc.foo.urls')),
     
-    # Use a basic TemplateView to get the index page.
-    # We might make it into a fancy blog feed one day (maybe import the
-    # tumblr RSS as a planet-like thing).
+    # Basic pages.
     url(r'^$', views.view_index, name='index'),
-    url(r'^privacy$', views.view_privacy, name='privacy'),
-    url(r'^terms$', views.view_terms, name='terms'),
+    
+    url(r'^playground/', views.view_index, name='playground'),
+    url(r'^project/', views.view_index, name='project_list'),
+    url(r'^forum/', views.view_index, name='forum'),
 
     # Apps!
-    url(r'^', include('students.urls')),            # /~<user>/     # /profile/
-    url(r'^', include('assembler.urls')),           # /playground/
-    url(r'^chat/', include('chatroom.urls')),       # /world/
-    url(r'^world/', include('world.urls')),       # /world/
-    url(r'^textbook/', include('wiki.urls')),   # /textbook/
-    url(r'^badges/', include('badger.urls')),       # /badges/
+    url(r'^', include('students.urls')),
+    url(r'^help/', include('pages.urls')),
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

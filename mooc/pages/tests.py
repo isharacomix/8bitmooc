@@ -3,10 +3,10 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 
-from students.models import Student, LogEntry
+from pages.models import Page
 
 
-# This will test the the sanity 
+# This will test the the sanity of the markup language.
 class TestAssembler(TestCase):
     def setUp(self):
         pass

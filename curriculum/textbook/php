@@ -1,6 +1,0 @@
-= PHP: PusH Processor status
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`PHP`          |$08     | 1      | 2      |
-
-**Flags affected:** None

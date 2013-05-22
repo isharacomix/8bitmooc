@@ -1,6 +1,0 @@
-= TXA: Transfer X to Accumulator
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`TXA`          |$8A     | 1      | 2      |
-
-**Flags affected:** S Z

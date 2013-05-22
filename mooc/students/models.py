@@ -4,55 +4,75 @@ from django.contrib.auth.models import User
 from django.core import exceptions
 
 
-# The student represents each user in the Database. We use their username and
-# e-mail from the User model, and don't worry so much about their real name
-# and such. The primary purpose of the Student profile is to be associated with
-# assignments, badges, and other submissions.
-# Technically, teachers are also "students" in the course.
+# The Student model maintains extra information for verified Users in the
+# system. Only Users that have corresponding Student models can log in.
 class Student(models.Model):
-    user            = models.OneToOneField(User, verbose_name="user", null=True)
-    score           = models.IntegerField("score", default=0)
-    joined          = models.DateTimeField("joined", auto_now_add=True)
-    
-    # The friends list is a whitelist and the blocked list is a blacklist.
-    # When someone is blocked by a substantial number of people, they are
-    # considered auto-blocked (an idea from Extra Credits on maintaining
-    # good community).
-    friends         = models.ManyToManyField("Student", blank=True,
-                        related_name='friends+',
-                        help_text="Who is this user friends with? Friends "+
-                                  "can see one anothers' progress and "+
-                                  "prefer their posts to others.")
-    blocked         = models.ManyToManyField("Student", blank=True,
-                        related_name='blocked+',
-                        help_text="Who is this user blocking?")    
-    autoblocked     = models.BooleanField("autoblocked", default=False,
-                        help_text="This is set where people who are not friends "+
-                                  "with this user will not see their posts. Set "+
-                                  "when many people block them (likely a troll).")
-    TA              = models.BooleanField("TA", default=False,
-                        help_text="This is set if the student is actually a TA.")
-    
-    # Personal profile settings (all of which are optional for the student).
-    bio             = models.TextField("bio", blank=True,
-                        help_text="The user's bio.")
-    display_email   = models.BooleanField("display e-mail", default=False,
-                        help_text="Display E-mail publicly?")
-    twitter         = models.CharField("twitter", max_length=32, blank=True,
-                        help_text="Twitter handle.")
-    website         = models.CharField("website", max_length=32, blank=True,
-                        help_text="Personal website.")
-    
-    # Most recently-viewed stage.
-    recent_stage    = models.ForeignKey("world.Stage", verbose_name="Recent Stage", blank=True,
-                        null=True, help_text="Most recently-visited stage.")
-    recent_world    = models.ForeignKey("world.World", verbose_name="Recent World", blank=True,
-                        null=True, help_text="Most recently-visited world.")
-    
+    user            = models.OneToOneField(User,
+                                           verbose_name="user",
+                                           null=True,
+                                           help_text="""
+                                           The user that this student is
+                                           connected to. If None, this student
+                                           has not confirmed their registration.
+                                                     """)
+    xp              = models.IntegerField("Experience Points",
+                                          default=0,
+                                          help_text="""
+                                          The student's current experience
+                                          points. When this goes up, the student
+                                          gains levels. Resets to 0 when a level
+                                          is gained.
+                                                    """)
+    level           = models.IntegerField("Level",
+                                          default=1,
+                                          help_text="""
+                                          The student's current experience
+                                          level. As it goes up, the student
+                                          gains new abilities in #8bitmooc.
+                                          Each new level is unlocked at
+                                          100*(2**level) XP.
+                                                    """)
+    bio             = models.TextField("Biography",
+                                       blank=True,
+                                       help_text="""
+                                       The student's biographical sketch in
+                                       minimarkdown.
+                                                 """)
+    public_email    = models.BooleanField("Display E-mail Publicly?",
+                                          default=False,
+                                          help_text="""
+                                          When true, the student's e-mail is
+                                          displayed publicly on their profile
+                                          page.
+                                                    """)
+    ta              = models.BooleanField("Teaching Assistant",
+                                          default=False,
+                                          help_text="""
+                                          When true, the student has access to
+                                          grading interfaces.
+                                                    """)
+    twitter         = models.SlugField("Twitter",
+                                       blank=True,
+                                       help_text="""
+                                       The student's Twitter handle, withou the
+                                       '@' symbol.
+                                                 """)
+    blocked_by      = models.ManyToManyField("Student",
+                                             verbose_name="Blocked By",
+                                             blank=True,
+                                             help_text="""
+                                             List of students blocking this
+                                             student. When this list gets large,
+                                             it means the student may be a
+                                             problem.
+                                                       """)
+
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.
     def __unicode__(self):
-        return u"%s%s" % (self.user.username, u" [TA]" if self.TA else u"")
+        return u"%s%s (Level %d)" % (self.user.username,
+                                     u" [TA]" if self.ta else u"",
+                                     self.level)
     
     @property
     def username(self):
@@ -67,7 +87,44 @@ class Student(models.Model):
     @staticmethod
     def from_request(request):
         if request.user.is_authenticated():
-            return request.user.student
+            try:    return request.user.student
+            except: raise exceptions.ObjectDoesNotExist() 
         else:
             raise exceptions.ObjectDoesNotExist()
+
+
+# This is used for logging page visits.
+class LogEntry(models.Model):
+    student     = models.ForeignKey(Student,
+                                    verbose_name="Student",
+                                    null=True,
+                                    blank=True,
+                                    help_text="""
+                                    The student being logged.
+                                              """)
+    timestamp   = models.DateTimeField("Timestamp",
+                                       auto_now_add=True,
+                                       help_text="""
+                                       The time that the URL was accessed.
+                                                 """)
+    url         = models.CharField("URL",
+                                   max_length=200,
+                                   help_text="""
+                                   The URL that the student accessed.
+                                             """)
+    notes       = models.CharField("Notes",
+                                   max_length=200,
+                                   help_text="""
+                                   Debug information.
+                                             """)
+    
+    @staticmethod
+    def log(request, notes=""):
+        try: s = Student.from_request(request)
+        except: s = None
+        
+        l = LogEntry(student=s,
+                     url="%s:%s"%(request.method, request.path),
+                     notes=notes)
+        l.save()
 

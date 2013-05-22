@@ -1,6 +1,0 @@
-= RTS: ReTurn from Subroutine
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`RTS`          |$60     | 1      | 6      |
-
-**Flags affected:** None

@@ -1,0 +1,18 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            <article class="article">
+
+                {{ content|markdown }}
+
+            </article>
+        </div>
+    </div>
+
+{% endblock body %}

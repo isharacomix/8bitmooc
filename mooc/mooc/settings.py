@@ -110,18 +110,19 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'django.contrib.markup',
     # Dependencies
     'south',
     'gravatar',
     'bootstrap_toolkit',
     # My Apps
     'mooc',
-    'wiki',
-    'world',
+    'nes',
     'students',
-    'badger',
-    'assembler',
-    'chatroom',
+    'pages',
+    'challenges',
+    'projects',
+    'forum',
 )
 TEXTBOOK_DIR = os.path.join(PROJECT_DIR, "textbook")
 

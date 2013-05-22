@@ -1,9 +1,0 @@
-= BMI: Branch if MINus
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Relative         |`BMI $44`      |$30     | 2      | 2+     |
-
-**Flags affected:** None
-
-This opcode follows the branch if the [[Sign]] Flag is set to one.
-

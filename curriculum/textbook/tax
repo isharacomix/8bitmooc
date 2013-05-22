@@ -1,6 +1,0 @@
-= TAX: Transfer Accumulator to X
-
-|=Addressing Mode |=Opcode Syntax |=In Hex |=Length |=Cycles |
-|Implied          |`TAX`          |$AA     | 1      | 2      |
-
-**Flags affected:** S Z
