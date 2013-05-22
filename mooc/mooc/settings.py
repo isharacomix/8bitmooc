@@ -124,7 +124,6 @@ INSTALLED_APPS = (
     'projects',
     'forum',
 )
-TEXTBOOK_DIR = os.path.join(PROJECT_DIR, "textbook")
 
 LOGIN_REDIRECT_URL = '/'
 
