@@ -7,7 +7,9 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
 
+from students.forms import RegistrationForm, ProfileEditForm
 from students.models import Student
 from django.contrib.auth.models import User
 
@@ -84,7 +86,44 @@ def sign_up(request):
     if "alerts" not in request.session: request.session["alerts"] = []
     if me: return redirect("index")
     
-    
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            u = User.objects.create_user(data['username'], data['email'], data['password1'])
+            u.is_active = False
+            u.is_admin = False
+            u.save()
+            request.session["alerts"].append(("alert-success",
+                                              "Please check your e-mail for your verification link."))
+            
+            #TODO move this email to a file so that it's not so darn ugly.
+            email = """
+Howdy, %s!
+
+You're almost all set for #8bitmooc - all that's left is to verify your
+e-mail address. Please click on the following link to activate your
+account!
+
+http://%s/sign-up?username=%s&key=%s
+            """%(u.username, settings.SITE_URL, u.username,
+                 hashlib.sha256(u.username+settings.REGISTER_SALT).hexdigest())
+            
+            # Send an alert email to this individual.
+            send_mail('[8bitmooc] Account Registration', email, 'bounces@8bitmooc.org',
+                      [u.email], fail_silently=True)
+            return redirect("sign-in")
+        else:
+            request.session["alerts"].append(("alert-failure",
+                                              "There was an issue registering your account."))
+            for e in form.non_field_errors():
+                alerts.append( ("alert-error", e ) )
+            return render( request, "sign-up.html", { "form":form,
+                                                      'alerts': request.session.pop('alerts', []) } )
+    else:
+        form = RegistrationForm()
+        return render(request, 'sign-up.html', {"form":form,
+                                                'alerts': request.session.pop('alerts', []) })
 
     
 # Sign the user out. Here I'm willing to avoid the 'student redirect' since
