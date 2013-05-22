@@ -29,8 +29,8 @@ def sign_in(request):
     if me: return redirect("index")
     
     if request.method == "POST":
-        if request.POST.get("sign-up") == "sign-up": return redirect("sign-up")
-        if request.POST.get("sign-in") == "sign-in":
+        if request.POST.get("sign-up")   == "sign-up": return redirect("sign-up")
+        elif "username" in request.POST and "password" in request.POST:
             username = request.POST.get("username")
             password = request.POST.get("password")
             user = authenticate(username=username, password=password)
@@ -50,6 +50,7 @@ def sign_in(request):
                                                   """Incorrect username or
                                                   password."""))
                 return redirect("sign-in")
+        else: return redirect("sign-in")
     elif "key" in request.GET and "username" in request.GET:
         key = request.GET["key"]
         username = request.GET["username"]

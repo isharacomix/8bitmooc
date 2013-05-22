@@ -39,7 +39,7 @@ def find_pages(request, query):
     results = []
     for p in pages:
         i = p.content.index(query)
-        results.append( (p.title,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
+        results.append( (p.name,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
     
     LogEntry.log(request, "search")
     return render(request,
