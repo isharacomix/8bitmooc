@@ -119,6 +119,18 @@ class ChallengeResponse(models.Model):
                                           If None, the jam link hasn't been
                                           evaluated yet.
                                                     """)
+    rom_size    = models.IntegerField("ROM size",
+                                      default=0x4000,
+                                      help_text="""
+                                      The size of the compiled ROM of a successful
+                                      response.
+                                      """)
+    runtime     = models.IntegerField("Running Time",
+                                      default=0xffff,
+                                      help_text="""
+                                      The number of steps it takes to complete
+                                      the test cases.
+                                      """)
     
     # Representation of the challenge
     def __unicode__(self):

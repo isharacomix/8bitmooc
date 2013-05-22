@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
 # This file does the autograding for 8bitmooc. Each function is associated with
-# a challenge. These challenges handle the grading, point awarding, etc.
-# An autograded assignment should take the student's submission and compile
-# it. It will award points based on whether or not the assignment was completed
-# before.
+# a challenge. These challenges evaluate a student subroutine using a series of
+# tests and, if it runs correctly, returns a tuple containing the length of the
+# program and the number of steps it took to run it.
 
 from django.core import exceptions
 
 from nes.models import Pattern
 from nes.assembler import Assembler
 from nes.emulator import Emulator
+
+
+# The length of the ROM is determined by removing all of the dummy characters
+# (0xFF) from the ROM and then counting what's left.
+def rom_size( rom ):
+    return 0x4000 - rom[0x10:0x4004].count(0xff)
 
 
 # Test autograded assignment.
@@ -28,7 +33,7 @@ def barcamp1(challenge, student, code, completed):
         e.step()
         if e.last_op == 0x60: break
     if e.X == 160 and e.Y == 100:
-        return "Great job! For more practice, try using mathematical operators and the Accumulator to move the ball!"
+        return rom_size(rom), 100
     else: None
     
 def barcamp2(challenge, student, code, completed):
@@ -50,7 +55,7 @@ def barcamp2(challenge, student, code, completed):
             if e.last_op == 0x60: break
         if e.read(0x200) != (test[0]+test[2])&0xff or e.read(0x201) != (test[1]+test[3])&0xff:
             return None
-    return "Good work! Can you write this program only using 8 lines of code?"
+    return rom_size(rom), 100
 
 def barcamp3(challenge, student, code, completed):
     a = Assembler()
@@ -68,12 +73,13 @@ def barcamp3(challenge, student, code, completed):
             if e.last_op == 0x60: break
         if 4 in test and e.read(0x204) != 1: return None
         if 5 in test and e.read(0x204) != 0xff: return None
-    return "Good work! Want to try to write some AI now? Visit the playground and make me proud!"
+    return rom_size(rom), 100
 
 
 # This function actually runs the autograder, mapping strings to functions.
 # It essentially returns True if the assignment was successful, and it also
 # does a bunch of side effects when successful as well.
+# TODO: Be sure to collect runtime stats and compile length.
 def grade(challenge, student, code, completed):
     AUTOGRADE_FUNCTIONS = {
                             "test": test,

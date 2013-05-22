@@ -128,3 +128,7 @@ class LogEntry(models.Model):
                      notes=notes)
         l.save()
 
+    # Representation of the log entry.
+    def __unicode__(self):
+        return u"Log entry at %s" % (str(self.timestamp))
+

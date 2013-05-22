@@ -113,7 +113,7 @@ INSTALLED_APPS = (
     'django.contrib.markup',
     # Dependencies
     'south',
-    'gravatar',
+    'avatar',
     'bootstrap_toolkit',
     # My Apps
     'mooc',
