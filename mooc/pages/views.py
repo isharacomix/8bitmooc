@@ -31,8 +31,6 @@ def view_page(request, page=None):
 # This function returns a list of tuples in the format (slug, digest). The
 # page is responsible for handling that list.
 def find_pages(request, query):
-    # TODO log the search!
-    
     # Go through the text and find a digest that will allow the user to
     # find relevant data.
     pages = Page.objects.filter(content__contains=query)

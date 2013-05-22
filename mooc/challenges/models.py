@@ -29,6 +29,16 @@ class Challenge(models.Model):
                                        The graphic for the challenge. Should be
                                        a 128x128 PNG.
                                                  """)
+    difficulty      = models.IntegerField("Difficulty Level",
+                                          help_text="""
+                                          Level a player should be before
+                                          attempting this challenge.
+                                                    """)
+    xp              = models.IntegerField("XP Awarded",
+                                          help_text="""
+                                          XP awarded by completing this
+                                          challenge.
+                                                    """)
     prereq          = models.ForeignKey("Challenge",
                                         null=True,
                                         blank=True,
@@ -66,24 +76,24 @@ class Challenge(models.Model):
                                        blank=True,
                                        help_text="""
                                        Preamble of an autograded challenge.
-                                       """)
+                                                 """)
     postamble       = models.TextField("Postamble",
                                        blank=True,
                                        help_text="""
                                        Postamble of an autograded challenge.
-                                       """)
+                                                 """)
     pattern         = models.ForeignKey(Pattern,
                                         null=True,
                                         blank=True,
                                         help_text="""
                                         The sprite sheet of an autograded challenge.
-                                        """)
+                                                  """)
     completed_by    = models.ManyToManyField(Student,
                                              blank=True,
                                              help_text="""
                                              List of all students who have
                                              completed this challenge.
-                                             """)
+                                                       """)
 
     # Representation of the challenge
     def __unicode__(self):
@@ -130,13 +140,13 @@ class ChallengeResponse(models.Model):
                                       help_text="""
                                       The size of the compiled ROM of a successful
                                       response.
-                                      """)
+                                                """)
     runtime     = models.IntegerField("Running Time",
                                       default=0xffff,
                                       help_text="""
                                       The number of steps it takes to complete
                                       the test cases.
-                                      """)
+                                                """)
     
     # Representation of the challenge
     def __unicode__(self):

@@ -16,9 +16,25 @@ from django.contrib.auth.models import User
 import hashlib
 
 
+# Display a list of all users in the course, ranked by their Levels and
+# Experience Points.
 def user_list(request):
+    me = Student.from_request(request)
+    if "alerts" not in request.session: request.session["alerts"] = []
+    if not me:
+        request.session["alerts"].append(("alert-error","Please sign in first."))
+        return redirect("sign-in")    
     raise Http404()
+    
+
+# Display a fancy user profile including stuff like their progress in the
+# course and their collaborators on projects.
 def user_profile(request, username):
+    me = Student.from_request(request)
+    if "alerts" not in request.session: request.session["alerts"] = []
+    if not me:
+        request.session["alerts"].append(("alert-error","Please sign in first."))
+        return redirect("sign-in")
     raise Http404()
     
 
