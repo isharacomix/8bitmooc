@@ -8,11 +8,16 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from students.models import Student
-from challenges.models import Challenge, ChallengeResponse
+from challenges.models import Challenge, ChallengeResponse, Badge
+from django.contrib.auth.models import User
 
 from nes import assembler
 from nes.views import get_rom
 from challenges import autograde
+
+import hashlib
+import json
+import time
 
 
 # This returns a list of challenges for the page to render. Only challenges
@@ -38,10 +43,10 @@ def challenge_list(request):
             size_complete = False
             speed_complete = False
             sos = 0
+            best_size, best_speed = None, None
+            my_size, my_speed = None, None
             if complete:
                 records = ChallengeResponse.objects.filter(challenge=c, is_correct=True).order_by('-rom_size')
-                best_size, best_speed = None, None
-                my_size, my_speed = None, None
                 if len(records) > 0:
                     best_size = records[0].rom_size
                     records = records.order_by('-runtime')
@@ -101,6 +106,7 @@ def view_challenge(request, name):
             # Get the record speeds and sizes for everything.
             my_size, my_speed = None, None
             best_size, best_speed = None, None
+            completed = False
             
             records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('-rom_size')
             if len(records) > 0:
@@ -112,6 +118,7 @@ def view_challenge(request, name):
                 my_size = records[0].rom_size
                 records = records.order_by('-runtime')
                 my_speed = records[0].runtime
+                completed = True
             
             # Try to load up the best submissions by everyone.
             return render(request, "challenge_asm.html", {'challenge': challenge,
@@ -120,7 +127,9 @@ def view_challenge(request, name):
                                                           'my_size': my_size,
                                                           'my_speed': my_speed,
                                                           'best_size': best_size,
-                                                          'best_speed': best_speed} )
+                                                          'best_speed': best_speed,
+                                                          'completed': completed,
+                                                          'badge_domain': settings.ISSUER_DOMAIN} )
                                                           
     elif challenge.is_jam:
         # Grey out the submission if the student has already submitted a link for
@@ -128,6 +137,7 @@ def view_challenge(request, name):
         records = ChallengeResponse.objects.filter(challenge=challenge, student=me)
         url = ""
         submit_ok = True
+        completed = me in challenge.completed_by.all()
         if len(records) > 0:
             url = records[0].code
             if records[0].is_correct is not None: submit_ok = False
@@ -135,10 +145,15 @@ def view_challenge(request, name):
         return render(request, "challenge_jam.html", {'challenge': challenge,
                                                       'alerts': request.session.pop('alerts', []),
                                                       'url': url,
-                                                      'submit_ok': submit_ok })
+                                                      'submit_ok': submit_ok,
+                                                      'completed': completed,
+                                                      'badge_domain': settings.ISSUER_DOMAIN})
     else:
+        completed = me in challenge.completed_by.all()
         return render(request, "challenge_other.html", {'challenge': challenge,
-                                                        'alerts': request.session.pop('alerts', []) })
+                                                        'alerts': request.session.pop('alerts', []),
+                                                        'completed': completed,
+                                                        'badge_domain': settings.ISSUER_DOMAIN})
 
 
 # This is a student submission for an ASM challenge. Here we compile the code
@@ -218,9 +233,76 @@ def do_jam_challenge(request, student, challenge):
                                           'Jam URL updated.'))
 
 
-def badge_details(request, challenge):
-    raise Http404()
-def badge_assertion(request, challenge, student):
-    raise Http404()
 
+# The badge issuer just returns basic information about #8bitmooc in JSON
+# format.
+def badge_issuer(request):
+    badge_issuer_dict = { 
+                          "name": settings.ISSUER_NAME,
+                          "image": "%s/img/logo.png"%settings.ISSUER_DOMAIN,
+                          "url": settings.ISSUER_DOMAIN,
+                          "email": settings.ISSUER_CONTENT,
+                        }
+    
+    badge_issuer_json = json.dumps(badge_issuer_dict)
+    return HttpResponse(badge_assertion_json, content_type='application/json')
+
+
+# This returns details of the badge itself. Returns 404 unless the challenge
+# exists and is_badge is true.
+def badge_details(request, challenge):
+    try: challenge = Challenge.objects.get(slug=challenge)
+    except: raise Http404()
+    if not challenge.is_badge: raise Http404()
+    
+    badge_details_dict = {
+                           "name": challenge.name,
+                           "description": "Completed the '%s' challenge on #8bitmooc"%challenge.name,
+                           "image": "%s/static/img/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
+                           "criteria": "%s/badge/%s/"%(settings.ISSUER_DOMAIN, challenge.slug),
+                           "issuer": "%s/badge/"%(settings.ISSUER_DOMAIN)
+                         }
+    
+    badge_details_json = json.dumps(badge_details_dict)
+    return HttpResponse(badge_details_json, content_type='application/json')
+    
+
+# This returns the badge assertion.
+def badge_assertion(request, challenge, student):
+    try: challenge = Challenge.objects.get(slug=challenge)
+    except: raise Http404()
+    if not challenge.is_badge: raise Http404()
+    try: student = Student.objects.get( user=User.objects.get(username=student) )
+    except: raise Http404()
+    if student not in challenge.completed_by.all(): raise Http404()
+    try: badge = Badge.objects.get( student=student, challenge=challenge )
+    except:
+        badge = Badge( student=student, challenge=challenge )
+        badge.save()
+    
+    # Now that we know what's happening...
+    if badge.revoked:
+        badge_assertion_dict = {"revoked": True}
+        badge_assertion_json = json.dumps(badge_assertion_dict)
+        return HttpResponse(badge_assertion_json, content_type='application/json', status=410)
+    else:
+        badge_assertion_dict = {
+                                "uid": "%s/%s"%(challenge.slug, student.username),
+                                "recipient": {
+                                              "type": "email",
+                                              "hashed": True,
+                                              "salt": settings.BADGE_SALT,
+                                              "identity": "sha256$%s"%(hashlib.sha256(student.email+settings.BADGE_SALT).hexdigest())
+                                             },
+                                "image": "%s/static/img/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
+                                "evidence": settings.ISSUER_DOMAIN,
+                                "issuedOn": int(time.mktime(badge.when.timetuple())),
+                                "badge": "%s/badge/%s/"%(settings.ISSUER_DOMAIN, challenge.slug),
+                                "verify": {
+                                           "type": "hosted",
+                                           "url": "%s/badge/%s/%s/"%(settings.ISSUER_DOMAIN, challenge.slug, student.username),
+                                          }
+                               }
+        badge_assertion_json = json.dumps(badge_assertion_dict)
+        return HttpResponse(badge_assertion_json, content_type='application/json')
 

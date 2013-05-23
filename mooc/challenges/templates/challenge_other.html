@@ -6,10 +6,31 @@
 {% block body %}
 
     <div class="row">
-        <div class="span12">
-            <h1>{{ challenge.name }}</h1>
+        <div class="span8">
             {{ challenge.description|markdown }}
+
+            <div class="well">
+            {% if completed %}
+                <p>You have successfully completed this challenge.</p>
+                {% if challenge.is_badge %}
+                <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
+                {% endif %}
+            {% elif challenge.expired %}
+                <p>The time to accomplish this challenge has expired.</p>
+            {% else %}
+                <p>When you complete the requirements for this challenge,
+                it will be automatically marked as completed.</p>
+            {% endif %}
+            </div>
+        </div>
+        
+        <div class="span4">
+            
         </div>
     </div>
 
 {% endblock body %}
+
+{% block scripts %}
+    {% include "badges.html" %}
+{% endblock scripts %}

@@ -41,6 +41,9 @@
             {{ best_speed }} -
             {{ my_size }} -
             {{ my_speed }}
+            {% if completed and challenge.is_badge %}
+            <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
+            {% endif %}
             </div>
         
         </div>
@@ -72,4 +75,5 @@ with. You can see your classmate's responses on the SOS tab of this stage.</p>
 
 {% block scripts %}
     {% include "nes.html" %}
+    {% include "badges.html" %}
 {% endblock scripts %}

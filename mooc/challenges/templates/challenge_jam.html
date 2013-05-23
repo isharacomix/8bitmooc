@@ -22,21 +22,24 @@
                 </form>
                 </p>
             {% else %}
-                <p>
-                This challenge has ended - no more submissions are permitted.
+                <p>This challenge has ended - no more submissions are permitted.</p>
                 {% if url %}
-                    </p>
-                    You submitted: {{ url }}
-                    <p>
+                    <p>You submitted: <em>{{ url }}</em></p>
                 {% endif %}
-                </p>
+                {% if completed and challenge.is_badge %}
+                    <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
+                {% endif %}
             {% endif %}
             </div>
         </div>
         
         <div class="span4">
-        magics
+            
         </div>
     </div>
 
 {% endblock body %}
+
+{% block scripts %}
+    {% include "badges.html" %}
+{% endblock scripts %}

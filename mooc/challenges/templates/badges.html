@@ -1,0 +1,11 @@
+
+{% if completed and challenge.is_badge %}
+    <script src="http://beta.openbadges.org/issuer.js"></script>
+    <script type="text/javascript">
+    function getBadge()
+    {
+        OpenBadges.issue(["{{ badge_domain }}{% url 'badge_assertion' challenge=challenge.slug student=user.username %}"], function(errors, successes) {});
+    }
+    </script>
+{% endif %}
+
