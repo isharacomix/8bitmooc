@@ -1,0 +1,16 @@
+{% extends "layout_base.html" %}
+{% load static from staticfiles %}
+{% load markup %}
+
+{% block title %}Challenge: {{ challenge.name }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            <h1>{{ challenge.name }}</h1>
+            {{ challenge.description|markdown }}
+        </div>
+    </div>
+
+{% endblock body %}

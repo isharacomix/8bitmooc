@@ -1,0 +1,18 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}Challenge: {{ challenge.name }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            {{ challenge.description|markdown }}
+        </div>
+        
+        <div>
+        Please enter a link here.
+        </div>
+    </div>
+
+{% endblock body %}

@@ -94,6 +94,12 @@ class Challenge(models.Model):
                                              List of all students who have
                                              completed this challenge.
                                                        """)
+    expired         = models.BooleanField("Is Expired",
+                                          default=False,
+                                          help_text="""
+                                          When true, this challenge will accept
+                                          no further submissions.
+                                                    """)
 
     # Representation of the challenge
     def __unicode__(self):
