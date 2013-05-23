@@ -1,5 +1,4 @@
 {% extends "layout_base.html" %}
-{% load static from staticfiles %}
 {% load markup %}
 
 {% block title %}Challenge: {{ challenge.name }}{% endblock title %}
@@ -7,10 +6,69 @@
 {% block body %}
 
     <div class="row">
-        <div class="span12">
-            <h1>{{ challenge.name }}</h1>
-            {{ challenge.description|markdown }}
+        <form name="input" action="{% url 'challenge' name=challenge.slug %}" method="post">{% csrf_token %}
+        <div class="span8">
+            <div>
+                <div>
+                    {{ challenge.description|markdown }}
+                </div>
+
+<textarea class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
+            </div>
+            
+            
+            <div class="well">
+              {% include "asm_cheatsheet.html" %}
+            </div>
         </div>
+        
+        
+        
+        
+        
+        <div class="span4">
+    
+        
+            <div id="emulator"></div>
+    
+        
+            <input type="submit" name="run" value="Assemble" />
+            <input type="submit" name="download" value="Download" />
+            <button type="button" data-toggle="modal" data-target="#SOS">SOS</button>
+        </div>
+        
+        <div>
+        {{ best_size }} -
+        {{ best_speed }} -
+        {{ my_size }} -
+        {{ my_speed }}
+        </div>
+        
+<div id="SOS" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="SOSLabel" aria-hidden="true">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+<h3 id="SOSLabel">Send an S.O.S.</h3>
+</div>
+<div class="modal-body">
+<p>If you are having trouble with this assignment, you can submit an SOS for
+your classmates to see if they can help you. If you would like to submit an
+SOS, please ask a question below. In your question, please be as specific
+as possible about what you are trying to do, and what you are having trouble
+with. You can see your classmate's responses on the SOS tab of this stage.</p>
+<textarea class="input-block-level" rows="10" name="help"></textarea>
+</div>
+<div class="modal-footer">
+<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+<button class="btn btn-danger" type="submit" name="sos" value="sos">Send my S.O.S.!</button>
+</div>
+</div>
+
+        </form>
     </div>
 
 {% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+{% endblock scripts %}

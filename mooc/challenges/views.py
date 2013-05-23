@@ -10,6 +10,10 @@ from django.shortcuts import render, redirect
 from students.models import Student
 from challenges.models import Challenge, ChallengeResponse
 
+from nes import assembler
+from nes.views import get_rom
+from challenges import autograde
+
 
 # This returns a list of challenges for the page to render. Only challenges
 # that the user has the prerequisites for are available.
@@ -35,17 +39,28 @@ def challenge_list(request):
             speed_complete = False
             sos = 0
             if complete:
-                pass # calculate real size and speed and stuff.
-            challenge_list.append( (c, complete, size, size_complete, speed, speed_complete, sos) )
+                records = ChallengeResponse.objects.filter(challenge=c, is_correct=True).order_by('-rom_size')
+                best_size, best_speed = None, None
+                my_size, my_speed = None, None
+                if len(records) > 0:
+                    best_size = records[0].rom_size
+                    records = records.order_by('-runtime')
+                    best_speed = records[0].runtime
+                records = records.filter(student=me).order_by('-rom_size')
+                if len(records) > 0:
+                    my_size = records[0].rom_size
+                    records = records.order_by('-runtime')
+                    my_speed = records[0].runtime
+            challenge_list.append( (c, complete, my_size, my_size==best_size, my_speed, my_speed==best_speed, sos) )
     
     # Break the challenges into two columns.
     l1, l2 = len(challenge_list)//2, len(challenge_list)%2
     challenge_columns = ( challenge_list[:l1+l2], challenge_list[l1+l2:] )
-    return render( request, "challenge_list.html", {"challenges":challenge_columns,
+    return render( request, "challenge_list.html", {'challenges':challenge_columns,
                                                     'alerts': request.session.pop('alerts', []) })
                    
 
-
+# Display the challenge for the users.
 def view_challenge(request, name):
     me = Student.from_request(request)
     if "alerts" not in request.session: request.session["alerts"] = []
@@ -61,17 +76,115 @@ def view_challenge(request, name):
     # letting them look at it. They can see expired challenges, but can't
     # submit to them.
     
+    # If it was a POST request, then we'll take care of that now. This takes
+    # care of the side-effects and creates the challenge responses that will be
+    # handled below.
+    if request.method == "POST":
+        if challenge.autograde: do_asm_challenge(request, me, challenge)
+        #elif challenge.is_jam: do_jam_challenge(me, challenge)
+    
     # Display the correct challenge page depending on whether it's autograded
-    # or coded.
+    # or a URL.
     if challenge.autograde:
-        return render(request, "challenge_asm.html", {'challenge': challenge,
-                                                      'alerts': request.session.pop('alerts', []) })
+        if "download" in request.POST:
+            good = True
+            for e in request.session['alerts']:
+                if e[0] == 'alert-error': good = False
+            if good: return get_rom(request, challenge.slug)
+        else:
+            code = ""
+            if 'code' in request.POST: code = request.POST['code']
+            else:
+                subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
+                if len(subs) > 0: code = subs[0].code
+            
+            # Get the record speeds and sizes for everything.
+            my_size, my_speed = None, None
+            best_size, best_speed = None, None
+            
+            records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('-rom_size')
+            if len(records) > 0:
+                best_size = records[0].rom_size
+                records = records.order_by('-runtime')
+                best_speed = records[0].runtime
+            records = records.filter(student=me).order_by('-rom_size')
+            if len(records) > 0:
+                my_size = records[0].rom_size
+                records = records.order_by('-runtime')
+                my_speed = records[0].runtime
+            
+            # Try to load up the best submissions by everyone.
+            return render(request, "challenge_asm.html", {'challenge': challenge,
+                                                          'alerts': request.session.pop('alerts', []),
+                                                          'code': code,
+                                                          'my_size': my_size,
+                                                          'my_speed': my_speed,
+                                                          'best_size': best_size,
+                                                          'best_speed': best_speed} )
+                                                          
     elif challenge.is_jam:
+        # Grey out the submission if the student has already submitted a link for
+        # this challenge or if it's expired.
         return render(request, "challenge_jam.html", {'challenge': challenge,
                                                       'alerts': request.session.pop('alerts', []) })
     else:
         return render(request, "challenge_other.html", {'challenge': challenge,
                                                         'alerts': request.session.pop('alerts', []) })
+
+
+# This is a student submission for an ASM challenge. Here we compile the code
+# and render it on the display while also doing the autograding.
+def do_asm_challenge(request, student, challenge):
+    # Fetch the code and compile it.
+    code = request.POST["code"] if "code" in request.POST else ""
+    
+    # Save this in the database whether it compiles or not.
+    CR = ChallengeResponse()
+    CR.student = student
+    CR.challenge = challenge
+    CR.code = code
+    CR.is_correct = False
+    CR.save()
+    
+    # Only try to autograde if the program compiles.
+    if assembler.assemble_and_store(request, code, challenge.pattern,
+                                    challenge.preamble, challenge.postamble):
+        
+        completed = student in challenge.completed_by.all()
+        results = autograde.grade( challenge, student, code, completed )
+        
+        # Save its correctness in the database.
+        CR.is_correct = True if results else False
+        if results: CR.rom_size, CR.runtime = results
+        CR.save()
+        
+        # Award XP if the program is correct.
+        if results and not completed:
+            challenge.completed_by.add(student)
+            challenge.save()
+            student.xp += challenge.xp
+            student.save()
+            request.session['alerts'].append(('alert-success',
+                                              '''Congratulations! You completed
+                                              this challenge and earned %d
+                                              XP.'''%challenge.xp))
+        elif results:
+            request.session['alerts'].append(('alert-success',
+                                              '''You have already successfully
+                                              completed this challenge - can you
+                                              create the smallest or fastest
+                                              solution?'''))
+    
+    ## Is there an SOS involved?
+    #if "sos" in request.POST and "help" in request.POST:
+    #    SOS = ChallengeSOS()
+    #    SOS.challenge = challenge
+    #    SOS.challengeresponse = ACR
+    #    SOS.content = request.POST["help"]
+    #    SOS.student = student
+    #    SOS.save()
+    
+
 
 
 def badge_details(request, challenge):

@@ -142,7 +142,7 @@ class ChallengeResponse(models.Model):
                                           evaluated yet.
                                                     """)
     rom_size    = models.IntegerField("ROM size",
-                                      default=0x4000,
+                                      default=0xffff,
                                       help_text="""
                                       The size of the compiled ROM of a successful
                                       response.

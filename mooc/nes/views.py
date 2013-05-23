@@ -7,12 +7,14 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from assembler.asm import Assembler
+from nes.assembler import Assembler
 
 
 # The get_rom view simply returns the current ROM that is in the session
 # variables.
 def get_rom(request, name="untitled"):
+    if 'name' in request.GET: name = request.GET['name']
+    
     if "rom" in request.session and request.session["rom"] != "":
         response = HttpResponse(request.session["rom"], content_type='application/x-nes-rom')
         response['Content-Disposition'] = 'attachment; filename=%s.nes'%name

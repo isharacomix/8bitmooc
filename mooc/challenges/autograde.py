@@ -20,7 +20,7 @@ def rom_size( rom ):
 
 # Test autograded assignment.
 def test(challenge, student, code, completed):
-    return "You always pass this assignment"
+    return 100, 100
 
 
 def barcamp1(challenge, student, code, completed):
