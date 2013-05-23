@@ -193,10 +193,9 @@ def do_asm_challenge(request, student, challenge):
                                               XP.'''%challenge.xp))
         elif results:
             request.session['alerts'].append(('alert-success',
-                                              '''You have already successfully
-                                              completed this challenge - can you
-                                              create the smallest or fastest
-                                              solution?'''))
+                                              '''This solution was %d bytes in
+                                              size and executed %d lines of
+                                              code.'''%results))
     
     ## Is there an SOS involved?
     #if "sos" in request.POST and "help" in request.POST:

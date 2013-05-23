@@ -31,20 +31,46 @@
         
             <div id="emulator"></div>
     
-        
+            <div>
             <input type="submit" name="run" value="Assemble" />
             <input type="submit" name="download" value="Download" />
             <button type="button" data-toggle="modal" data-target="#SOS">SOS</button>
-        
-            <div>
-            {{ best_size }} -
-            {{ best_speed }} -
-            {{ my_size }} -
-            {{ my_speed }}
-            {% if completed and challenge.is_badge %}
-            <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
-            {% endif %}
             </div>
+        
+            {% if completed %}
+            <br />
+            <div class="well">
+                <p>Now that you've completed this challenge, you can try to
+                optimize your code. Try to make your program smaller and faster
+                than the records below!</p>
+            
+                <table class="table table-condensed">
+                <tr>
+                    <th></th>
+                    <th>Your Best</th>
+                    <th>Current Record</th>
+                </tr>
+                <tr>
+                    <td><em>Size</em></td>
+                    <td>{% if my_size == best_size %}<strong>{{ my_size }}</strong>
+                        {% else %}{{ my_size }}{% endif %}</td>
+                    <td>{% if my_size == best_size %}<strong>{{ best_size }}</strong>
+                        {% else %}{{ best_size }}{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><em>Speed</em></td>
+                    <td>{% if my_speed == best_speed %}<strong>{{ my_speed }}</strong>
+                        {% else %}{{ my_speed }}{% endif %}</td>
+                    <td>{% if my_speed == best_speed %}<strong>{{ best_speed }}</strong>
+                        {% else %}{{ best_speed }}{% endif %}</td>
+                </tr>
+                </table>
+                
+                {% if challenge.is_badge %}
+                <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
+                {% endif %}
+            </div>
+            {% endif %}
         
         </div>
         
