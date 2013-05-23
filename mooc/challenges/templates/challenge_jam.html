@@ -6,12 +6,36 @@
 {% block body %}
 
     <div class="row">
-        <div class="span12">
+        <div class="span8">
             {{ challenge.description|markdown }}
+
+            <div class="well">
+            {% if submit_ok %}
+                Enter the link to your submission on the Jam website here. You will
+                need to wait until the instructor is able to visit your submission
+                and evaluate it before the challenge will be marked as complete.
+                
+                <p>
+                <form class="form-inline" action="{% url 'challenge' name=challenge.slug %}" method="POST">{% csrf_token %}
+                    <input type="text" name="url" class="input" placeholder="http://example.com/game-url-here/"  />
+                    <button type="submit" class="btn btn-success" name="jam" value="jam">Submit</button>
+                </form>
+                </p>
+            {% else %}
+                <p>
+                This challenge has ended - no more submissions are permitted.
+                {% if url %}
+                    </p>
+                    You submitted: {{ url }}
+                    <p>
+                {% endif %}
+                </p>
+            {% endif %}
+            </div>
         </div>
         
-        <div>
-        Please enter a link here.
+        <div class="span4">
+        magics
         </div>
     </div>
 

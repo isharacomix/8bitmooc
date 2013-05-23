@@ -81,7 +81,7 @@ def view_challenge(request, name):
     # handled below.
     if request.method == "POST":
         if challenge.autograde: do_asm_challenge(request, me, challenge)
-        #elif challenge.is_jam: do_jam_challenge(me, challenge)
+        elif challenge.is_jam: do_jam_challenge(request, me, challenge)
     
     # Display the correct challenge page depending on whether it's autograded
     # or a URL.
@@ -125,8 +125,17 @@ def view_challenge(request, name):
     elif challenge.is_jam:
         # Grey out the submission if the student has already submitted a link for
         # this challenge or if it's expired.
+        records = ChallengeResponse.objects.filter(challenge=challenge, student=me)
+        url = ""
+        submit_ok = True
+        if len(records) > 0:
+            url = records[0].code
+            if records[0].is_correct is not None: submit_ok = False
+        if challenge.expired: submit_ok = False
         return render(request, "challenge_jam.html", {'challenge': challenge,
-                                                      'alerts': request.session.pop('alerts', []) })
+                                                      'alerts': request.session.pop('alerts', []),
+                                                      'url': url,
+                                                      'submit_ok': submit_ok })
     else:
         return render(request, "challenge_other.html", {'challenge': challenge,
                                                         'alerts': request.session.pop('alerts', []) })
@@ -135,8 +144,7 @@ def view_challenge(request, name):
 # This is a student submission for an ASM challenge. Here we compile the code
 # and render it on the display while also doing the autograding.
 def do_asm_challenge(request, student, challenge):
-    # Fetch the code and compile it.
-    code = request.POST["code"] if "code" in request.POST else ""
+    code = request.POST.get("code") if "code" in request.POST else ""
     
     # Save this in the database whether it compiles or not.
     CR = ChallengeResponse()
@@ -183,8 +191,31 @@ def do_asm_challenge(request, student, challenge):
     #    SOS.content = request.POST["help"]
     #    SOS.student = student
     #    SOS.save()
-    
 
+
+# Jam Challenges are much simpler - we just submit a URL to the database.
+# However, the thing about Jam Challenges is that students only submit a single
+# URL for the challenge.
+def do_jam_challenge(request, student, challenge):
+    code = request.POST.get("url") if "url" in request.POST else ""
+    
+    # Save this in the database.
+    try: CR = ChallengeResponse.objects.get(challenge=challenge, student=student)
+    except exceptions.ObjectDoesNotExist:
+        CR = ChallengeResponse()
+        CR.student = student
+        CR.challenge = challenge
+        CR.save()
+    
+    # If the challenge is alrady completed or expired, don't permit changes.
+    if challenge.expired or CR.is_correct is not None:
+        request.session['alerts'].append(('alert-error',
+                                          'This Jam is over - no further changes are permitted.'))
+    else:
+        CR.code = code
+        CR.save()
+        request.session['alerts'].append(('alert-success',
+                                          'Jam URL updated.'))
 
 
 def badge_details(request, challenge):
