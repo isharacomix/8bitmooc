@@ -8,12 +8,12 @@
     <div class="row">
 
         
-        {% for challenge_list in challenges %}
+        {% for challenge_list in challenge_columns %}
         <div class="span6">
             {% for c, complete, size, size_complete, speed, speed_complete, sos in challenge_list %}
             <div class="media well">
                 <a class="pull-left" href="{% url 'challenge' name=c.slug %}">
-                <img class="media-object" src="{% static 'img/challenge/' %}{{c.graphic}}.png">
+                <img class="media-object img-polaroid" src="{% static 'img/challenge/' %}{{c.graphic}}.png" alt="" />
                 </a>
                 <div class="media-body">
 {% if complete and c.autograde %}

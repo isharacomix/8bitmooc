@@ -1,0 +1,50 @@
+{% extends "layout_base.html" %}
+{% load avatar_tags %}
+{% load markup %}
+{% load static from staticfiles %}
+
+{% block title %}{{ student.username }}'s Profile{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+
+        <div class="span2">
+            <h3>Level {{ student.level }}</h3>
+            {% avatar student.user 256 %}
+            <small><em>Level up in {{ student.next_level }} XP</em></small>
+            <div class="progress progress-striped">
+                <div class="bar bar-success" style="width: {{ student.xp_progress }}%;"></div>
+            </div>
+        </div>
+        <div class="span10">
+            <h1>{{ student.user }}</h1>
+            <article>
+                {{ student.bio|markdown }}
+            </article>
+            {% if student.public_email %}
+            <div><i class="icon-envelope"></i> <em>{{ student.email }}</em></div>
+            {% endif %}
+            {% if student.twitter %}
+            <div><i class="icon-comment"></i> <em><a href="http://twitter.com/{{student.twitter}}">@{{ student.twitter }}</a></em></div>
+            {% endif %}
+            
+            <h3>Completed Challenges</h3>
+            <div class="well">
+                {% for c in student.challenge_set.all %}
+                <a href="{% url 'challenge' name=c.slug %}">
+                <img class="img-polaroid" src="{% static 'img/challenge/' %}{{c.graphic}}.png" alt="{{ c.name }}" title="{{ c.name }}" />
+                </a>
+                {% endfor %}
+            </div>
+            
+            <h3>Projects<h3>
+            <div class="well">
+                
+            </div>
+        </div>
+        
+    </div>
+
+
+{% endblock body %}

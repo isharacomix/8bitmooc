@@ -1,0 +1,32 @@
+{% extends "layout_base.html" %}
+{% load avatar_tags %}
+
+{% block title %}Students{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+
+        {% for user_list in user_columns %}
+        <div class="span4">
+            {% for s in user_list %}
+            <div class="media well">
+                <a class="pull-left" href="{% url 'profile' username=s.username %}">
+                    {% avatar s.user 64 %}
+                </a>
+                <div class="media-body">
+                    <h4 class="media-heading">{{s.username}}</h4>
+                    Level {{ s.level }}
+                    <div class="progress progress-striped">
+                        <div class="bar bar-success" style="width: {{ s.xp_progress }}%;"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        
+    </div>
+
+
+{% endblock body %}

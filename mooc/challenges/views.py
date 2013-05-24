@@ -34,7 +34,7 @@ def challenge_list(request):
     # has been successfully completed, the records for size and speed, and the
     # number of SOSses.
     challenge_list = []
-    complete_set = me.challenge_set.all()[:]
+    complete_set = me.challenge_set.all() #TODO filters
     for c in Challenge.objects.filter(difficulty__lte=me.level):
         if c in complete_set or (not c.expired and (not c.prereq or c.prereq in complete_set)):
             complete = c in complete_set
@@ -59,9 +59,11 @@ def challenge_list(request):
             challenge_list.append( (c, complete, my_size, my_size==best_size, my_speed, my_speed==best_speed, sos) )
     
     # Break the challenges into two columns.
-    l1, l2 = len(challenge_list)//2, len(challenge_list)%2
-    challenge_columns = ( challenge_list[:l1+l2], challenge_list[l1+l2:] )
-    return render( request, "challenge_list.html", {'challenges':challenge_columns,
+    l1, l2 = [], []
+    for c in challenge_list:
+        if len(l1) > len(l2): l2.append(c)
+        else: l1.append(c)
+    return render( request, "challenge_list.html", {'challenge_columns':(l1,l2),
                                                     'alerts': request.session.pop('alerts', []) })
                    
 

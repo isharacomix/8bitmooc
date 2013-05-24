@@ -23,8 +23,18 @@ def user_list(request):
     if "alerts" not in request.session: request.session["alerts"] = []
     if not me:
         request.session["alerts"].append(("alert-error","Please sign in first."))
-        return redirect("sign-in")    
-    raise Http404()
+        return redirect("sign-in")
+    
+    # Break students into 3 columns
+    l1,l2,l3 = [],[],[]
+    student_list = Student.objects.all().order_by("-xp","-level")[:99]
+    # provide other filters TODO
+    for s in student_list:
+        if len(l2) > len(l3): l3.append(s)
+        elif len(l1) > len(l2): l2.append(s)
+        else: l1.append(s)
+    
+    return render(request, "user_list.html", {"user_columns": (l1,l2,l3) } )
     
 
 # Display a fancy user profile including stuff like their progress in the
@@ -35,7 +45,10 @@ def user_profile(request, username):
     if not me:
         request.session["alerts"].append(("alert-error","Please sign in first."))
         return redirect("sign-in")
-    raise Http404()
+    try: student = Student.objects.get( user=User.objects.get(username=username) )
+    except: return redirect("user_list")
+    
+    return render(request, "user_profile.html", {"student": student} )
     
 
 # If this is a POST request, we are trying to log in. If it is a GET request,
@@ -47,7 +60,7 @@ def sign_in(request):
     if me: return redirect("index")
     
     if request.method == "POST":
-        if request.POST.get("sign-up")   == "sign-up": return redirect("sign-up")
+        if request.POST.get("sign-up") == "sign-up": return redirect("sign-up")
         elif "username" in request.POST and "password" in request.POST:
             username = request.POST.get("username")
             password = request.POST.get("password")
