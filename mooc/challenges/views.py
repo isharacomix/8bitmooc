@@ -7,7 +7,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from students.models import Student
+from students.models import Student, LogEntry
 from challenges.models import Challenge, ChallengeResponse, Badge
 from django.contrib.auth.models import User
 
@@ -194,17 +194,19 @@ def do_asm_challenge(request, student, challenge):
         if results and not completed:
             challenge.completed_by.add(student)
             challenge.save()
-            student.xp += challenge.xp
+            student.award_xp(challenge.xp)
             student.save()
             request.session['alerts'].append(('alert-success',
                                               '''Congratulations! You completed
                                               this challenge and earned %d
                                               XP.'''%challenge.xp))
+            LogEntry.log(request, "Completed %s"%challenge.slug)
         elif results:
             request.session['alerts'].append(('alert-success',
                                               '''This solution was %d bytes in
                                               size and executed %d lines of
                                               code.'''%results))
+            LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
     
     ## Is there an SOS involved?
     #if "sos" in request.POST and "help" in request.POST:

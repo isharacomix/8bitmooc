@@ -13,16 +13,14 @@ class Student(models.Model):
                                            help_text="""
                                            The user that this student is
                                            connected to. If None, this student
-                                           has not confirmed their registration.
-                                                     """)
+                                           has not confirmed their registration.""")
     xp              = models.IntegerField("Experience Points",
                                           default=0,
                                           help_text="""
                                           The student's current experience
                                           points. When this goes up, the student
                                           gains levels. Resets to 0 when a level
-                                          is gained.
-                                                    """)
+                                          is gained.""")
     level           = models.IntegerField("Level",
                                           default=1,
                                           help_text="""
@@ -30,33 +28,28 @@ class Student(models.Model):
                                           level. As it goes up, the student
                                           gains new abilities in #8bitmooc.
                                           Each new level is unlocked at
-                                          100*(2**level) XP.
-                                                    """)
+                                          100*(2**level) XP.""")
     bio             = models.TextField("Biography",
                                        blank=True,
                                        help_text="""
                                        The student's biographical sketch in
-                                       minimarkdown.
-                                                 """)
+                                       minimarkdown.""")
     public_email    = models.BooleanField("Display E-mail Publicly?",
                                           default=False,
                                           help_text="""
                                           When true, the student's e-mail is
                                           displayed publicly on their profile
-                                          page.
-                                                    """)
+                                          page.""")
     ta              = models.BooleanField("Teaching Assistant",
                                           default=False,
                                           help_text="""
                                           When true, the student has access to
-                                          grading interfaces.
-                                                    """)
+                                          grading interfaces.""")
     twitter         = models.SlugField("Twitter",
                                        blank=True,
                                        help_text="""
                                        The student's Twitter handle, withou the
-                                       '@' symbol.
-                                                 """)
+                                       '@' symbol.""")
     blocked_by      = models.ManyToManyField("Student",
                                              verbose_name="Blocked By",
                                              blank=True,
@@ -64,8 +57,11 @@ class Student(models.Model):
                                              List of students blocking this
                                              student. When this list gets large,
                                              it means the student may be a
-                                             problem.
-                                                       """)
+                                             problem.""")
+    joined   = models.DateTimeField("Joined",
+                                   auto_now_add=True,
+                                   help_text="""The time the student joined the
+                                   MOOC.""")
 
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.
@@ -81,6 +77,26 @@ class Student(models.Model):
     @property
     def email(self):
         return self.user.email
+    
+    # Award the student XP. Returns True if the student gains a level.
+    def award_xp(self, xp):
+        self.xp += xp
+        l = LogEntry(student=self,
+                     url="XP",
+                     notes="+%d XP"%xp)
+        l.save()
+        self.save()
+        if self.xp > (100 * (2**self.level)):
+            self.xp = 0
+            self.level += 1
+            l = LogEntry(student=self,
+                         url="XP",
+                         notes="Level Up"%xp)
+            l.save()
+            self.save()
+            return True
+        return False
+        
     
     # Grab the Student out of the request. Returns None if a student is
     # not logged in. If redirect is True, then an error message will be
@@ -99,24 +115,18 @@ class LogEntry(models.Model):
                                     verbose_name="Student",
                                     null=True,
                                     blank=True,
-                                    help_text="""
-                                    The student being logged.
-                                              """)
+                                    help_text="""The student being logged.""")
     timestamp   = models.DateTimeField("Timestamp",
                                        auto_now_add=True,
-                                       help_text="""
-                                       The time that the URL was accessed.
-                                                 """)
+                                       help_text="""The time that the URL was
+                                       accessed.""")
     url         = models.CharField("URL",
                                    max_length=200,
-                                   help_text="""
-                                   The URL that the student accessed.
-                                             """)
+                                   help_text="""The URL that the student accessed.""")
     notes       = models.CharField("Notes",
                                    max_length=200,
                                    help_text="""
-                                   Debug information.
-                                             """)
+                                   Debug information.""")
     
     @staticmethod
     def log(request, notes=""):
