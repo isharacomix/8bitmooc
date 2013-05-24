@@ -1,0 +1,37 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}Arcade{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8 offset2">
+        <center>
+            <h1>{{title}}</h1>
+            <h3>
+            |
+            {% for a in authors %}
+                {% if a.twitter %}
+                <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>
+                {% else %}
+                {{a.username}}
+                {% endif %}
+                |
+            {% endfor %}
+            </h3>
+        
+            <div id="emulator"></div>
+            
+            <a href="{% url 'play' id=id %}?download" class="btn">Download</a>
+            <a href="{% url 'playground' %}?source={{id}}" class="btn">Source</a>
+        </center>
+        </div>
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+{% endblock scripts %}

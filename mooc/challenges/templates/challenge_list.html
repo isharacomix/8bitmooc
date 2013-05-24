@@ -13,7 +13,7 @@
             {% for c, complete, size, size_complete, speed, speed_complete, sos in challenge_list %}
             <div class="media well">
                 <a class="pull-left" href="{% url 'challenge' name=c.slug %}">
-                <img class="media-object" src="{% static 'img/' %}{{c.graphic}}.png">
+                <img class="media-object" src="{% static 'img/challenge/' %}{{c.graphic}}.png">
                 </a>
                 <div class="media-body">
 {% if complete and c.autograde %}

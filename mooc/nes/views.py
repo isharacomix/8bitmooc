@@ -9,6 +9,8 @@ from django.shortcuts import render, redirect
 
 from students.models import Student
 from challenges.models import ChallengeResponse
+from nes.models import Game
+
 from nes import assembler
 
 
@@ -38,11 +40,34 @@ def view_playground(request):
     else:
         code = "; put default code here one day"
         if 'code' in request.POST: code = request.POST['code']
+        elif 'source' in request.GET:
+            try: code = Game.objects.get(id=int(request.GET['source'])).code
+            except: pass
         elif me:
             subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
             if len(subs) > 0: code = subs[0].code
         return render(request, "playground.html", {'alerts': request.session.pop('alerts', []),
                                                    'code': code} )
+
+
+# The arcade is like a playground with even less fun. You can view the source
+# code of any such game, though, so that's a good thing.
+def play_game(request, id):
+    try: game = Game.objects.get(id=id)
+    except exceptions.ObjectDoesNotExist: return redirect("index")
+    
+    good = assembler.assemble_and_store(request, game.code, game.pattern)
+    
+    # Now we can display the code to the user.
+    if not good:
+        return redirect("index")
+    elif "download" in request.GET:
+        return get_rom(request, "game%d"%int(id))
+    else:
+        return render(request, "arcade.html", {'title': game.title,
+                                               'id': game.id,
+                                               'alerts': request.session.pop('alerts', []),
+                                               'authors': game.authors.all() } )
 
 
 # The get_rom view simply returns the current ROM that is in the session

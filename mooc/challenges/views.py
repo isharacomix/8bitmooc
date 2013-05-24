@@ -247,7 +247,7 @@ def do_jam_challenge(request, student, challenge):
 def badge_issuer(request):
     badge_issuer_dict = { 
                           "name": settings.ISSUER_NAME,
-                          "image": "%s/img/logo.png"%settings.ISSUER_DOMAIN,
+                          "image": "%s/static/img/logo.png"%settings.ISSUER_DOMAIN,
                           "url": settings.ISSUER_DOMAIN,
                           "email": settings.ISSUER_CONTENT,
                         }
@@ -266,7 +266,7 @@ def badge_details(request, challenge):
     badge_details_dict = {
                            "name": challenge.name,
                            "description": "Completed the '%s' challenge on #8bitmooc"%challenge.name,
-                           "image": "%s/static/img/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
+                           "image": "%s/static/img/challenge/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
                            "criteria": "%s/badge/%s/"%(settings.ISSUER_DOMAIN, challenge.slug),
                            "issuer": "%s/badge/"%(settings.ISSUER_DOMAIN)
                          }
@@ -302,7 +302,7 @@ def badge_assertion(request, challenge, student):
                                               "salt": settings.BADGE_SALT,
                                               "identity": "sha256$%s"%(hashlib.sha256(student.email+settings.BADGE_SALT).hexdigest())
                                              },
-                                "image": "%s/static/img/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
+                                "image": "%s/static/img/challenge/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
                                 "evidence": settings.ISSUER_DOMAIN,
                                 "issuedOn": int(time.mktime(badge.when.timetuple())),
                                 "badge": "%s/badge/%s/"%(settings.ISSUER_DOMAIN, challenge.slug),
