@@ -48,7 +48,12 @@ def user_profile(request, username):
     try: student = Student.objects.get( user=User.objects.get(username=username) )
     except: return redirect("user_list")
     
-    return render(request, "user_profile.html", {"student": student} )
+    projects = list(student.owns.filter(public=True))+list(student.works_on.filter(public=True))
+    
+    collaborators = []
+    return render(request, "user_profile.html", {"student": student,
+                                                 "editable": student == me,
+                                                 "collaborators": collaborators} )
     
 
 # If this is a POST request, we are trying to log in. If it is a GET request,

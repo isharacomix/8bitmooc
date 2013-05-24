@@ -12,9 +12,19 @@
         <div class="span2">
             <h3>Level {{ student.level }}</h3>
             {% avatar student.user 256 %}
+            {% if editable %}
+                <a class="btn btn-block" href="http://gravatar.com">Change Avatar</a>
+            {% endif %}
             <small><em>Level up in {{ student.next_level }} XP</em></small>
             <div class="progress progress-striped">
                 <div class="bar bar-success" style="width: {{ student.xp_progress }}%;"></div>
+            </div>
+            
+            <div><strong>Collaborators</strong></div>
+            <div>
+                {% for c in collaborators %}
+                <a href="{% url 'profile' c.username %}">{% avatar c.user 32 %}</a>
+                {% endfor %}
             </div>
         </div>
         <div class="span10">
