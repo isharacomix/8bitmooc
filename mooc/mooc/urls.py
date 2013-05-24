@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^$', views.view_index, name='index'),
     
     url(r'^project/', views.view_index, name='project_list'),
+    url(r'^project/(?P<name>[\w-]+)/', views.view_index, name='project'),
     url(r'^forum/', views.view_index, name='forum'),
 
     # Apps!

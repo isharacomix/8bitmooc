@@ -23,12 +23,12 @@
             <div><strong>Collaborators</strong></div>
             <div>
                 {% for c in collaborators %}
-                <a href="{% url 'profile' c.username %}">{% avatar c.user 32 %}</a>
+                <a href="{% url 'profile' username=c.username %}">{% avatar c.user 32 %}</a>
                 {% endfor %}
             </div>
         </div>
         <div class="span10">
-            <h1>{{ student.user }}</h1>
+            <h1>{{ student.username }}</h1>
             <article>
                 {{ student.bio|markdown }}
             </article>
@@ -48,9 +48,24 @@
                 {% endfor %}
             </div>
             
-            <h3>Projects<h3>
+            <h3>Projects</h3>
             <div class="well">
-                
+
+                <table class="table table-condensed">
+                <tr>
+                    <th>Project</th>
+                    <th>Role</th>
+                </tr>
+                {% for p in projects %}
+                <tr>
+                    <td><a href="{% url 'project' name=p.slug %}">{{p.name}}</a></td>
+                    <td>
+                    {% if p.owner == student %}Owner{% else %}Coder{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </table>
+                    
             </div>
         </div>
         

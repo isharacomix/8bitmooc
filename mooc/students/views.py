@@ -48,12 +48,24 @@ def user_profile(request, username):
     try: student = Student.objects.get( user=User.objects.get(username=username) )
     except: return redirect("user_list")
     
-    projects = list(student.owns.filter(public=True))+list(student.works_on.filter(public=True))
-    
+    # Find out all of the people this person has ever worked with.
     collaborators = []
+    my_projects = student.owns.all()
+    for p in my_projects:
+        for c in p.team.all():
+            if c not in collaborators: collaborators.append(c)
+    all_projects = student.works_on.all()
+    for p in all_projects:
+        if p.owner not in collaborators: collaborators.append(p.owner)
+        for c in p.team.all():
+            if c not in collaborators and c is not student: collaborators.append(c)
+    
+    # Render the magic.
+    projects = list(my_projects.filter(is_public=True))+list(all_projects.filter(is_public=True))
     return render(request, "user_profile.html", {"student": student,
                                                  "editable": student == me,
-                                                 "collaborators": collaborators} )
+                                                 "collaborators": collaborators,
+                                                 "projects": projects } )
     
 
 # If this is a POST request, we are trying to log in. If it is a GET request,
