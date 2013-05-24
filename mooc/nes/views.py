@@ -50,23 +50,31 @@ def view_playground(request):
                                                    'code': code} )
 
 
+# This displays a list of games that people can play, organized by popularity.
+def games_list(request):
+    return render(request, "arcade_list.html", {'games': Game.objects.all().order_by("-hits") } )
+
+
 # The arcade is like a playground with even less fun. You can view the source
 # code of any such game, though, so that's a good thing.
 def play_game(request, id):
     try: game = Game.objects.get(id=id)
-    except exceptions.ObjectDoesNotExist: return redirect("index")
+    except exceptions.ObjectDoesNotExist: return redirect("arcade")
     
     good = assembler.assemble_and_store(request, game.code, game.pattern)
+    request.session.pop('alerts', [])
+    
+    game.hits += 1
+    game.save()
     
     # Now we can display the code to the user.
     if not good:
-        return redirect("index")
+        return redirect("arcade")
     elif "download" in request.GET:
         return get_rom(request, "game%d"%int(id))
     else:
         return render(request, "arcade.html", {'title': game.title,
                                                'id': game.id,
-                                               'alerts': request.session.pop('alerts', []),
                                                'authors': game.authors.all() } )
 
 

@@ -1,0 +1,40 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}Arcade{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8 offset2">
+            <table class="table table-condensed table-striped">
+            <tr>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Hits</th>
+            </tr>
+            {% for g in games %}
+            <tr>
+                <td><a href="{% url 'play' id=g.id %}">{{g.title}}</a></td>
+                <td>
+                {% for a in g.authors.all %}
+                    {% if a.twitter %}
+                    <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>
+                    {% else %}
+                    {{a.username}}
+                    {% endif %}
+                {% endfor %}
+                </td>
+                <td>{{g.hits}}</td>
+            </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+{% endblock scripts %}

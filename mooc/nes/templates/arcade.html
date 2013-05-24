@@ -10,14 +10,14 @@
         <center>
             <h1>{{title}}</h1>
             <h3>
-            |
+            
             {% for a in authors %}
                 {% if a.twitter %}
                 <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>
                 {% else %}
                 {{a.username}}
                 {% endif %}
-                |
+                
             {% endfor %}
             </h3>
         
