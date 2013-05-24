@@ -80,8 +80,11 @@ class Challenge(models.Model):
     # Representation of the challenge
     def __unicode__(self):
         return u"%s" % (self.name)
-
-
+    
+    # Order these by difficulty.
+    class Meta:
+        ordering = ['xp', 'difficulty']
+    
 # Challenge Responses are student submissions for Challenges that are either
 # jams or autograded.
 class ChallengeResponse(models.Model):

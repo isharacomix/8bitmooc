@@ -80,6 +80,15 @@ def view_challenge(request, name):
     # Now make sure that the student can actually see the challenge before
     # letting them look at it. They can see expired challenges, but can't
     # submit to them.
+    if challenge.difficulty > me.level:
+        request.session["alerts"].append(("alert-error",
+                                          """You need to reach level %d before
+                                          you can attempt this challenge."""%challenge.difficulty))
+        return redirect("challenge_list") 
+    if challenge.prereq and challenge.prereq not in me.challenge_set.all():
+        request.session["alerts"].append(("alert-error",
+                                          """You have not unlocked this challenge yet."""))
+        return redirect("challenge_list")
     
     # If it was a POST request, then we'll take care of that now. This takes
     # care of the side-effects and creates the challenge responses that will be

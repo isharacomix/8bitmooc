@@ -7,7 +7,42 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
 
-from nes.assembler import Assembler
+from students.models import Student
+from challenges.models import ChallengeResponse
+from nes import assembler
+
+
+# The playground is just an assembler web page that students can use whether
+# or not they are logged in. If they are logged in then the playground loads
+# their last submission.
+def view_playground(request):
+    me = Student.from_request(request)
+    if "alerts" not in request.session: request.session["alerts"] = []
+    
+    # Compile the code and save it in the database.
+    good = False
+    if request.method == "POST":
+        code = request.POST.get("code") if "code" in request.POST else ""
+        
+        # Save this in the database whether it compiles or not.
+        CR = ChallengeResponse()
+        CR.student = me
+        CR.code = code
+        CR.save()
+
+        good = assembler.assemble_and_store(request, code)
+    
+    # If we decided we wanted to download the code then we download it.
+    if "download" in request.POST and good:
+        return get_rom(request, challenge.slug)
+    else:
+        code = "; put default code here one day"
+        if 'code' in request.POST: code = request.POST['code']
+        elif me:
+            subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
+            if len(subs) > 0: code = subs[0].code
+        return render(request, "playground.html", {'alerts': request.session.pop('alerts', []),
+                                                   'code': code} )
 
 
 # The get_rom view simply returns the current ROM that is in the session

@@ -16,7 +16,6 @@ urlpatterns = patterns('',
     # Basic pages.
     url(r'^$', views.view_index, name='index'),
     
-    url(r'^playground/', views.view_index, name='playground'),
     url(r'^project/', views.view_index, name='project_list'),
     url(r'^forum/', views.view_index, name='forum'),
 

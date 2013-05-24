@@ -26,18 +26,21 @@
                     <tr>
                         <td><em>Complete</em></td>
                         <td></td>
-                        <td>{% if complete %}<i class="icon-check"></i>{% endif %}</td>
+                        <td>{% if complete %}<i class="icon-ok"></i>
+                            {% else %}<i class="icon-minus"></i>{% endif %}</td>
                     </tr>
                     {% if c.autograde %}
                     <tr>
                         <td><em>Size</em></td>
                         <td>{{ size }}</td>
-                        <td>{% if size_complete %}<i class="icon-check"></i>{% endif %}</td>
+                        <td>{% if size_complete %}<i class="icon-ok"></i>
+                            {% else %}<i class="icon-minus"></i>{% endif %}</td>
                     </tr>
                     <tr>
                         <td><em>Speed</em></td>
                         <td>{{ speed }}</td>
-                        <td>{% if speed_complete %}<i class="icon-check"></i>{% endif %}</td>
+                        <td>{% if speed_complete %}<i class="icon-ok"></i>
+                            {% else %}<i class="icon-minus"></i>{% endif %}</td></td>
                     </tr>
                     {% endif %}
                     </table>
