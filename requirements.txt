@@ -9,3 +9,5 @@ Pygments
 feedparser
 pypng
 markdown
+pil
+
