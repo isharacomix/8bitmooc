@@ -110,7 +110,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'django.contrib.markup',
     # Dependencies
     'south',
     'avatar',
@@ -126,9 +125,6 @@ INSTALLED_APPS = (
 )
 
 LOGIN_REDIRECT_URL = '/'
-
-GRAVATAR_DEFAULT_IMAGE = 'identicon'
-GRAVATAR_IMG_CLASS = 'gravatar'
 
 INTERWIKIS = {
     'wikipedia': ('http://en.wikipedia.org/wiki/', '_')

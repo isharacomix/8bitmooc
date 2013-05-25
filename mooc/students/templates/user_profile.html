@@ -30,7 +30,7 @@
         <div class="span10">
             <h1>{{ student.username }}</h1>
             <article>
-                {{ student.bio|markdown }}
+                {{ student.bio|minimarkup }}
             </article>
             {% if student.public_email %}
             <div><i class="icon-envelope"></i> <em>{{ student.email }}</em></div>

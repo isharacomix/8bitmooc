@@ -15,6 +15,7 @@ from students.models import LogEntry
 # it in markdown.
 def view_page(request, page=None):
     if request.GET.get("search"): return redirect( "help", page=request.GET["search"] )
+    if page.lower() != page: return redirect( "help", page.lower() )
     if page is None: return redirect( "help", page="index" )
     try:
         p = Page.objects.get(name=page)
@@ -33,7 +34,7 @@ def view_page(request, page=None):
 def find_pages(request, query):
     # Go through the text and find a digest that will allow the user to
     # find relevant data.
-    pages = Page.objects.filter(content__contains=query)
+    pages = Page.objects.filter(content__icontains=query)
     results = []
     for p in pages:
         i = p.content.index(query)
