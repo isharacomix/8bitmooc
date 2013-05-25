@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 
 from students.forms import RegistrationForm, ProfileEditForm
+from students import forms
 from students.models import Student
 from django.contrib.auth.models import User
 
@@ -60,12 +61,31 @@ def user_profile(request, username):
         for c in p.team.all():
             if c not in collaborators and c is not student: collaborators.append(c)
     
+    # If we are doing a POST, then let's affect the output a bit.
+    form = ProfileEditForm( {"bio": me.bio, "twitter": me.twitter, "email": me.public_email} )
+    if request.method == "POST":
+        form = ProfileEditForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            me.bio = data["bio"]
+            me.public_email = data["email"]
+            me.twitter = data["twitter"]
+            me.save()
+            if student == me:
+                student = me
+        else:
+            request.session["alerts"].append(("alert-error",
+                                              "There were some issues with your profile update."))
+            for e in form.non_field_errors():
+                alerts.append( ("alert-error", e ) )
+    
     # Render the magic.
     projects = list(my_projects.filter(is_public=True))+list(all_projects.filter(is_public=True))
     return render(request, "user_profile.html", {"student": student,
-                                                 "editable": student == me,
                                                  "collaborators": collaborators,
-                                                 "projects": projects } )
+                                                 "projects": projects,
+                                                 "form": form,
+                                                 'alerts': request.session.pop('alerts', []) } )
     
 
 # If this is a POST request, we are trying to log in. If it is a GET request,
@@ -132,6 +152,7 @@ def sign_up(request):
     if "alerts" not in request.session: request.session["alerts"] = []
     if me: return redirect("index")
     
+    form = RegistrationForm()
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -167,7 +188,6 @@ http://%s/sign-up?username=%s&key=%s
             return render( request, "sign-up.html", { "form":form,
                                                       'alerts': request.session.pop('alerts', []) } )
     else:
-        form = RegistrationForm()
         return render(request, 'sign-up.html', {"form":form,
                                                 'alerts': request.session.pop('alerts', []) })
 

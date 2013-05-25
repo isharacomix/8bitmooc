@@ -33,6 +33,5 @@ class RegistrationForm(Form):
 class ProfileEditForm(Form):
     bio = forms.CharField(widget=forms.Textarea, label="Bio", required=False)
     twitter = forms.SlugField(label="Twitter Handle", required=False)
-    website = forms.URLField(label="Personal Website", required=False)
     email = forms.BooleanField(label="Make e-mail address public?", required=False)
 
