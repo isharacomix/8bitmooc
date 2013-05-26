@@ -128,6 +128,74 @@ class ChallengeResponse(models.Model):
                                                   self.challenge if self.challenge else "Playground")
 
 
+# SOS: requests for feedback on a submission. It is also possible to create
+# "null" SOS requests for grading purposes.
+class SOS(models.Model):
+    student     = models.ForeignKey(Student,
+                                    verbose_name="Student",
+                                    help_text="""The student requesting help.""")
+    challenge   = models.ForeignKey(Challenge,
+                                    verbose_name="Challenge",
+                                    help_text="""The challenge that this
+                                    request is associated with. This helps us
+                                    filter open SOSes, despite being redundant.""")
+    submission  = models.ForeignKey(ChallengeResponse,
+                                    verbose_name="Challenge Submission",
+                                    help_text="""The challenge response that this
+                                    request is associated with.""")
+    content     = models.TextField("Content",
+                                   help_text="""The question being asked by the
+                                   student.""")
+    timestamp   = models.DateTimeField("Timestamp",
+                                       auto_now_add=True,
+                                       help_text="""The time that the request
+                                       was submitted.""")
+    active      = models.BooleanField("Active?",
+                                  default=True,
+                                  help_text="""An SOS is active until it gets
+                                  three feedbacks or until the student submits
+                                  a new one for the same challenge.""")
+
+    # Representation of the SOS
+    def __unicode__(self):
+        return u"SOS %d for %s" % (self.id, self.challenge)
+
+
+# Feedback for a challenge. Feedback can exist for any challenge, and while it
+# is often explicitly tied with an SOS, 
+class Feedback(models.Model):
+    author      = models.ForeignKey(Student,
+                                    verbose_name="Author",
+                                    help_text="""The student giving the feedback.""")
+    sos         = models.ForeignKey(SOS,
+                                    verbose_name="SOS",
+                                    help_text="""The SOS being responded to.""")
+    timestamp   = models.DateTimeField("Timestamp",
+                                       auto_now_add=True,
+                                       help_text="""The time that the request
+                                       was answered.""")
+    content     = models.TextField("Content",
+                                   help_text="""The feedback description.""")
+    confidence  = models.IntegerField("Helper Confidence",
+                                      default=0,
+                                      help_text="""On a scale of 1-5, how
+                                      confident are you in the help you gave,
+                                      where 5 is extremely confident?""")
+    grade       = models.IntegerField("Grade",
+                                      default=0,
+                                      help_text="""On a scale of 1-5, how would
+                                      you rate this question, where 5 means it
+                                      was clear and showed engagement with the
+                                      material?""")
+    #helpful     = models.NullBooleanField("Helpful?",
+    #                                      help_text="""When a student gets their
+    #                                      feedback, they can then mark it as
+    #                                      helpful or unhelpful.""")
+    
+    # Representation of the SOS
+    def __unicode__(self):
+        return u"Feedback: %s" % (self.sos)
+
 # Badge awards. The date and time a badge is awarded is when it is redeemed.
 class Badge(models.Model):
     student = models.ForeignKey(Student,

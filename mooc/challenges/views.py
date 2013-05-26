@@ -8,7 +8,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from students.models import Student, LogEntry
-from challenges.models import Challenge, ChallengeResponse, Badge
+from challenges.models import Challenge, ChallengeResponse, Badge, SOS, Feedback
 from django.contrib.auth.models import User
 
 from nes import assembler
@@ -18,6 +18,7 @@ from challenges import autograde
 import hashlib
 import json
 import time
+import random
 
 
 # This returns a list of challenges for the page to render. Only challenges
@@ -42,7 +43,6 @@ def challenge_list(request):
             speed = 0
             size_complete = False
             speed_complete = False
-            sos = 0
             best_size, best_speed = None, None
             my_size, my_speed = None, None
             if complete:
@@ -56,6 +56,7 @@ def challenge_list(request):
                     my_size = records[0].rom_size
                     records = records.order_by('-runtime')
                     my_speed = records[0].runtime
+            sos = len( SOS.objects.filter(active=True, challenge=c).exclude(student=me) )
             challenge_list.append( (c, complete, my_size, my_size==best_size, my_speed, my_speed==best_speed, sos) )
     
     # Break the challenges into two columns.
@@ -167,6 +168,84 @@ def view_challenge(request, name):
                                                         'badge_domain': settings.ISSUER_DOMAIN})
 
 
+# This views the SOSes for a challenge. There are some prerequisites to
+# responding to an SOS.
+#  * Student must have completed the stage
+#  * The student must not have already responded to this SOS
+def view_sos(request, name):
+    me = Student.from_request(request)
+    if "alerts" not in request.session: request.session["alerts"] = []
+    if not me:
+        request.session["alerts"].append(("alert-error","Please sign in first."))
+        return redirect("sign-in")   
+    
+    # First, try to get the challenge.
+    try: challenge = Challenge.objects.get(slug=name)
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    if challenge not in me.challenge_set.all():
+        request.session["alerts"].append(("alert-error",
+                                          "You must complete this challenge before you can respond to an SOS."))
+        return redirect("challenge_list")
+    
+    # If this is a POST request, we are responding.
+    if request.method == "POST":
+        if "id" in request.POST and request.POST["id"] == request.session.get("sos-id"):
+            target = SOS.objects.get(id=int(request.session.pop("sos-id")))
+            fb = Feedback()
+            fb.author = me
+            fb.sos = target
+            fb.content = str(request.POST.get("response"))
+            fb.save()
+            request.session["alerts"].append(("alert-success",
+                                              """Thank you for helping your classmates
+                                              learn by participating in the SOS system!
+                                              (+10 XP)"""))
+            me.award_xp(10)
+            LogEntry.log(request, "SOS for %s"%(challenge.slug))
+        else:
+            request.session["alerts"].append(("alert-error",
+                                              """There was an error with your
+                                              SOS submission."""))
+            LogEntry.log(request, "Botched SOS job.")
+        return redirect("challenge_list")
+    
+    
+    # Now find out if there are any SOS requests.
+    all_sos = list( SOS.objects.filter(active=True, challenge=challenge).exclude(student=me) )
+    if len(all_sos) == 0:
+        request.session["alerts"].append(("alert-error",
+                                          "There are no active SOS requests for this challenge."))
+        return redirect("challenge_list")
+    
+    # Now find an SOS to respond to. Make sure that we haven't already responded
+    # to it.
+    random.shuffle( all_sos )
+    target = None
+    while len(all_sos) > 0 and target is None:
+        x = all_sos.pop()
+        feedbacks = Feedback.objects.filter( sos=x, author=me )
+        if len(feedbacks) == 0:
+            target = x
+    if target is None:
+        request.session["alerts"].append(("alert-error",
+                                          "You have already responded to all active SOS requests for this challenge!"))
+        return redirect("challenge_list")
+
+    # Filtering is now over. Time to render.
+    request.session["sos-id"] = str(target.id)
+    if challenge.autograde:
+        assembler.assemble_and_store(request, target.submission.code, challenge.pattern,
+                                     challenge.preamble, challenge.postamble)
+        return render(request, "sos_asm.html", {'challenge': challenge,
+                                                'alerts': request.session.pop('alerts', []),
+                                                'sos': target } )
+    elif challenge.is_jam:
+        return redirect("challenge_list")
+    else:
+        return redirect("challenge_list")
+    
+
+
 # This is a student submission for an ASM challenge. Here we compile the code
 # and render it on the display while also doing the autograding.
 def do_asm_challenge(request, student, challenge):
@@ -210,14 +289,14 @@ def do_asm_challenge(request, student, challenge):
                                               code.'''%results))
             LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
     
-    ## Is there an SOS involved?
-    #if "sos" in request.POST and "help" in request.POST:
-    #    SOS = ChallengeSOS()
-    #    SOS.challenge = challenge
-    #    SOS.challengeresponse = ACR
-    #    SOS.content = request.POST["help"]
-    #    SOS.student = student
-    #    SOS.save()
+    # Is there an SOS involved?
+    if "sos" in request.POST and "help" in request.POST:
+        s = SOS()
+        s.challenge = challenge
+        s.submission = CR
+        s.content = request.POST["help"]
+        s.student = student
+        s.save()
 
 
 # Jam Challenges are much simpler - we just submit a URL to the database.

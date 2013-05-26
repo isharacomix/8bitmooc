@@ -49,17 +49,6 @@ def user_profile(request, username):
     try: student = Student.objects.get( user=User.objects.get(username=username) )
     except: return redirect("user_list")
     
-    # Find out all of the people this person has ever worked with.
-    collaborators = []
-    my_projects = student.owns.all()
-    for p in my_projects:
-        for c in p.team.all():
-            if c not in collaborators: collaborators.append(c)
-    all_projects = student.works_on.all()
-    for p in all_projects:
-        if p.owner not in collaborators: collaborators.append(p.owner)
-        for c in p.team.all():
-            if c not in collaborators and c is not student: collaborators.append(c)
     
     # If we are doing a POST, then let's affect the output a bit.
     form = ProfileEditForm( {"bio": me.bio, "twitter": me.twitter, "email": me.public_email} )
@@ -71,13 +60,24 @@ def user_profile(request, username):
             me.public_email = data["email"]
             me.twitter = data["twitter"]
             me.save()
-            if student == me:
-                student = me
         else:
             request.session["alerts"].append(("alert-error",
                                               "There were some issues with your profile update."))
             for e in form.non_field_errors():
                 alerts.append( ("alert-error", e ) )
+        return redirect( "profile", username=me.username )
+    
+    # Find out all of the people this person has ever worked with.
+    collaborators = []
+    my_projects = student.owns.all()
+    for p in my_projects:
+        for c in p.team.all():
+            if c not in collaborators: collaborators.append(c)
+    all_projects = student.works_on.all()
+    for p in all_projects:
+        if p.owner not in collaborators: collaborators.append(p.owner)
+        for c in p.team.all():
+            if c not in collaborators and c is not student: collaborators.append(c)
     
     # Render the magic.
     projects = list(my_projects.filter(is_public=True))+list(all_projects.filter(is_public=True))

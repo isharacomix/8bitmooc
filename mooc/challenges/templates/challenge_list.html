@@ -17,9 +17,7 @@
                 </a>
                 <div class="media-body">
 {% if complete and c.autograde %}
-<a href="/" class="btn btn-small {% if sos == 0 %}disabled{% else %}btn-danger{% endif %} pull-right media-heading">
-    SOS <i class="icon-user"></i>{{sos}}
-</a>
+<a href="{% url 'sos' name=c.slug %}" class="btn btn-small {% if sos == 0 %}disabled{% else %}btn-danger{% endif %} pull-right media-heading">SOS <i class="icon-user {% if sos > 0 %}icon-white{% endif %}"></i>{{sos}}</a>
 {% endif %}
                     <h4 class="media-heading">{{c.name}}</h4>
                     <table class="table table-condensed">
