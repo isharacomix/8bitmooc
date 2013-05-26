@@ -7,6 +7,16 @@
 
     <div class="row">
         <div class="span8">
+            <div>
+                <ul class="nav nav-pills">
+                <li><a href="{% url 'challenge_list' %}">Back to List</a></li>
+                <li class="active"><a href="#">Challenge</a></li>
+                {% if feedback %}
+                <li><a href="{% url 'feedback' name=challenge.slug %}">Feedback</a></li>
+                {% endif %}
+                </ul>
+            </div>
+        
             {{ challenge.description|markup }}
 
             <div class="well">

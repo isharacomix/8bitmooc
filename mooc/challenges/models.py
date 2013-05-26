@@ -176,21 +176,19 @@ class Feedback(models.Model):
                                        was answered.""")
     content     = models.TextField("Content",
                                    help_text="""The feedback description.""")
-    confidence  = models.IntegerField("Helper Confidence",
-                                      default=0,
-                                      help_text="""On a scale of 1-5, how
-                                      confident are you in the help you gave,
-                                      where 5 is extremely confident?""")
-    grade       = models.IntegerField("Grade",
-                                      default=0,
-                                      help_text="""On a scale of 1-5, how would
-                                      you rate this question, where 5 means it
-                                      was clear and showed engagement with the
-                                      material?""")
-    #helpful     = models.NullBooleanField("Helpful?",
-    #                                      help_text="""When a student gets their
-    #                                      feedback, they can then mark it as
-    #                                      helpful or unhelpful.""")
+    confident   = models.BooleanField("Confident?",
+                                      default=False,
+                                      help_text="""True if the student giving
+                                      the help was confident in their response?""")
+    good        = models.BooleanField("Good SOS?",
+                                      default=False,
+                                      help_text="""True if the student giving
+                                      the help thought the question was a good
+                                      one.""")
+    helpful     = models.NullBooleanField("Helpful?",
+                                          help_text="""When a student gets their
+                                          feedback, they can then mark it as
+                                          helpful or unhelpful.""")
     
     # Representation of the SOS
     def __unicode__(self):

@@ -79,6 +79,7 @@ def view_challenge(request, name):
     # First, try to get the challenge.
     try: challenge = Challenge.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
+    feedback = len( SOS.objects.filter(challenge=challenge, student=me) )
     
     # Now make sure that the student can actually see the challenge before
     # letting them look at it. They can see expired challenges, but can't
@@ -141,7 +142,8 @@ def view_challenge(request, name):
                                                           'best_size': best_size,
                                                           'best_speed': best_speed,
                                                           'completed': completed,
-                                                          'badge_domain': settings.ISSUER_DOMAIN} )
+                                                          'badge_domain': settings.ISSUER_DOMAIN,
+                                                          'feedback': feedback} )
                                                           
     elif challenge.is_jam:
         # Grey out the submission if the student has already submitted a link for
@@ -159,14 +161,50 @@ def view_challenge(request, name):
                                                       'url': url,
                                                       'submit_ok': submit_ok,
                                                       'completed': completed,
-                                                      'badge_domain': settings.ISSUER_DOMAIN})
+                                                      'badge_domain': settings.ISSUER_DOMAIN,
+                                                      'feedback': feedback})
     else:
         completed = me in challenge.completed_by.all()
         return render(request, "challenge_other.html", {'challenge': challenge,
                                                         'alerts': request.session.pop('alerts', []),
                                                         'completed': completed,
-                                                        'badge_domain': settings.ISSUER_DOMAIN})
+                                                        'badge_domain': settings.ISSUER_DOMAIN,
+                                                        'feedback': feedback})
 
+
+# Viewing feedback is easy. Just pass along all of the SOSes and their respective
+# feedbacks.
+def view_feedback(request, name):
+    me = Student.from_request(request)
+    if "alerts" not in request.session: request.session["alerts"] = []
+    if not me:
+        request.session["alerts"].append(("alert-error","Please sign in first."))
+        return redirect("sign-in")   
+    
+    # First, try to get the challenge.
+    try: challenge = Challenge.objects.get(slug=name)
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    # Now get all of the SOSses related to this user and challenge.
+    feedback = SOS.objects.filter(challenge=challenge, student=me)
+    
+    # Mark feedback as helpful or not.
+    if "helpful" in request.GET or "unhelpful" in request.GET:
+        helpful = True
+        if "unhelpful" in request.GET: helpful = False
+        f = Feedback.objects.get(id=int(request.GET["helpful" if helpful else "unhelpful"]))
+        if f.sos in feedback and f.helpful is None:
+            f.helpful = helpful
+            f.save()
+            if helpful:
+                f.author.award_xp(50)
+            me.award_xp(5)
+            LogEntry.log(request, "Marked as %shelpful"%("" if helpful else "un"))
+
+    
+    return render(request, "feedback.html", {'challenge': challenge,
+                                             'feedback': feedback})
+    
 
 # This views the SOSes for a challenge. There are some prerequisites to
 # responding to an SOS.
@@ -195,10 +233,13 @@ def view_sos(request, name):
             fb.author = me
             fb.sos = target
             fb.content = str(request.POST.get("response"))
+            fb.confidence = True if request.POST.get("confident") else False
+            fb.good = True if request.POST.get("good") else False
             fb.save()
+            
             request.session["alerts"].append(("alert-success",
                                               """Thank you for helping your classmates
-                                              learn by participating in the SOS system!
+                                              by participating in the SOS system!
                                               (+10 XP)"""))
             me.award_xp(10)
             LogEntry.log(request, "SOS for %s"%(challenge.slug))

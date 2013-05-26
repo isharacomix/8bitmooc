@@ -1,0 +1,56 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}Feedback for {{ challenge.name }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8">
+            <div>
+                <ul class="nav nav-pills">
+                <li><a href="{% url 'challenge_list' %}">Back to List</a></li>
+                <li><a href="{% url 'challenge' name=challenge.slug %}">Challenge</a></li>
+                <li class="active"><a href="#">Feedback</a></li>
+                </ul>
+            </div>
+        
+        <div class="accordion" id="feedbacks">
+        {% for sos in feedback %}
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <div class="accordion-inner">
+                {{ sos.content|minimarkup}}
+                </div>
+            
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#selector" href="#collapse{{ sos.id }}">
+View Feedback
+                </a>
+            </div>
+            <div id="collapse{{ sos.id }}" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    {% for r in sos.feedback_set.all %}
+                    <div class="well">
+                    {{ r.content|minimarkup }}
+                    
+                    {% if r.helpful == None %}
+                    <hr />
+                    <p><em>Was this answer helpful?</em>
+<a href="{% url 'feedback' name=challenge.slug %}?helpful={{r.id}}" class="btn btn-success btn-mini">Yes</a>
+<a href="{% url 'feedback' name=challenge.slug %}?unhelpful={{r.id}}" class="btn btn-danger btn-mini">No</a></p>
+                    {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block scripts %}
+    {% include "badges.html" %}
+{% endblock scripts %}
