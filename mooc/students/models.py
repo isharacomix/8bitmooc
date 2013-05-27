@@ -62,6 +62,17 @@ class Student(models.Model):
                                    auto_now_add=True,
                                    help_text="""The time the student joined the
                                    MOOC.""")
+    last_login  = models.DateTimeField("Last Login",
+                                       null=True,
+                                       blank=True,
+                                       help_text="""The timestamp of the student's
+                                       last visit.""")
+    this_login  = models.DateTimeField("This Login",
+                                       null=True,
+                                       blank=True,
+                                       help_text="""The timestamp of the student's
+                                       most recent login.""")
+
 
     # When we represent the student, we put their TA tag on so that others can
     # recognize them.

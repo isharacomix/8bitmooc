@@ -15,6 +15,7 @@ from students.models import Student
 from django.contrib.auth.models import User
 
 import hashlib
+import datetime
 
 
 # Display a list of all users in the course, ranked by their Levels and
@@ -28,7 +29,7 @@ def user_list(request):
     
     # Break students into 3 columns
     l1,l2,l3 = [],[],[]
-    student_list = Student.objects.all().order_by("-xp","-level")[:99]
+    student_list = Student.objects.all().order_by("-level","-xp")[:99]
     # provide other filters TODO
     for s in student_list:
         if len(l2) > len(l3): l3.append(s)
@@ -48,7 +49,6 @@ def user_profile(request, username):
         return redirect("sign-in")
     try: student = Student.objects.get( user=User.objects.get(username=username) )
     except: return redirect("user_list")
-    
     
     # If we are doing a POST, then let's affect the output a bit.
     form = ProfileEditForm( {"bio": me.bio, "twitter": me.twitter, "email": me.public_email} )
@@ -105,6 +105,12 @@ def sign_in(request):
             if user is not None:
                 if Student.objects.filter(user=user).exists():
                     login(request, user)
+                    s = user.student
+                    s.last_login = s.this_login
+                    s.this_login = datetime.datetime.now()
+                    if s.last_login is None:
+                        s.last_login = s.this_login
+                    s.save()
                     return redirect("index")
                 else:
                     request.session["alerts"].append(("alert-error",

@@ -83,7 +83,7 @@ class Challenge(models.Model):
     
     # Order these by difficulty.
     class Meta:
-        ordering = ['xp', 'difficulty']
+        ordering = ['-difficulty','xp']
     
 # Challenge Responses are student submissions for Challenges that are either
 # jams or autograded.
