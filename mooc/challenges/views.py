@@ -237,6 +237,10 @@ def view_sos(request, name):
             fb.good = True if request.POST.get("good") else False
             fb.save()
             
+            if (len( target.feedback_set.all() ) >= 3):
+                target.active = False
+                target.save()
+            
             request.session["alerts"].append(("alert-success",
                                               """Thank you for helping your classmates
                                               by participating in the SOS system!
@@ -332,6 +336,10 @@ def do_asm_challenge(request, student, challenge):
     
     # Is there an SOS involved?
     if "sos" in request.POST and "help" in request.POST:
+        for s in SOS.objects.filter(challenge=challenge, student=student):
+            s.active = False
+            s.save()
+    
         s = SOS()
         s.challenge = challenge
         s.submission = CR

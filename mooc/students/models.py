@@ -99,7 +99,7 @@ class Student(models.Model):
             self.level += 1
             l = LogEntry(student=self,
                          url="XP",
-                         notes="Level Up"%xp)
+                         notes="Level Up!")
             l.save()
             self.save()
             return True
