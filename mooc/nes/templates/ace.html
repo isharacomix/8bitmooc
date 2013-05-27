@@ -1,0 +1,18 @@
+{% load static from staticfiles %}
+
+<script src="{% static 'js/ace/ace.js' %}"></script>
+<script>
+    var asmEditor = ace.edit("assembly-editor");
+    //asmEditor.setTheme("ace/theme/twilight");
+    //asmEditor.getSession().setMode("ace/mode/javascript");
+    asmEditor.getSession().setTabSize(4);
+    asmEditor.getSession().setUseSoftTabs(true);
+
+    var asmTextarea = $(document.getElementById("assembly-text")).hide();
+
+    asmEditor.getSession().setValue(asmTextarea.val());
+    asmEditor.getSession().on('change', function () {
+        asmTextarea.val(asmEditor.getSession().getValue());
+    });
+</script>
+

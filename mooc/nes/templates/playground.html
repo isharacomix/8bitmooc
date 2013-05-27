@@ -1,5 +1,6 @@
 {% extends "layout_base.html" %}
 {% load markup %}
+{% load static from staticfiles %}
 
 {% block title %}Playground{% endblock title %}
 
@@ -22,7 +23,8 @@
                     </p>
                 </div>
 
-<textarea class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
+<div id="assembly-editor" style="width: 100%; height: 30em;"></div>
+<textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
             </div>
             
             
@@ -50,4 +52,5 @@
 
 {% block scripts %}
     {% include "nes.html" %}
+    {% include "ace.html" %}
 {% endblock scripts %}
