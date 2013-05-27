@@ -8,6 +8,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
+from django.utils import timezone 
 
 from students.forms import RegistrationForm, ProfileEditForm
 from students import forms
@@ -15,7 +16,6 @@ from students.models import Student
 from django.contrib.auth.models import User
 
 import hashlib
-import datetime
 
 
 # Display a list of all users in the course, ranked by their Levels and
@@ -107,7 +107,7 @@ def sign_in(request):
                     login(request, user)
                     s = user.student
                     s.last_login = s.this_login
-                    s.this_login = datetime.datetime.now()
+                    s.this_login = timezone.now()
                     if s.last_login is None:
                         s.last_login = s.this_login
                     s.save()
