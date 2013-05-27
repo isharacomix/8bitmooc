@@ -12,7 +12,7 @@
             {% for s in user_list %}
             <div class="media well">
                 <a class="pull-left" href="{% url 'profile' username=s.username %}">
-                    {% avatar s.user 64 %}
+                    <img src="{% avatar_url s.user 64 %}&d=retro" alt="" />
                 </a>
                 <div class="media-body">
                     <h4 class="media-heading">{{s.username}}</h4>

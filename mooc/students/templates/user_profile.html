@@ -12,7 +12,7 @@
 
         <div class="span2">
             <h3>Level {{ student.level }}</h3>
-            {% avatar student.user 256 %}
+                    <img src="{% avatar_url student.user 256 %}&d=retro" alt="" />
             {% if user == student.user %}
                 <a class="btn btn-block" href="http://gravatar.com">Change Avatar</a>
             {% endif %}
@@ -24,7 +24,7 @@
             <div><strong>Collaborators</strong></div>
             <div>
                 {% for c in collaborators %}
-                <a href="{% url 'profile' username=c.username %}">{% avatar c.user 32 %}</a>
+                <a href="{% url 'profile' username=c.username %}"><img src="{% avatar_url c.user 32 %}&d=retro" alt="" /></a>
                 {% endfor %}
             </div>
         </div>
