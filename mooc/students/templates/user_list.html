@@ -32,7 +32,7 @@
             {% if page > 0 %}
             <a class="pull-left btn" href="{% url 'users' %}?page={{ page|add:'-1' }}">Previous Page</a>
             {% endif %}
-            {% if not lastpage %}
+            {% if not last_page %}
             <a class="pull-right btn" href="{% url 'users' %}?page={{ page|add:'1' }}">Next Page</a>
             {% endif %}
         </div>

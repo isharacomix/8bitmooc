@@ -31,6 +31,17 @@
             </table>
         </div>
     </div>
+    <div class="row">
+        <div class="span4 offset4">
+            {% if page > 0 %}
+            <a class="pull-left btn" href="{% url 'arcade' %}?page={{ page|add:'-1' }}">Previous Page</a>
+            {% endif %}
+            {% if not last_page %}
+            <a class="pull-right btn" href="{% url 'arcade' %}?page={{ page|add:'1' }}">Next Page</a>
+            {% endif %}
+        </div>
+    </div>
+
 
 {% endblock body %}
 
