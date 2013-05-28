@@ -42,7 +42,7 @@ def user_list(request):
     
     return render(request, "user_list.html", {"user_columns": (l1,l2,l3),
                                               "page": page,
-                                              "last_page": (not len(student_list)==pagination) } )
+                                              'pages': (len(student_list)/pagination)+1 } )
     
 
 # Display a fancy user profile including stuff like their progress in the

@@ -59,7 +59,7 @@ def games_list(request):
     game_list = Game.objects.all().order_by("-hits")[pagination*page:pagination*(page+1)]
     return render(request, "arcade_list.html", {'games': game_list,
                                                 'page': page,
-                                                'last_page': (not len(game_list)==pagination) } )
+                                                'pages': (len(game_list)/pagination)+1 } )
 
 
 # The arcade is like a playground with even less fun. You can view the source

@@ -66,7 +66,8 @@ def view_board(request, name):
                                                   'topics': topic_tuples,
                                                   'alerts': request.session.pop('alerts', []),
                                                   'page': page,
-                                                  'last_page': (not len(topic_tuples)==pagination) } )
+                                                  'pages': (len(topic_tuples)/pagination)+1 } )
+
 
 # This displays a single thread on the specified board.
 def view_thread(request, name, thread):

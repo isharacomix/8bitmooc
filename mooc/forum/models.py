@@ -110,7 +110,7 @@ class DiscussionPost(models.Model):
              
     # Order these by difficulty.
     class Meta:
-        ordering = ['-upvotes']
+        ordering = ['timestamp']
     
     # Representation of the challenge
     def __unicode__(self):
