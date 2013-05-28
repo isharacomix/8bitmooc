@@ -9,12 +9,8 @@ admin.autodiscover()
 
 # Point URLs to their respective apps, and be smart about it.
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'mooc.views.home', name='home'),
-    # url(r'^mooc/', include('mooc.foo.urls')),
-    
-    # Basic pages.
     url(r'^$', views.view_index, name='index'),
+    url(r'^search/$', views.search, name='search'),
     
     url(r'^project/', views.view_index, name='project_list'),
     url(r'^project/(?P<name>[\w-]+)/', views.view_index, name='project'),

@@ -19,9 +19,9 @@
                 <td>
                 {% for a in g.authors.all %}
                     {% if a.twitter %}
-                    <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>
+                    <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>{% if not forloop.last %},{% endif %}
                     {% else %}
-                    {{a.username}}
+                    {{a.username}}{% if not forloop.last %},{% endif %}
                     {% endif %}
                 {% endfor %}
                 </td>

@@ -7,13 +7,11 @@ from django.db import models
 class Page(models.Model):
     name    = models.SlugField("name",
                                unique=True, 
-                               help_text="""
-                               The name of the page, used for its URL.
-                                         """)
-    content = models.TextField("code",
-                               help_text="""
-                               The text of the page, in Markdown.
-                                         """)
+                               help_text="""The name of the page, used for
+                               its URL.""")
+    content = models.TextField("content",
+                               help_text="""The text of the page, in
+                               Markdown.""")
     
     # Unicode representation of the textbook page.
     def __unicode__(self):

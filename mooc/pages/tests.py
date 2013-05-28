@@ -25,11 +25,3 @@ class TestAssembler(TestCase):
         response = self.c.get("/help/nope/")
         self.assertEqual( response.status_code, 404 )
 
-    # Make sure searching works.
-    def test_search(self):
-        response = self.c.get("/help/index/?search=test", follow=True)
-        self.assertEqual( response.redirect_chain[-1][0], "http://testserver/help/test/")
-        response = self.c.get("/help/index/?search=world", follow=True)
-        self.assertTrue( "/help/index/" in response.content )
-        
-        

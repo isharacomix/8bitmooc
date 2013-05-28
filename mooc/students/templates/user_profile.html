@@ -39,6 +39,7 @@
             {% if student.twitter %}
             <div><i class="icon-comment"></i> <em><a href="http://twitter.com/{{student.twitter}}">@{{ student.twitter }}</a></em></div>
             {% endif %}
+            <div><i class="icon-calendar"></i> <em>Member for {{ student.joined|timesince }}</em></div>
             
             
             {% if user == student.user %}

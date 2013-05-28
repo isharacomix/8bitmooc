@@ -12,10 +12,13 @@
             <h3>
             
             {% for a in authors %}
+            
+                {% if forloop.last and not forloop.first %}and{% endif %}
+            
                 {% if a.twitter %}
-                <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>
+                <a href="http://twitter.com/{{a.twitter}}">{{a.username}}</a>{% if not forloop.last %},{% endif %}
                 {% else %}
-                {{a.username}}
+                {{a.username}}{% if not forloop.last %},{% endif %}
                 {% endif %}
                 
             {% endfor %}
