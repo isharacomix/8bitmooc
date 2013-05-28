@@ -20,8 +20,18 @@ def board_list(request):
         request.session["alerts"].append(("alert-error","Please sign in first."))
         return redirect("sign-in")   
     
-    #
-    return render( request, "forums.html", {'alerts': request.session.pop('alerts', []) })
+    # Get all of the boards that this student can read. Store them in the
+    # board_pairs where they are paired with the number of new posts since their
+    # last visit.
+    board_triplets = []
+    for b in DiscussionBoard.objects.filter(restricted__lte=me.level):
+        last_posts = b.discussiontopic_set.exclude(hidden=True)
+        new_posts = len( last_posts.filter(last_active__gte=me.last_login) )
+        if len(last_posts) == 0: last_posts = [None]
+        board_triplets.append( (b, last_posts[0], new_posts) )
+    
+    return render( request, "forums.html", {'boards': board_triplets,
+                                            'alerts': request.session.pop('alerts', []) })
                    
 
 # This displays all of the topics for the specified forum board.

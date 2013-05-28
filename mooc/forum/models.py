@@ -29,6 +29,10 @@ class DiscussionBoard(models.Model):
                                       post to the board. Set to a high value
                                       for a TA board.""")
     
+    # Order by restriction levels.
+    class Meta:
+        ordering = ['restricted','-wrestricted']
+    
     # Representation of the challenge
     def __unicode__(self):
         return u"%s Discussion Board" % (self.name)

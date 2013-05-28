@@ -6,8 +6,31 @@
 {% block body %}
 
     <div class="row">
-        <div class="span8">
-            Forums
+        <div class="span8 offset2">
+            <table class="table table-striped">
+                {% for board, last, new in boards %}
+                <tr>
+                    <td>
+                      <h4>
+                        <a href="{% url 'board' name=board.slug %}">{{board.name}}</a>
+                      </h4>
+                      
+                      {{ board.description|markup }}
+                      
+                      {% if new %}
+                      <p><em>New Posts!</em></p>
+                      {% endif %}
+                    </td>
+                    <td>
+                    {% if last %}
+                    <p>Last topic active: <a href="{% url 'thread' board.slug last.id %}">{{ last.title }}</a></p>
+                    {% endif %}
+                    
+                    <p><small><em>{{ new }} discussions since last visit.</em></small></p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 
