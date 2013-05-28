@@ -19,7 +19,6 @@ class TestMooc(TestCase):
         self.s1 = Student( user=self.u1 )
         self.s1.save()
         
-        
         p = Page(name="index", content="Hello world")
         p.save()
         p = Page(name="test", content="This is a test.")
