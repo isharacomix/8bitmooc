@@ -71,7 +71,7 @@ class DiscussionTopic(models.Model):
 
     # Order these by difficulty.
     class Meta:
-        ordering = ['-last_active']
+        ordering = ['sticky','-last_active']
 
     # Representation of the commit
     def __unicode__(self):
@@ -89,7 +89,7 @@ class DiscussionPost(models.Model):
                                        written.""")
     content     = models.TextField("Content",
                                    help_text="""Post in minimarkdown.""")
-    author      = models.ForeignKey(DiscussionTopic,
+    topic       = models.ForeignKey(DiscussionTopic,
                                     verbose_name="Topic",
                                     help_text="""Topic containing this post.""")
     parent      = models.ForeignKey("DiscussionPost",
@@ -114,6 +114,6 @@ class DiscussionPost(models.Model):
     
     # Representation of the challenge
     def __unicode__(self):
-        return u"Post %d on %s" % (self.id, self.topic.name)
+        return u"Post %d on %s" % (self.id, self.topic.title)
 
 

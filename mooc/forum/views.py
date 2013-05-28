@@ -46,10 +46,27 @@ def view_board(request, name):
     try: board = DiscussionBoard.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
     
-    # If this is a POST, we are creating a new topic. Redirect when finished.
+    # Get the page number!
+    page = 0
+    pagination = 200
+    if "page" in request.GET and request.GET["page"].isdigit():
+        page = int(request.GET["page"])
     
-    return render( request, "forum_topics.html", {'alerts': request.session.pop('alerts', []) })
-
+    # If this is a POST, we are creating a new topic. Redirect when finished.
+    topic_tuples = []
+    for t in DiscussionTopic.objects.filter(hidden=False, board=board)[pagination*page:pagination*(page+1)]:
+        posts = DiscussionPost.objects.filter(topic=t, hidden=False).order_by("-timestamp")
+        count = len(posts)
+        new = False
+        if count == 0: posts = [None]
+        else: new = ( posts[0].timestamp > me.last_login )
+        topic_tuples.append( (t,count,posts[0],new) )
+    
+    return render( request, "forum_topics.html", {'board': board,
+                                                  'topics': topic_tuples,
+                                                  'alerts': request.session.pop('alerts', []),
+                                                  'page': page,
+                                                  'last_page': (not len(topic_tuples)==pagination) } )
 
 # This displays a single thread on the specified board.
 def view_thread(request, name, thread):
@@ -62,7 +79,7 @@ def view_thread(request, name, thread):
     # First, try to get the challenge, then thread.
     try:
         board = DiscussionBoard.objects.get(slug=name)
-        topic = DiscussionThread.objects.get(id=thread, board=board)
+        topic = DiscussionTopic.objects.get(id=thread, board=board)
     except exceptions.ObjectDoesNotExist: raise Http404()
     
     # If this is a POST, we are replying to someone.

@@ -53,12 +53,13 @@ def view_playground(request):
 # This displays a list of games that people can play, organized by popularity.
 def games_list(request):
     page = 0
+    pagination = 200
     if "page" in request.GET and request.GET["page"].isdigit():
         page = int(request.GET["page"])
-    game_list = Game.objects.all().order_by("-hits")[200*page:200*(page+1)]
+    game_list = Game.objects.all().order_by("-hits")[pagination*page:pagination*(page+1)]
     return render(request, "arcade_list.html", {'games': game_list,
                                                 'page': page,
-                                                'last_page': (not len(game_list)==200) } )
+                                                'last_page': (not len(game_list)==pagination) } )
 
 
 # The arcade is like a playground with even less fun. You can view the source

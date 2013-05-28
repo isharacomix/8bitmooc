@@ -1,4 +1,5 @@
 {% extends "layout_base.html" %}
+{% load avatar_tags %}
 {% load markup %}
 
 {% block title %}Community: {{ board.name }}{% endblock title %}
@@ -6,8 +7,56 @@
 {% block body %}
 
     <div class="row">
-        <div class="span8">
-            Board
+        <div class="span10 offset1">
+            <h1>{{ board.name }}</h1>
+            <div>
+                <ul class="nav nav-pills">
+                <li><a href="{% url 'forums' %}">Back to List</a></li>
+                <li class="active"><a href="#">Discussion Board</a></li>
+                </ul>
+            </div>
+            
+            <table class="table table-striped">
+                <tr>
+                    <th>Topic</th>
+                    <th>Posts</th>
+                    <th>Last Post</th>
+                </tr>
+                {% for topic, count, last, new in topics %}
+                <tr>
+                    <td>
+                      {% if new %}<strong>{% endif %}
+                        <a href="{% url 'thread' name=topic.board.slug thread=topic.id %}">{{topic.title}}</a>
+                      {% if new %}</strong>{% endif %}
+                    </td>
+                    <td>
+                      {% if new %}<strong>{% endif %}
+                        {{ count }}
+                      {% if new %}</strong>{% endif %}
+                    </td>
+                    <td>
+                    {% if last %}
+                      {% if new %}<strong>{% endif %}
+                        <a class="pull-left" href="{% url 'profile' username=last.author.username %}">
+                            <img src="{% avatar_url last.author.user 24 %}&d=retro" alt="{{ last.author.username }}" />
+                       </a>
+                       <p>{{ last.timestamp|timesince }} ago</p>
+                      {% if new %}</strong>{% endif %}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span4 offset4">
+            {% if page > 0 %}
+            <a class="pull-left btn" href="{% url 'board' name=board.name %}?page={{ page|add:'-1' }}">Previous Page</a>
+            {% endif %}
+            {% if not last_page %}
+            <a class="pull-right btn" href="{% url 'board' name=board.name %}?page={{ page|add:'1' }}">Next Page</a>
+            {% endif %}
         </div>
     </div>
 

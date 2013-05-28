@@ -6,6 +6,17 @@
 {% block body %}
 
     <div class="row">
+        <div class="span10 offset1">
+            <h1>Community Discussion Boards</h1>
+            <p>
+                Welcome to the community discussion boards! Join your classmates
+                in discussing old games, whether it's about programming them,
+                taking them apart, or just playing them. As you gain more levels,
+                you'll earn access to more forums that will allow you to interact
+                with peers who have advanced through the course, so work hard if
+                that's something that motivates you!
+            </p>
+        </div>
         <div class="span8 offset2">
             <table class="table table-striped">
                 {% for board, last, new in boards %}
@@ -18,12 +29,13 @@
                       {{ board.description|markup }}
                       
                       {% if new %}
-                      <p><em>New Posts!</em></p>
+                      <p><strong>New Posts!</strong></p>
                       {% endif %}
                     </td>
                     <td>
+                    <h4> </h4>
                     {% if last %}
-                    <p>Last topic active: <a href="{% url 'thread' board.slug last.id %}">{{ last.title }}</a></p>
+                    <p>Last topic active: <a href="{% url 'thread' name=board.slug thread=last.id %}">{{ last.title }}</a></p>
                     {% endif %}
                     
                     <p><small><em>{{ new }} discussions since last visit.</em></small></p>

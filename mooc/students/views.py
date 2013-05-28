@@ -29,10 +29,11 @@ def user_list(request):
     
     # Break students into 3 columns
     page = 0
+    pagination = 99
     if "page" in request.GET and request.GET["page"].isdigit():
         page = int(request.GET["page"])
     l1,l2,l3 = [],[],[]
-    student_list = Student.objects.all().order_by("-level","-xp")[99*page:99*(page+1)]
+    student_list = Student.objects.all().order_by("-level","-xp")[pagination*page:pagination*(page+1)]
     # provide other filters TODO
     for s in student_list:
         if len(l2) > len(l3): l3.append(s)
@@ -41,7 +42,7 @@ def user_list(request):
     
     return render(request, "user_list.html", {"user_columns": (l1,l2,l3),
                                               "page": page,
-                                              "last_page": (not len(student_list)==99) } )
+                                              "last_page": (not len(student_list)==pagination) } )
     
 
 # Display a fancy user profile including stuff like their progress in the
