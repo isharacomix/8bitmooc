@@ -24,6 +24,10 @@ class DiscussionBoard(models.Model):
                                       help_text="""Minimum level needed to
                                       access the board. Set to a high value
                                       for a TA board.""")
+    wrestricted = models.IntegerField("Write Restriction",
+                                      help_text="""Minimum level needed to
+                                      post to the board. Set to a high value
+                                      for a TA board.""")
     
     # Representation of the challenge
     def __unicode__(self):
@@ -40,6 +44,10 @@ class DiscussionTopic(models.Model):
     author      = models.ForeignKey(Student,
                                     verbose_name="Author",
                                     help_text="""Author of the comment.""")
+    board       = models.ForeignKey(DiscussionBoard,
+                                    verbose_name="Discussion Board",
+                                    help_text="""The board on which the topic
+                                    resides.""")
     sticky      = models.BooleanField("Sticky",
                                       default=False,
                                       help_text="""Sticky topics appear on the

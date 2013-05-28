@@ -14,13 +14,13 @@ urlpatterns = patterns('',
     
     url(r'^project/', views.view_index, name='project_list'),
     url(r'^project/(?P<name>[\w-]+)/', views.view_index, name='project'),
-    url(r'^forum/', views.view_index, name='forum'),
 
     # Apps!
     url(r'^', include('nes.urls')),
     url(r'^', include('students.urls')),
     url(r'^', include('challenges.urls')),
     url(r'^help/', include('pages.urls')),
+    url(r'^forum/', include('forum.urls')),
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
