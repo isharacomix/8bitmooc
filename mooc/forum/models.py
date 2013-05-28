@@ -52,6 +52,14 @@ class DiscussionTopic(models.Model):
                                       default=False,
                                       help_text="""Hidden topics can never be
                                       seen again.""")
+    last_active = models.DateTimeField("Last Active",
+                                       auto_now=True,
+                                       help_text="""The last time this topic
+                                       was modified.""")
+
+    # Order these by difficulty.
+    class Meta:
+        ordering = ['-last_active']
 
     # Representation of the commit
     def __unicode__(self):
