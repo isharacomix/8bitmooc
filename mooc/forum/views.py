@@ -24,7 +24,9 @@ def board_list(request):
     # board_pairs where they are paired with the number of new posts since their
     # last visit.
     board_triplets = []
-    for b in DiscussionBoard.objects.filter(restricted__lte=me.level):
+    boards = DiscussionBoard.objects.all()
+    if not me.ta: boards = boards.filter(restricted__lte=me.level)
+    for b in boards:
         last_posts = b.discussiontopic_set.exclude(hidden=True)
         new_posts = len( last_posts.filter(last_active__gte=me.last_login) )
         if len(last_posts) == 0: last_posts = [None]
@@ -45,6 +47,7 @@ def view_board(request, name):
     # First, try to get the board.
     try: board = DiscussionBoard.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
+    if board.restricted > me.level: raise Http404()
     
     # Get the page number!
     page = 0
@@ -53,6 +56,25 @@ def view_board(request, name):
         page = max(0,int(request.GET["page"])-1)
     
     # If this is a POST, we are creating a new topic. Redirect when finished.
+    if request.method == "POST" and (me.level >= board.wrestricted or me.ta):
+        content = str(request.POST.get("content"))
+        title = content[:100]+"..."
+        if "title" in request.POST:
+            title = request.POST["title"]
+        
+        t = DiscussionTopic()
+        t.author = me
+        t.board = board
+        t.title = title
+        t.save()
+        
+        p = DiscussionPost()
+        p.topic = t
+        p.author = me
+        p.content = content
+        p.save()
+        
+        return redirect( "thread", name=board.slug, thread=t.id )
     
     # Get all of the topics, along with the last person who commented on them
     # and when that was.
@@ -67,6 +89,7 @@ def view_board(request, name):
     
     return render( request, "forum_topics.html", {'board': board,
                                                   'topics': topic_tuples,
+                                                  'student': me,
                                                   'alerts': request.session.pop('alerts', []),
                                                   'page': page+1,
                                                   'pages': (len(topic_tuples)/pagination)+1 } )
@@ -85,9 +108,36 @@ def view_thread(request, name, thread):
         board = DiscussionBoard.objects.get(slug=name)
         topic = DiscussionTopic.objects.get(id=thread, board=board)
     except exceptions.ObjectDoesNotExist: raise Http404()
+    if not me.ta and (topic.hidden or board.restricted > me.level): raise Http404()
     
     # If this is a POST, we are replying to someone. Post the string and
     # redirect.
+    if request.method == "POST" and (me.level >= board.wrestricted or me.ta):
+        p = DiscussionPost()
+        p.topic = topic
+        p.author = me
+        p.content = str(request.POST.get("content"))
+        p.save()
+        topic.save()
+        return redirect( "thread", name=board.slug, thread=topic.id )
+
+    # Upvotes and downvotes are done by GET requests. We have to redirect to
+    # avoid refreshes doing repeat votes.
+    if "upvote" in request.GET or "downvote" in request.GET:
+        upvote = True
+        if "downvote" in request.GET: upvote = False
+        p_id = request.GET["upvote" if upvote else "downvote"]
+        if p_id.isdigit() and (me.modpoints > 0 or me.ta):
+            p = DiscussionPost.objects.get(id=int(p_id))
+            if upvote: p.upvotes += 1
+            else:      p.downvotes += 1
+            request.session["alerts"].append(("alert-success","Post %s."%("upvoted" if upvote else "downvoted")))
+            LogEntry.log(request, "Thread %s"%("upvoted" if upvote else "downvoted"))
+            p.save()
+            me.modpoints -= 1
+            me.award_xp(1)
+            me.save()
+        return redirect( "thread", name=board.slug, thread=topic.id )
     
     # Get all of the posts. Start on the last page by default.
     pagination = 20
@@ -99,6 +149,7 @@ def view_thread(request, name, thread):
     
     return render( request, "forum_thread.html", {'board': board,
                                                   'topic': topic,
+                                                  'student': me,
                                                   'posts': posts[pagination*page:pagination*(page+1)],
                                                   'alerts': request.session.pop('alerts', []),
                                                   'page': page+1,

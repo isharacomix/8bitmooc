@@ -47,9 +47,29 @@
                 </tr>
                 {% endfor %}
             </table>
+            <button class="btn" type="button" data-toggle="modal" data-target="#newtopic">New Topic</button>
         </div>
     </div>
     {% include "pagination.html" %}
+
+
+        <form action="{% url 'board' name=board.slug %}" method="POST">{% csrf_token %}
+<div id="newtopic" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtopicLabel" aria-hidden="true">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<h3 id="newtopicLabel">Create a new Thread</h3>
+</div>
+<div class="modal-body">
+<input class="input-block-level" type="text" placeholder="Thread Title" name="title"></input>
+<textarea class="input-block-level" rows="10" name="content" placeholder="Enter your post content here."></textarea>
+</div>
+<div class="modal-footer">
+<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+<button class="btn btn-success" type="submit" name="topic" value="topic">Send my S.O.S.!</button>
+</div>
+</div>
+        </form>
+
 
 {% endblock body %}
 

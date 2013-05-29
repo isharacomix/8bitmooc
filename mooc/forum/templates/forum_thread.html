@@ -18,6 +18,18 @@
             </div>
             
             {% for p in posts %}
+{% if p.downvotes > 3 %}
+<div class="accordion" id="post{{p.id}}">
+<div class="accordion-group">
+    <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#selector" href="#collapse{{ p.id }}">
+This post has been hidden by default due to downvotes.
+        </a>
+    </div>
+    <div id="collapse{{ p.id }}" class="accordion-body collapse">
+        <div class="accordion-inner">
+{% endif %}
+
             <div class="media well">
                 <a class="{% cycle 'pull-left' 'pull-right' %}" href="{% url 'profile' username=p.author.username %}">
                     <img class="img-polaroid" src="{% avatar_url p.author.user 128 %}&d=retro" alt="" />
@@ -28,9 +40,30 @@
                     </article>
                     <p><small><em>Posted by <a href="{% url 'profile' username=p.author.username %}">{{ p.author.username }}</a>
                     {{ p.timestamp|timesince }} ago.</em></small></p>
+                    
+                    {% if student.ta or student.modpoints > 0 %}
+<p>
+<a href="{% url 'thread' name=board.slug thread=topic.id %}?upvote={{p.id}}&?page={{page}}" class="btn btn-success btn-mini">Upvote</a>
+<a href="{% url 'thread' name=board.slug thread=topic.id %}?downvote={{p.id}}&?page={{page}}"  class="btn btn-danger btn-mini">Downvote</a>
+</p>
+                    {% endif %}
                 </div>
             </div>
+
+{% if p.downvotes %}
+        </div>
+    </div>
+  </div>
+</div>
+{% endif %}
             {% endfor %}
+            
+            {% if student.level >= board.wrestricted or student.ta %}
+            <form action="{% url 'thread' name=board.slug thread=topic.id %}" method="POST">{% csrf_token %}
+                <textarea class="input-block-level" rows="8" name="content"></textarea>
+                <button class="btn btn-large btn-success" type="submit" name="thread" value="thread">Post</button>
+            </form>
+            {% endif %}
         </div>
     </div>
     {% include "pagination.html" %}

@@ -41,9 +41,9 @@
             <div id="emulator"></div>
     
             <div>
-            <input type="submit" name="run" value="Assemble" />
-            <input type="submit" name="download" value="Download" />
-            <button type="button" data-toggle="modal" data-target="#SOS">SOS</button>
+            <button class="btn" type="submit" name="run" value="Assemble">Assemble</button>
+            <button class="btn" type="submit" name="download" value="Download">Download</button>
+            <button class="btn" type="button" data-toggle="modal" data-target="#SOS">SOS</button>
             </div>
         
             {% if completed %}
@@ -85,7 +85,7 @@
         
 <div id="SOS" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="SOSLabel" aria-hidden="true">
 <div class="modal-header">
-<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 <h3 id="SOSLabel">Send an S.O.S.</h3>
 </div>
 <div class="modal-body">

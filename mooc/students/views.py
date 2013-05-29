@@ -116,6 +116,8 @@ def sign_in(request):
                     s.this_login = timezone.now()
                     if s.last_login is None:
                         s.last_login = s.this_login
+                    if s.last_login.day != s.this_login.day:
+                        s.modpoints = s.level
                     s.save()
                     return redirect("index")
                 else:

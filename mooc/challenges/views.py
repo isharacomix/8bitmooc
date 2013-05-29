@@ -192,14 +192,16 @@ def view_feedback(request, name):
     if "helpful" in request.GET or "unhelpful" in request.GET:
         helpful = True
         if "unhelpful" in request.GET: helpful = False
-        f = Feedback.objects.get(id=int(request.GET["helpful" if helpful else "unhelpful"]))
-        if f.sos in feedback and f.helpful is None:
-            f.helpful = helpful
-            f.save()
-            if helpful:
-                f.author.award_xp(50)
-            me.award_xp(5)
-            LogEntry.log(request, "Marked as %shelpful"%("" if helpful else "un"))
+        f_id = request.GET["helpful" if helpful else "unhelpful"]
+        if f_id.isdigit():
+            f = Feedback.objects.get(id=int(f_id))
+            if f.sos in feedback and f.helpful is None:
+                f.helpful = helpful
+                f.save()
+                if helpful:
+                    f.author.award_xp(50)
+                me.award_xp(5)
+                LogEntry.log(request, "Marked as %shelpful"%("" if helpful else "un"))
 
     
     return render(request, "feedback.html", {'challenge': challenge,

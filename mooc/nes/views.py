@@ -36,7 +36,7 @@ def view_playground(request):
     
     # If we decided we wanted to download the code then we download it.
     if "download" in request.POST and good:
-        return get_rom(request, challenge.slug)
+        return get_rom(request, "playground")
     else:
         code = "; put default code here one day"
         if 'code' in request.POST: code = request.POST['code']

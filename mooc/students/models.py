@@ -45,6 +45,11 @@ class Student(models.Model):
                                           help_text="""
                                           When true, the student has access to
                                           grading interfaces.""")
+    modpoints       = models.IntegerField("Mod Points",
+                                          default=0,
+                                          help_text="""
+                                          Mod points for upvoting posts.
+                                          """)
     twitter         = models.SlugField("Twitter",
                                        blank=True,
                                        help_text="""

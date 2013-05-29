@@ -27,10 +27,6 @@
                       </h4>
                       
                       {{ board.description|markup }}
-                      
-                      {% if new %}
-                      <p><strong>New Posts!</strong></p>
-                      {% endif %}
                     </td>
                     <td>
                     <h4> </h4>
@@ -38,7 +34,7 @@
                     <p>Last topic active: <a href="{% url 'thread' name=board.slug thread=last.id %}">{{ last.title }}</a></p>
                     {% endif %}
                     
-                    <p><small><em>{{ new }} discussions since last visit.</em></small></p>
+                    <p><small><strong><em>{{ new }} discussions since last visit.</em></strong></small></p>
                     </td>
                 </tr>
                 {% endfor %}

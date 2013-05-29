@@ -92,11 +92,6 @@ class DiscussionPost(models.Model):
     topic       = models.ForeignKey(DiscussionTopic,
                                     verbose_name="Topic",
                                     help_text="""Topic containing this post.""")
-    parent      = models.ForeignKey("DiscussionPost",
-                                    verbose_name="Parent",
-                                    null=True,
-                                    blank=True,
-                                    help_text="""This post is a reply to...""")
     upvotes     = models.IntegerField("Upvotes",
                                       default=0,
                                       help_text="""Upvotes by other students.""")
