@@ -1,17 +1,37 @@
 <div class="row">
-  <div class="span4 offset4">
+  <div class="span12">
     <center>
       <div class="pagination">
         <ul>
         <li {% if page <= 1 %}class="disabled"{% endif %}><a href="?page={{ page|add:'-1' }}">Prev</a></li>
         
-        {% if pages <= 5 %}
-        <li {% if page == 1 %}class="active"{% elif 1 > pages %}class="disabled"{% endif %}><a href="?page=1">1</a></li>
-        <li {% if page == 2 %}class="active"{% elif 2 > pages %}class="disabled"{% endif %}><a href="?page=2">2</a></li>
-        <li {% if page == 3 %}class="active"{% elif 3 > pages %}class="disabled"{% endif %}><a href="?page=3">3</a></li>
-        <li {% if page == 4 %}class="active"{% elif 4 > pages %}class="disabled"{% endif %}><a href="?page=4">4</a></li>
-        <li {% if page == 5 %}class="active"{% elif 5 > pages %}class="disabled"{% endif %}><a href="?page=5">5</a></li>
+        
+        
+        
+        <li {% if page == 1 %}class="active"{% endif %}><a href="?page=1">{% if page <= 3 %}1{% else %}...{% endif %}</a></li>
+        
+        
+        {% if page == 1 or page == 2 %}
+            {% if pages > 2 %}<li {% if page == 2 %}class="active"{% endif %}><a href="?page=2">{{ 2 }}</a></li>{% endif %}
+            {% if pages > 3 %}<li><a href="?page=3">{{ 3 }}</a></li>{% endif %}
+            {% if pages > 4 %}<li><a href="?page=4">{{ 4 }}</a></li>{% endif %}
+        {% elif page >= pages or page == pages|add:'-1' %}
+            {% if pages > 4 %}<li><a href="?page={{ pages|add:'-3' }}">{{ pages|add:'-3' }}</a></li>{% endif %}
+            {% if pages > 3 %}<li><a href="?page={{ pages|add:'-2' }}">{{ pages|add:'-2' }}</a></li>{% endif %}
+            <li {% if page == pages|add:'-1' %}class="active"{% endif %}><a href="?page={{ pages|add:'-1' }}">{{ pages|add:'-1' }}</a></li>
+        {% elif page > 2 and page|add:'1' < pages %}
+            <li><a href="?page={{ page|add:'-1' }}">{{ page|add:'-1' }}</a></li>
+            <li class="active"><a href="?page={{ pages }}">{{ page }}</a></li>
+            <li><a href="?page={{ page|add:'1' }}">{{ page|add:'1' }}</a></li>
         {% endif %}
+        
+        
+        {% if pages > 1 %}
+        <li {% if page == pages %}class="active"{% endif %}><a href="?page={{ pages }}">{% if page|add:'2' >= pages %}{{ pages }}{% else %}...{% endif %}</a></li>
+        {% endif %}
+        
+        
+        
         
         <li {% if page >= pages %}class="disabled"{% endif %}><a href="?page={{ page|add:'1' }}">Next</a></li>
         </ul>
