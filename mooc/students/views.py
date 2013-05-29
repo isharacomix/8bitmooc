@@ -31,7 +31,7 @@ def user_list(request):
     page = 0
     pagination = 99
     if "page" in request.GET and request.GET["page"].isdigit():
-        page = int(request.GET["page"])
+        page = max(0,int(request.GET["page"])-1)
     l1,l2,l3 = [],[],[]
     student_list = Student.objects.all().order_by("-level","-xp")[pagination*page:pagination*(page+1)]
     # provide other filters TODO
@@ -41,7 +41,7 @@ def user_list(request):
         else: l1.append(s)
     
     return render(request, "user_list.html", {"user_columns": (l1,l2,l3),
-                                              "page": page,
+                                              "page": page+1,
                                               'pages': (len(student_list)/pagination)+1 } )
     
 

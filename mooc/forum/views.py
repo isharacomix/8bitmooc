@@ -50,7 +50,7 @@ def view_board(request, name):
     page = 0
     pagination = 200
     if "page" in request.GET and request.GET["page"].isdigit():
-        page = int(request.GET["page"])
+        page = max(0,int(request.GET["page"])-1)
     
     # If this is a POST, we are creating a new topic. Redirect when finished.
     
@@ -68,7 +68,7 @@ def view_board(request, name):
     return render( request, "forum_topics.html", {'board': board,
                                                   'topics': topic_tuples,
                                                   'alerts': request.session.pop('alerts', []),
-                                                  'page': page,
+                                                  'page': page+1,
                                                   'pages': (len(topic_tuples)/pagination)+1 } )
 
 
@@ -95,12 +95,12 @@ def view_thread(request, name, thread):
     pages = (len(posts)/pagination)+1
     page = pages-1
     if "page" in request.GET and request.GET["page"].isdigit():
-        page = int(request.GET["page"])
+        page = max(0,int(request.GET["page"])-1)
     
     return render( request, "forum_thread.html", {'board': board,
                                                   'topic': topic,
                                                   'posts': posts[pagination*page:pagination*(page+1)],
                                                   'alerts': request.session.pop('alerts', []),
-                                                  'page': page,
+                                                  'page': page+1,
                                                   'pages': pages })
     

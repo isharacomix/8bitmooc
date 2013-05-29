@@ -55,10 +55,10 @@ def games_list(request):
     page = 0
     pagination = 200
     if "page" in request.GET and request.GET["page"].isdigit():
-        page = int(request.GET["page"])
+        page = max(0,int(request.GET["page"])-1)
     game_list = Game.objects.all().order_by("-hits")[pagination*page:pagination*(page+1)]
     return render(request, "arcade_list.html", {'games': game_list,
-                                                'page': page,
+                                                'page': page+1,
                                                 'pages': (len(game_list)/pagination)+1 } )
 
 

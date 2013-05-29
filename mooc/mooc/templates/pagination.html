@@ -3,11 +3,17 @@
     <center>
       <div class="pagination">
         <ul>
-        <li {% if page <= 0 %}class="disabled"{% endif %}><a href="?page={{ page|add:'-1' }}">Prev</a></li>
+        <li {% if page <= 1 %}class="disabled"{% endif %}><a href="?page={{ page|add:'-1' }}">Prev</a></li>
         
+        {% if pages <= 5 %}
+        <li {% if page == 1 %}class="active"{% elif 1 > pages %}class="disabled"{% endif %}><a href="?page=1">1</a></li>
+        <li {% if page == 2 %}class="active"{% elif 2 > pages %}class="disabled"{% endif %}><a href="?page=2">2</a></li>
+        <li {% if page == 3 %}class="active"{% elif 3 > pages %}class="disabled"{% endif %}><a href="?page=3">3</a></li>
+        <li {% if page == 4 %}class="active"{% elif 4 > pages %}class="disabled"{% endif %}><a href="?page=4">4</a></li>
+        <li {% if page == 5 %}class="active"{% elif 5 > pages %}class="disabled"{% endif %}><a href="?page=5">5</a></li>
+        {% endif %}
         
-        
-        <li {% if page|add:"1" >= pages %}class="disabled"{% endif %}><a href="?page={{ page|add:'1' }}">Next</a></li>
+        <li {% if page >= pages %}class="disabled"{% endif %}><a href="?page={{ page|add:'1' }}">Next</a></li>
         </ul>
       </div>
     </center>
