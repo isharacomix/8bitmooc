@@ -6,8 +6,6 @@
         <li {% if page <= 0 %}class="disabled"{% endif %}><a href="?page={{ page|add:'-1' }}">Prev</a></li>
         
         
-
-        
         
         <li {% if page|add:"1" >= pages %}class="disabled"{% endif %}><a href="?page={{ page|add:'1' }}">Next</a></li>
         </ul>

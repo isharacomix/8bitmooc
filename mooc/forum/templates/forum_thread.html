@@ -1,4 +1,5 @@
 {% extends "layout_base.html" %}
+{% load avatar_tags %}
 {% load markup %}
 
 {% block title %}Thread: {{ topic.name }}{% endblock title %}
@@ -6,10 +7,33 @@
 {% block body %}
 
     <div class="row">
-        <div class="span8">
-            Topic
+        <div class="span10 offset1">
+            <h1>{{ topic.title }}</h1>
+            <div>
+                <ul class="nav nav-pills">
+                <li><a href="{% url 'forums' %}">Back to List</a></li>
+                <li><a href="{% url 'board' name=board.slug %}">Discussion Board</a></li>
+                <li class="active"><a href="#">Thread</a></li>
+                </ul>
+            </div>
+            
+            {% for p in posts %}
+            <div class="media well">
+                <a class="{% cycle 'pull-left' 'pull-right' %}" href="{% url 'profile' username=p.author.username %}">
+                    <img class="img-polaroid" src="{% avatar_url p.author.user 128 %}&d=retro" alt="" />
+                </a>
+                <div class="media-body">
+                    <article>
+                    {{ p.content|minimarkup }}
+                    </article>
+                    <p><small><em>Posted by <a href="{% url 'profile' username=p.author.username %}">{{ p.author.username }}</a>
+                    {{ p.timestamp|timesince }} ago.</em></small></p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
+    {% include "pagination.html" %}
 
 {% endblock body %}
 

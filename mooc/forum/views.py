@@ -53,6 +53,9 @@ def view_board(request, name):
         page = int(request.GET["page"])
     
     # If this is a POST, we are creating a new topic. Redirect when finished.
+    
+    # Get all of the topics, along with the last person who commented on them
+    # and when that was.
     topic_tuples = []
     for t in DiscussionTopic.objects.filter(hidden=False, board=board)[pagination*page:pagination*(page+1)]:
         posts = DiscussionPost.objects.filter(topic=t, hidden=False).order_by("-timestamp")
@@ -83,7 +86,21 @@ def view_thread(request, name, thread):
         topic = DiscussionTopic.objects.get(id=thread, board=board)
     except exceptions.ObjectDoesNotExist: raise Http404()
     
-    # If this is a POST, we are replying to someone.
+    # If this is a POST, we are replying to someone. Post the string and
+    # redirect.
     
-    return render( request, "forum_thread.html", {'alerts': request.session.pop('alerts', []) })
+    # Get all of the posts. Start on the last page by default.
+    pagination = 20
+    posts = DiscussionPost.objects.filter(hidden=False, topic=topic)
+    pages = (len(posts)/pagination)+1
+    page = pages-1
+    if "page" in request.GET and request.GET["page"].isdigit():
+        page = int(request.GET["page"])
+    
+    return render( request, "forum_thread.html", {'board': board,
+                                                  'topic': topic,
+                                                  'posts': posts[pagination*page:pagination*(page+1)],
+                                                  'alerts': request.session.pop('alerts', []),
+                                                  'page': page,
+                                                  'pages': pages })
     
