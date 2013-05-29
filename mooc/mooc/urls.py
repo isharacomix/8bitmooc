@@ -11,6 +11,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', views.view_index, name='index'),
     url(r'^search/$', views.search, name='search'),
+    url(r'^chat/$', views.webchat, name='chat'),
     
     url(r'^project/', views.view_index, name='project_list'),
     url(r'^project/(?P<name>[\w-]+)/', views.view_index, name='project'),

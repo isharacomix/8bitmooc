@@ -50,3 +50,8 @@ def search(request):
                    'alerts': request.session.pop('alerts', []) })
 
 
+# View the embedded IRC!
+def webchat(request):
+    LogEntry.log(request, "chat")
+    return render(request, "chat.html")
+
