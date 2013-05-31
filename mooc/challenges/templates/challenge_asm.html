@@ -16,7 +16,6 @@
     <div class="row">
         <form name="input" action="{% url 'challenge' name=challenge.slug %}" method="post">{% csrf_token %}
         <div class="span8">
-
         
             <div>
                 <div>
@@ -35,7 +34,7 @@
         
         
         <div class="span4">
-    
+    <p><a class="btn {% if not feedback %}disabled{% endif %}" href="{% url 'feedback' name=challenge.slug %}">View Feedback</a></p>
         
             <div id="emulator"></div>
     

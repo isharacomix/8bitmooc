@@ -20,9 +20,10 @@
 
             <div class="well">
             {% if submit_ok %}
-                Enter the link to your submission on the Jam website here. You will
-                need to wait until the instructor is able to visit your submission
-                and evaluate it before the challenge will be marked as complete.
+                Follow the instructions above and enter the link that corresponds
+                to the game jam entry here. You will need to wait until the
+                instructor is able to visit your submission and evaluate it before
+                the challenge will be marked as complete.
                 
                 <p>
                 <form class="form-inline" action="{% url 'challenge' name=challenge.slug %}" method="POST">{% csrf_token %}
@@ -39,6 +40,7 @@
                     <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
                 {% endif %}
             {% endif %}
+        <p><a class="btn {% if not feedback %}disabled{% endif %}" href="{% url 'feedback' name=challenge.slug %}">View Feedback</a></p>
             </div>
         </div>
     </div>

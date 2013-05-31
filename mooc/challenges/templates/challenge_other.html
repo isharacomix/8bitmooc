@@ -30,6 +30,7 @@
                 <p>When you complete the requirements for this challenge,
                 it will be automatically marked as completed.</p>
             {% endif %}
+        <p><a class="btn {% if not feedback %}disabled{% endif %}" href="{% url 'feedback' name=challenge.slug %}">View Feedback</a></p>
             </div>
         </div>
     </div>
