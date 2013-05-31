@@ -6,6 +6,14 @@
 
 {% block title %}{{ student.username }}'s Profile{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'users' %}">User List</a> <span class="divider">/</span></li>
+    <li class="active">{{ student.username }}</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">

@@ -3,18 +3,20 @@
 
 {% block title %}Feedback for {{ challenge.name }}{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'challenge_list' %}">Challenge List</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'challenge' name=challenge.slug %}">Challenge</a> <span class="divider">/</span></li>
+    <li class="active">Feedback</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">
-        <div class="span8">
-            <div>
-                <ul class="nav nav-pills">
-                <li><a href="{% url 'challenge_list' %}">Back to List</a></li>
-                <li><a href="{% url 'challenge' name=challenge.slug %}">Challenge</a></li>
-                <li class="active"><a href="#">Feedback</a></li>
-                </ul>
-            </div>
-        
+      <div class="span8">
+
         <div class="accordion" id="feedbacks">
         {% for sos in feedback %}
         <div class="accordion-group">
@@ -46,7 +48,7 @@ View Feedback
         </div>
         {% endfor %}
         </div>
-        </div>
+      </div>
     </div>
 
 {% endblock body %}

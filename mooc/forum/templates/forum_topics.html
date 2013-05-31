@@ -4,17 +4,19 @@
 
 {% block title %}Community: {{ board.name }}{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'forums' %}">Forums</a> <span class="divider">/</span></li>
+    <li class="active">Discussion Board</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">
         <div class="span10 offset1">
             <h1>{{ board.name }}</h1>
-            <div>
-                <ul class="nav nav-pills">
-                <li><a href="{% url 'forums' %}">Back to List</a></li>
-                <li class="active"><a href="#">Discussion Board</a></li>
-                </ul>
-            </div>
             
             <table class="table table-striped">
                 <tr>

@@ -4,18 +4,20 @@
 
 {% block title %}Thread: {{ topic.name }}{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'forums' %}">Forums</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'board' name=board.slug %}">Discussion Board</a> <span class="divider">/</span></li>
+    <li class="active">Discussion Thread</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">
         <div class="span10 offset1">
             <h1>{{ topic.title }}</h1>
-            <div>
-                <ul class="nav nav-pills">
-                <li><a href="{% url 'forums' %}">Back to List</a></li>
-                <li><a href="{% url 'board' name=board.slug %}">Discussion Board</a></li>
-                <li class="active"><a href="#">Thread</a></li>
-                </ul>
-            </div>
             
             {% for p in posts %}
 {% if p.downvotes > 3 %}

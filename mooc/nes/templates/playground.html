@@ -4,6 +4,13 @@
 
 {% block title %}Playground{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li class="active">Playground</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">

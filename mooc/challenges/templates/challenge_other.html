@@ -3,19 +3,18 @@
 
 {% block title %}Challenge: {{ challenge.name }}{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'challenge_list' %}">Challenge List</a> <span class="divider">/</span></li>
+    <li class="active">Challenge</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">
         <div class="span8">
-            <div>
-                <ul class="nav nav-pills">
-                <li><a href="{% url 'challenge_list' %}">Back to List</a></li>
-                <li class="active"><a href="#">Challenge</a></li>
-                {% if feedback %}
-                <li><a href="{% url 'feedback' name=challenge.slug %}">Feedback</a></li>
-                {% endif %}
-                </ul>
-            </div>
         
             {{ challenge.description|markup }}
 

@@ -3,6 +3,14 @@
 
 {% block title %}SOS: {{ challenge.name }}{% endblock title %}
 
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'challenge_list' %}">Challenge List</a> <span class="divider">/</span></li>
+    <li class="active">SOS</li>
+</ul>
+{% endblock breadcrumbs %}
+
 {% block body %}
 
     <div class="row">
