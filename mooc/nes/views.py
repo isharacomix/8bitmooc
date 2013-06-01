@@ -33,22 +33,23 @@ def view_playground(request):
         CR.code = code
         CR.save()
 
-        good = assembler.assemble_and_store(request, code)
+        good = assembler.assemble_and_store(request, "playground", code)
+        if "download" in request.POST and good:
+            return redirect("rom")
+        else:
+            return redirect("playground")
     
-    # If we decided we wanted to download the code then we download it.
-    if "download" in request.POST and good:
-        return get_rom(request, "playground")
-    else:
-        code = "; put default code here one day"
-        if 'code' in request.POST: code = request.POST['code']
-        elif 'source' in request.GET:
-            try: code = Game.objects.get(id=int(request.GET['source'])).code
-            except: pass
-        elif me:
-            subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
-            if len(subs) > 0: code = subs[0].code
-        return render(request, "playground.html", {'alerts': request.session.pop('alerts', []),
-                                                   'code': code} )
+    # Render the page.
+    code = "; put default code here one day"
+    if 'code' in request.POST: code = request.POST['code']
+    elif 'source' in request.GET:
+        try: code = Game.objects.get(id=int(request.GET['source'])).code
+        except: pass
+    elif me:
+        subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
+        if len(subs) > 0: code = subs[0].code
+    return render(request, "playground.html", {'alerts': request.session.pop('alerts', []),
+                                               'code': code} )
 
 
 # This displays a list of games that people can play, organized by popularity.
@@ -69,7 +70,7 @@ def play_game(request, id):
     try: game = Game.objects.get(id=id)
     except exceptions.ObjectDoesNotExist: return redirect("arcade")
     
-    good = assembler.assemble_and_store(request, game.code, game.pattern)
+    good = assembler.assemble_and_store(request, slugify(game.title), game.code, game.pattern)
     request.session.pop('alerts', [])
     
     game.hits += 1
@@ -79,16 +80,16 @@ def play_game(request, id):
     if not good:
         return redirect("arcade")
     elif "download" in request.GET:
-        return get_rom(request, slugify(game.title))
+        return redirect("rom")
     else:
         return render(request, "arcade.html", {'game': game} )
 
 
 # The get_rom view simply returns the current ROM that is in the session
 # variables.
-def get_rom(request, name="untitled"):
-    if 'name' in request.GET: name = request.GET['name']
-    
+def get_rom(request):
+    name = "untitled"
+    if "rom_name" in request.session: name = request.session["rom_name"]
     if "rom" in request.session and request.session["rom"] != "":
         response = HttpResponse(request.session["rom"], content_type='application/x-nes-rom')
         response['Content-Disposition'] = 'attachment; filename=%s.nes'%name

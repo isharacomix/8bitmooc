@@ -464,7 +464,7 @@ class Assembler(object):
 # This function assembles a ROM and stores it in the session parameter. Returns
 # True if successful and false if there are compilation errors. This function
 # will also take assembly constraints (based on user level, etc) into account.
-def assemble_and_store(request, code, pattern=None, preamble="", postamble=""):
+def assemble_and_store(request, name, code, pattern=None, preamble="", postamble=""):
     A = Assembler()
     
     # Try to get the pattern by the name specifed.
@@ -476,6 +476,7 @@ def assemble_and_store(request, code, pattern=None, preamble="", postamble=""):
     # a None will be stored in its place (successfully resulting in a 404).
     rom, errors = A.assemble( code, pattern, preamble, postamble )
     request.session["rom"] = rom
+    request.session["rom_name"] = name
     
     # Collect the alerts and store them in the 
     if "alerts" not in request.session: request.session["alerts"] = []

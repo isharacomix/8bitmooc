@@ -42,6 +42,6 @@ class TestNESViews(TestCase):
         response = self.c.get("/play/1/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("http://twitter.com/isharacomix" in response.content)
-        response = self.c.get("/play/1/?download")
+        response = self.c.get("/play/1/?download", follow=True)
         self.assertEqual(response.status_code, 200)
 

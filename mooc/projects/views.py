@@ -77,12 +77,12 @@ def view_project(request, id):
     
     # If this is a POST request, we are likely compiling code. If it is a GET
     # request, we are probably watching the project.
-    good = assembler.assemble_and_store(request, project.code, project.pattern)
+    good = assembler.assemble_and_store(request, slugify(project.name), project.code, project.pattern)
     
     
     # If we decided we wanted to download the code then we download it.
     if "download" in request.POST and good:
-        return get_rom(request, slugify(project.name) )
+        return get_rom(request)
     else:
         return render(request, "project.html", {'alerts': request.session.pop('alerts', []),
                                                 'project': project,

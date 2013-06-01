@@ -27,7 +27,7 @@
                 
                 <p>
                 <form class="form-inline" action="{% url 'challenge' name=challenge.slug %}" method="POST">{% csrf_token %}
-                    <input type="text" name="url" class="input" placeholder="http://example.com/game-url-here/"  />
+                    <input type="text" name="url" class="input" placeholder="{% if url %}{{ url }}{% else %}http://example.com/game-url-here/{% endif %}"  />
                     <button type="submit" class="btn btn-success" name="jam" value="jam">Submit</button>
                 </form>
                 </p>

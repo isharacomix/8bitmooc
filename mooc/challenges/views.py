@@ -123,50 +123,49 @@ def view_challenge(request, name):
     if request.method == "POST":
         if challenge.autograde: do_asm_challenge(request, me, challenge)
         elif challenge.is_jam: do_jam_challenge(request, me, challenge)
-    
-    # Display the correct challenge page depending on whether it's autograded
-    # or a URL.
-    if challenge.autograde:
         if "download" in request.POST:
             good = True
             for e in request.session['alerts']:
                 if e[0] == 'alert-error': good = False
-            if good: return get_rom(request, challenge.slug)
+            if good: return redirect("rom")
         else:
-            code = ""
-            if 'code' in request.POST: code = request.POST['code']
-            else:
-                subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
-                if len(subs) > 0: code = subs[0].code
-            
-            # Get the record speeds and sizes for everything.
-            my_size, my_speed = None, None
-            best_size, best_speed = None, None
-            completed = False
-            
-            records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('-rom_size')
-            if len(records) > 0:
-                best_size = records[0].rom_size
-                records = records.order_by('-runtime')
-                best_speed = records[0].runtime
-            records = records.filter(student=me).order_by('-rom_size')
-            if len(records) > 0:
-                my_size = records[0].rom_size
-                records = records.order_by('-runtime')
-                my_speed = records[0].runtime
-                completed = True
-            
-            # Try to load up the best submissions by everyone.
-            return render(request, "challenge_asm.html", {'challenge': challenge,
-                                                          'alerts': request.session.pop('alerts', []),
-                                                          'code': code,
-                                                          'my_size': my_size,
-                                                          'my_speed': my_speed,
-                                                          'best_size': best_size,
-                                                          'best_speed': best_speed,
-                                                          'completed': completed,
-                                                          'badge_domain': settings.ISSUER_DOMAIN,
-                                                          'feedback': feedback} )
+            return redirect("challenge", name=challenge.slug)
+    
+    # Display the correct challenge page depending on whether it's autograded
+    # or a URL.
+    if challenge.autograde:
+        code = ""
+        subs = ChallengeResponse.objects.filter(student=me, challenge=challenge).order_by('-timestamp')
+        if len(subs) > 0: code = subs[0].code
+        
+        # Get the record speeds and sizes for everything.
+        my_size, my_speed = None, None
+        best_size, best_speed = None, None
+        completed = False
+        
+        records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('-rom_size')
+        if len(records) > 0:
+            best_size = records[0].rom_size
+            records = records.order_by('-runtime')
+            best_speed = records[0].runtime
+        records = records.filter(student=me).order_by('-rom_size')
+        if len(records) > 0:
+            my_size = records[0].rom_size
+            records = records.order_by('-runtime')
+            my_speed = records[0].runtime
+            completed = True
+        
+        # Try to load up the best submissions by everyone.
+        return render(request, "challenge_asm.html", {'challenge': challenge,
+                                                      'alerts': request.session.pop('alerts', []),
+                                                      'code': code,
+                                                      'my_size': my_size,
+                                                      'my_speed': my_speed,
+                                                      'best_size': best_size,
+                                                      'best_speed': best_speed,
+                                                      'completed': completed,
+                                                      'badge_domain': settings.ISSUER_DOMAIN,
+                                                      'feedback': feedback} )
                                                           
     elif challenge.is_jam:
         # Grey out the submission if the student has already submitted a link for
@@ -304,7 +303,7 @@ def view_sos(request, name):
     # Filtering is now over. Time to render.
     request.session["sos-id"] = str(target.id)
     if challenge.autograde:
-        assembler.assemble_and_store(request, target.submission.code, challenge.pattern,
+        assembler.assemble_and_store(request, "challenge", target.submission.code, challenge.pattern,
                                      challenge.preamble, challenge.postamble)
         return render(request, "sos_asm.html", {'challenge': challenge,
                                                 'alerts': request.session.pop('alerts', []),
@@ -330,7 +329,7 @@ def do_asm_challenge(request, student, challenge):
     CR.save()
     
     # Only try to autograde if the program compiles.
-    if assembler.assemble_and_store(request, code, challenge.pattern,
+    if assembler.assemble_and_store(request, "challenge", code, challenge.pattern,
                                     challenge.preamble, challenge.postamble):
         
         completed = student in challenge.completed_by.all()
@@ -396,7 +395,6 @@ def do_jam_challenge(request, student, challenge):
         CR.save()
         request.session['alerts'].append(('alert-success',
                                           'Jam URL updated.'))
-
 
 
 # The badge issuer just returns basic information about #8bitmooc in JSON

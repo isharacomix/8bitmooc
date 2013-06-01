@@ -60,6 +60,8 @@
             <button class="btn" type="submit" name="download" value="Download">Download</button>
             {% if user.student == project.owner %}
             <button class="btn btn-success" type="submit" name="publish" value="publish">Publish</button>
+            {% elif %}
+            <button class="btn btn-success" type="submit" name="fork" value="fork">Fork</button>
             {% endif %}
             </div>
         
