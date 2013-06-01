@@ -110,33 +110,30 @@ def view_thread(request, name, thread):
     except exceptions.ObjectDoesNotExist: raise Http404()
     if not me.ta and (topic.hidden or board.restricted > me.level): raise Http404()
     
-    # If this is a POST, we are replying to someone. Post the string and
-    # redirect.
-    if request.method == "POST" and (me.level >= board.wrestricted or me.ta):
-        p = DiscussionPost()
-        p.topic = topic
-        p.author = me
-        p.content = str(request.POST.get("content"))
-        p.save()
-        topic.save()
-        return redirect( "thread", name=board.slug, thread=topic.id )
-
-    # Upvotes and downvotes are done by GET requests. We have to redirect to
-    # avoid refreshes doing repeat votes.
-    if "upvote" in request.GET or "downvote" in request.GET:
-        upvote = True
-        if "downvote" in request.GET: upvote = False
-        p_id = request.GET["upvote" if upvote else "downvote"]
-        if p_id.isdigit() and (me.modpoints > 0 or me.ta):
-            p = DiscussionPost.objects.get(id=int(p_id))
-            if upvote: p.upvotes += 1
-            else:      p.downvotes += 1
-            request.session["alerts"].append(("alert-success","Post %s."%("upvoted" if upvote else "downvoted")))
-            LogEntry.log(request, "Thread %s"%("upvoted" if upvote else "downvoted"))
+    # If this is a POST, we are either replying to someone or we are voting.
+    # Manage permissions respectively and redirect.
+    if request.method == "POST":
+        if "thread" in request.POST and (me.level >= board.wrestricted or me.ta):
+            p = DiscussionPost()
+            p.topic = topic
+            p.author = me
+            p.content = str(request.POST.get("content"))
             p.save()
-            me.modpoints -= 1
-            me.award_xp(1)
-            me.save()
+            topic.save()
+        elif "upvote" in request.POST or "downvote" in request.POST:
+            upvote = True
+            if "downvote" in request.POST: upvote = False
+            p_id = request.POST["upvote" if upvote else "downvote"]
+            if p_id.isdigit() and (me.modpoints > 0 or me.ta):
+                p = DiscussionPost.objects.get(id=int(p_id))
+                if upvote: p.upvotes += 1
+                else:      p.downvotes += 1
+                request.session["alerts"].append(("alert-success","Post %s."%("upvoted" if upvote else "downvoted")))
+                LogEntry.log(request, "Thread %s"%("upvoted" if upvote else "downvoted"))
+                p.save()
+                me.modpoints -= 1
+                me.award_xp(1)
+                me.save()
         return redirect( "thread", name=board.slug, thread=topic.id )
     
     # Get all of the posts. Start on the last page by default.

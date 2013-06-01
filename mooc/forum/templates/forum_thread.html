@@ -16,6 +16,7 @@
 {% block body %}
 
     <div class="row">
+    <form action="{% url 'thread' name=board.slug thread=topic.id %}" method="POST">{% csrf_token %}
         <div class="span10 offset1">
             <h1>{{ topic.title }}</h1>
             
@@ -44,29 +45,27 @@ This post has been hidden by default due to downvotes.
                     {{ p.timestamp|timesince }} ago.</em></small></p>
                     
                     {% if student.ta or student.modpoints > 0 %}
-<p>
-<a href="{% url 'thread' name=board.slug thread=topic.id %}?upvote={{p.id}}&?page={{page}}" class="btn btn-success btn-mini">Upvote</a>
-<a href="{% url 'thread' name=board.slug thread=topic.id %}?downvote={{p.id}}&?page={{page}}"  class="btn btn-danger btn-mini">Downvote</a>
-</p>
+                    <p>
+                    <button class="btn btn-success btn-mini" type="submit" name="upvote" value="{{p.id}}">Upvote</button>
+                    <button class="btn btn-danger btn-mini" type="submit" name="downvote" value="{{p.id}}">Downvote</button>
+                    </p>
                     {% endif %}
                 </div>
             </div>
 
-{% if p.downvotes %}
+{% if p.downvotes > 3 %}
         </div>
-    </div>
-  </div>
-</div>
+
 {% endif %}
             {% endfor %}
             
             {% if student.level >= board.wrestricted or student.ta %}
-            <form action="{% url 'thread' name=board.slug thread=topic.id %}" method="POST">{% csrf_token %}
                 <textarea class="input-block-level" rows="8" name="content"></textarea>
                 <button class="btn btn-large btn-success" type="submit" name="thread" value="thread">Post</button>
-            </form>
             {% endif %}
+
         </div>
+    </form>
     </div>
     {% include "pagination.html" %}
 
