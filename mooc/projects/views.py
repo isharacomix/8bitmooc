@@ -86,6 +86,7 @@ def view_project(request, id):
     else:
         return render(request, "project.html", {'alerts': request.session.pop('alerts', []),
                                                 'project': project,
-                                                'patterns': Pattern.objects.all()} )
+                                                'patterns': Pattern.objects.all(),
+                                                'can_edit': me==project.owner or me in project.team.all()} )
     
     

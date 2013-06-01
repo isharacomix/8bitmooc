@@ -7,8 +7,13 @@
     //asmEditor.getSession().setMode("ace/mode/javascript");
     asmEditor.getSession().setTabSize(4);
     asmEditor.getSession().setUseSoftTabs(true);
+    
 
     var asmTextarea = $(document.getElementById("assembly-text")).hide();
+    if(document.getElementById("assembly-text").disabled)
+    {
+        asmEditor.setReadOnly(true);
+    }
 
     asmEditor.getSession().setValue(asmTextarea.val());
     asmEditor.getSession().on('change', function () {

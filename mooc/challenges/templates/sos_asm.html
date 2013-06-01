@@ -20,7 +20,8 @@
                     {{ challenge.description|markup }}
                 </div>
 
-<textarea class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ sos.submission.code }}</textarea>
+<div id="assembly-editor" style="width: 100%; height: 30em;"></div>
+<textarea class="input-block-level code-input" rows="20" name="code" disabled wrap="soft">{{ sos.submission.code }}</textarea>
             </div>
             
             
@@ -29,8 +30,7 @@
                 provide a complete answer that addresses their question, referencing
                 course material and where that material comes from without revealing
                 the solution to the assignment. If you answer questions well, you
-                may even earn a reward! Changes to the code above will not be
-                shared with the student - only what you type below.</p>
+                may even earn a reward!</p>
                 
                 
                 <div class="well">
@@ -73,4 +73,5 @@
 
 {% block scripts %}
     {% include "nes.html" %}
+    {% include "ace.html" %}
 {% endblock scripts %}
