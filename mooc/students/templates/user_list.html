@@ -14,6 +14,13 @@
 
     <div class="row">
 
+        <ul class="nav nav-pills">
+        <li {% if filter == "all" %}class="active"{% endif %} ><a href="?filter=all">All Students</a></li>
+        <li {% if filter == "collab" %}class="active"{% endif %} ><a href="?filter=collab">Collaborators</a></li>
+        <li {% if filter == "teachers" %}class="active"{% endif %} ><a href="?filter=teachers">Teachers</a></li>
+        <li {% if filter == "blocked" %}class="active"{% endif %} ><a href="?filter=blocked">Blocked</a></li>
+        </ul>
+
         {% for user_list in user_columns %}
         <div class="span4">
             {% for s in user_list %}

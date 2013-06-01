@@ -13,7 +13,13 @@
 {% block body %}
 
     <div class="row">
-
+        <ul class="nav nav-pills">
+        <li {% if filter == "incomplete" %}class="active"{% endif %} ><a href="?filter=incomplete">Incomplete Projects</a></li>
+        <li {% if filter == "size" %}class="active"{% endif %} ><a href="?filter=size">Size Records</a></li>
+        <li {% if filter == "speed" %}class="active"{% endif %} ><a href="?filter=speed">Speed Records</a></li>
+        <li {% if filter == "sos" %}class="active"{% endif %} ><a href="?filter=sos">Help Needed</a></li>
+        <li {% if filter == "all" %}class="active"{% endif %} ><a href="?filter=all">All Challenges</a></li>
+        </ul>
         
         {% for challenge_list in challenge_columns %}
         <div class="span6">

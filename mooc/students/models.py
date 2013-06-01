@@ -55,7 +55,8 @@ class Student(models.Model):
                                        help_text="""
                                        The student's Twitter handle, withou the
                                        '@' symbol.""")
-    blocked_by      = models.ManyToManyField("Student",
+    blocked_by      = models.ManyToManyField("self",
+                                             symmetrical=False,
                                              verbose_name="Blocked By",
                                              blank=True,
                                              help_text="""
@@ -120,6 +121,20 @@ class Student(models.Model):
             self.save()
             return True
         return False
+    
+    # Return all of the students on projects with this one.
+    def collaborators(self):
+        collaborators = []
+        my_projects = self.owns.all()
+        for p in my_projects:
+            for c in p.team.all():
+                if c not in collaborators: collaborators.append(c)
+        all_projects = self.works_on.all()
+        for p in all_projects:
+            if p.owner not in collaborators: collaborators.append(p.owner)
+            for c in p.team.all():
+                if c not in collaborators and c is not self: collaborators.append(c)
+        return collaborators
     
     # Grab the Student out of the request. Returns None if a student is
     # not logged in. If redirect is True, then an error message will be

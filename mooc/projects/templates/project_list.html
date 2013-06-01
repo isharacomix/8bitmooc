@@ -31,13 +31,14 @@
             <tr>
                 <td><a href="{% url 'project' id=p.id %}">{{ p.name }}</a>
                     {% if user.student == p.owner or user.student in p.team.all %}<i class="icon-edit"></i>{% endif %}
-                    {% if user.student in p.watched_by.all %}<i class="icon-star"></i>{% endif %}
+                    {% if user.student in p.watched_by.all %}<i class="icon-star-empty"></i>{% endif %}
                 </td>
                 <td>Last edited {{ p.last_edited|timesince }}</td>
             </tr>
             {% endfor %}
         
         </table>
+        <a href="#" class="btn btn-success"><i class="icon-plus-sign icon-white"></i> Start a new project</a>
       </div>
       
       <div class="span4">

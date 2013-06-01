@@ -27,22 +27,36 @@ def user_list(request):
         request.session["alerts"].append(("alert-error","Please sign in first."))
         return redirect("sign-in")
     
-    # Break students into 3 columns
-    page = 0
+    # Get all of the GET parameters.
+    filt = request.GET.get("filter")
+    page = request.GET.get("page")
+    if page and page.isdigit(): page = max(0, int(page)-1)
+    else: page = 0
     pagination = 99
-    if "page" in request.GET and request.GET["page"].isdigit():
-        page = max(0,int(request.GET["page"])-1)
+    
+    # Get the students
+    student_list = []
+    if filt == "teachers":
+        student_list += list(Student.objects.filter(ta=True).order_by("-level","-xp"))
+    elif filt == "collab":
+        student_list += list(me.collaborators()) 
+    elif filt == "blocked":
+        student_list += list(me.student_set.all()) 
+    else:
+        student_list += list(Student.objects.all().order_by("-level","-xp"))
+        filt = "all"
+    
+    # Break the students into three columns
     l1,l2,l3 = [],[],[]
-    student_list = Student.objects.all().order_by("-level","-xp")[pagination*page:pagination*(page+1)]
-    # provide other filters TODO
-    for s in student_list:
+    for s in student_list[pagination*page:pagination*(page+1)]:
         if len(l2) > len(l3): l3.append(s)
         elif len(l1) > len(l2): l2.append(s)
         else: l1.append(s)
     
     return render(request, "user_list.html", {"user_columns": (l1,l2,l3),
                                               "page": page+1,
-                                              'pages': (len(student_list)/pagination)+1 } )
+                                              'pages': (len(student_list)/pagination)+1,
+                                              "filter": filt } )
     
 
 # Display a fancy user profile including stuff like their progress in the
@@ -66,29 +80,17 @@ def user_profile(request, username):
             me.public_email = data["email"]
             me.twitter = data["twitter"]
             me.save()
+            return redirect( "profile", username=me.username )
         else:
             request.session["alerts"].append(("alert-error",
                                               "There were some issues with your profile update."))
             for e in form.non_field_errors():
                 alerts.append( ("alert-error", e ) )
-        return redirect( "profile", username=me.username )
-    
-    # Find out all of the people this person has ever worked with.
-    collaborators = []
-    my_projects = student.owns.all()
-    for p in my_projects:
-        for c in p.team.all():
-            if c not in collaborators: collaborators.append(c)
-    all_projects = student.works_on.all()
-    for p in all_projects:
-        if p.owner not in collaborators: collaborators.append(p.owner)
-        for c in p.team.all():
-            if c not in collaborators and c is not student: collaborators.append(c)
     
     # Render the magic.
     projects = list(my_projects.filter(is_public=True))+list(all_projects.filter(is_public=True))
     return render(request, "user_profile.html", {"student": student,
-                                                 "collaborators": collaborators,
+                                                 "collaborators": student.collaborators(),
                                                  "projects": projects,
                                                  "form": form,
                                                  'alerts': request.session.pop('alerts', []) } )

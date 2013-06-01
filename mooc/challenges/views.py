@@ -30,12 +30,19 @@ def challenge_list(request):
         request.session["alerts"].append(("alert-error","Please sign in first."))
         return redirect("sign-in")   
     
+    # Get GET parameters, pagination and filters
+    filt = request.GET.get("filter")
+    page = request.GET.get("page")
+    if page and page.isdigit(): page = max(0, int(page)-1)
+    else: page = 0
+    pagination = 20 #not used
+    
     # First get all of the challenges that match the user's level. Then create
     # a challenge list tuple that contains the challenge, whether the challenge
     # has been successfully completed, the records for size and speed, and the
     # number of SOSses.
     challenge_list = []
-    complete_set = me.challenge_set.all() #TODO filters
+    complete_set = me.challenge_set.all()
     for c in Challenge.objects.filter(difficulty__lte=me.level):
         if c in complete_set or (not c.expired and (not c.prereq or c.prereq in complete_set)):
             complete = c in complete_set
@@ -59,13 +66,29 @@ def challenge_list(request):
             sos = len( SOS.objects.filter(active=True, challenge=c).exclude(student=me) )
             challenge_list.append( (c, complete, my_size, my_size==best_size, my_speed, my_speed==best_speed, sos) )
     
-    # Break the challenges into two columns.
+    # Filter challenges.
+    filtered_list = []
+    if filt == "all":
+        filtered_list = challenge_list
+    elif filt == "size":
+        filtered_list = [c for c in challenge_list if not c[3]]
+    elif filt == "speed":
+        filtered_list = [c for c in challenge_list if not c[5]]
+    elif filt == "sos":
+        filtered_list = [c for c in challenge_list if c[6]]
+    else:
+        filtered_list = [c for c in challenge_list if not c[1]]
+        filt = "incomplete"
+    
+    # Break the challenges into two columns. If we decide to do pagination, do it
+    # here.
     l1, l2 = [], []
-    for c in challenge_list:
+    for c in filtered_list:
         if len(l1) > len(l2): l2.append(c)
         else: l1.append(c)
     return render( request, "challenge_list.html", {'challenge_columns':(l1,l2),
-                                                    'alerts': request.session.pop('alerts', []) })
+                                                    'alerts': request.session.pop('alerts', []),
+                                                    'filter': filt })
                    
 
 # Display the challenge for the users.
