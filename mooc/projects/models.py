@@ -20,9 +20,6 @@ class Project(models.Model):
                                       default=0,
                                       help_text="""The version number - is
                                       incremented with each publication.""")
-    description = models.TextField("Description",
-                                   help_text="""Description of the project in
-                                   minimarkdown.""")
     owner       = models.ForeignKey(Student,
                                     verbose_name="Owner",
                                     related_name="owns",

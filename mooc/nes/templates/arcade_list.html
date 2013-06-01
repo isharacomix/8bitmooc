@@ -22,7 +22,7 @@
             </tr>
             {% for g in games %}
             <tr>
-                <td><a href="{% url 'play' id=g.id %}">{{g.title}}</a></td>
+                <td><a href="{% url 'play' id=g.id %}">{{g.name}}</a></td>
                 <td>
                 {% for a in g.authors.all %}
                     {% if a.twitter %}

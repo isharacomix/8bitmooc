@@ -468,9 +468,7 @@ def assemble_and_store(request, name, code, pattern=None, preamble="", postamble
     A = Assembler()
     
     # Try to get the pattern by the name specifed.
-    if pattern:
-        try: pattern = Pattern.objects.get(name=pattern)
-        except exceptions.ObjectDoesNotExist: pattern = None
+    if pattern not in Pattern.objects.all(): pattern = None
     
     # Compile the ROM and store it as a session variable. If it fails, then
     # a None will be stored in its place (successfully resulting in a 404).

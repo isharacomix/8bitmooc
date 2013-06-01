@@ -94,7 +94,7 @@
                 </tr>
                 {% for p in projects %}
                 <tr>
-                    <td><a href="{% url 'project' name=p.slug %}">{{p.name}}</a></td>
+                    <td><a href="{% url 'project' id=p.id %}">{{p.name}}</a></td>
                     <td>
                     {% if p.owner == student %}Owner{% else %}Coder{% endif %}
                     </td>

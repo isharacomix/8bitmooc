@@ -35,6 +35,22 @@ def project_list(request):
     else: page = 0
     pagination = 50
     
+    # If we get a POST request, we create a new project.
+    if request.method == "POST":
+        name = str(request.POST.get("name"))
+        if len(Project.objects.filter(name="name")) > 0:
+            request.session["alerts"].append(("alert-error",
+                                              """A project with that name already
+                                              exists. Please choose a different
+                                              name."""))
+            return redirect("project_list")
+        else:
+            p = Project()
+            p.name = name
+            p.owner = me
+            p.save()
+            return redirect("project", id=p.id)
+    
     # Filter the project list based on the GET filter parameter.
     project_list = []
     if filt == "help":
@@ -75,18 +91,90 @@ def view_project(request, id):
     if not project.is_public and (me != project.owner and me not in project.team.all()):
         return redirect("project_list")
     
-    # If this is a POST request, we are likely compiling code. If it is a GET
-    # request, we are probably watching the project.
-    good = assembler.assemble_and_store(request, slugify(project.name), project.code, project.pattern)
-    
+    # If we have a POST request, then we need to save the changes we make.
+    # We need to come up with a way to improve working together on projects.
+    is_owner = (me == project.owner)
+    can_edit = (is_owner or me in project.team.all())
+    if request.method == "POST":
+        if can_edit:
+            # save the diff in a commit.
+            old_code = project.code
+            project.code = str(request.POST.get("code"))
+            project.pattern = Pattern.objects.get(name=request.POST.get("pattern"))
+            #except exceptions.ObjectDoesNotExist: project.pattern = None
+            project.save()
+        if "watch" in request.POST:
+            if request.POST["watch"] == "true" and me not in project.watched_by.all():
+                project.watched_by.add(me)
+            elif request.POST["watch"] == "false" and me in project.watched_by.all():
+                project.watched_by.remove(me)
+            project.save()
+        if "public" in request.POST and is_owner:
+            if request.POST["public"] == "no":
+                project.is_public = False
+                project.help_wanted = False
+            elif request.POST["public"] == "yes":
+                project.is_public = True
+                project.help_wanted = False
+            elif request.POST["public"] == "help":
+                project.is_public = True
+                project.help_wanted = True
+            project.save()
+        if "fork" in request.POST:
+            name = str(request.POST.get("title"))
+            if len(Project.objects.filter(name="title")) > 0:
+                request.session["alerts"].append(("alert-error",
+                                                  """A project with that name already
+                                                  exists. Please choose a different
+                                                  name."""))
+                return redirect("project_list")
+            else:
+                p = Project()
+                p.name = name
+                p.owner = me
+                p.save()
+                return redirect("project", id=p.id)
+        if "adduser" in request.POST and is_owner:
+            try:
+                newguy = Student.objects.get( user=User.objects.get(username=request.POST.get("username")) )
+                project.team.add(newguy)
+                project.save()
+            except exceptions.ObjectDoesNotExist:
+                request.session["alerts"].append(("alert-error",
+                                                  "Could not find the specifed user. Did you type it in wrong?"))
+        if "removeuser" in request.POST and is_owner:
+            try:
+                newguy = Student.objects.get( user=User.objects.get(username=request.POST.get("username")) )
+                if newguy in project.team.all(): project.team.remove(newguy)
+                project.save()
+            except exceptions.ObjectDoesNotExist:
+                request.session["alerts"].append(("alert-error",
+                                                  "Could not find the specifed user. Did you type it in wrong?"))
+        
+        good = assembler.assemble_and_store(request, slugify(project.name), project.code, project.pattern)
+        if "download" in request.POST:
+            return redirect("rom")
+        elif "publish" in request.POST:
+            project.version += 1
+            project.save()
+            g = Game()
+            g.title = project.name + (" (version %d)"%project.version if project.version > 1 else "")
+            g.code = project.code
+            g.pattern = project.pattern
+            g.description = str(request.POST.get("description"))
+            g.save()
+            g.authors.add(project.owner)
+            for t in project.team.all():
+                g.authors.add(t)
+            g.save()
+            return redirect("play", id=g.id)
+        else:
+            return redirect("project", id=project.id)
     
     # If we decided we wanted to download the code then we download it.
-    if "download" in request.POST and good:
-        return get_rom(request)
-    else:
-        return render(request, "project.html", {'alerts': request.session.pop('alerts', []),
-                                                'project': project,
-                                                'patterns': Pattern.objects.all(),
-                                                'can_edit': me==project.owner or me in project.team.all()} )
+    return render(request, "project.html", {'alerts': request.session.pop('alerts', []),
+                                            'project': project,
+                                            'patterns': Pattern.objects.all(),
+                                            'can_edit': can_edit} )
     
     

@@ -24,7 +24,7 @@
         <table class="table table-striped table-condensed">
             <tr>
                 <th>Project Name</th>
-                <th>Last Edited</th>
+                <th>Last Active</th>
             </tr>
         
             {% for p in projects %}
@@ -33,18 +33,34 @@
                     {% if user.student == p.owner or user.student in p.team.all %}<i class="icon-edit"></i>{% endif %}
                     {% if user.student in p.watched_by.all %}<i class="icon-star-empty"></i>{% endif %}
                 </td>
-                <td>Last edited {{ p.last_edited|timesince }}</td>
+                <td>{{ p.last_edited|timesince }} ago</td>
             </tr>
             {% endfor %}
         
         </table>
-        <a href="#" class="btn btn-success"><i class="icon-plus-sign icon-white"></i> Start a new project</a>
+        <button class="btn btn-success" type="button" data-toggle="modal" data-target="#newproject"><i class="icon-plus-sign icon-white"></i> Start a new project</button>
       </div>
       
       <div class="span4">
-        <div class="well">Porject spotlight goes here.</div>
+        <div class="well">Project spotlight goes here.</div>
       </div>
     </div>
+
+        <form action="{% url 'project_list' %}" method="POST">{% csrf_token %}
+<div id="newproject" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newprojectLabel" aria-hidden="true">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<h3 id="newprojectLabel">Start a new Project</h3>
+</div>
+<div class="modal-body">
+<input class="input-block-level" type="text" placeholder="Project Name" name="name"></input>
+</div>
+<div class="modal-footer">
+<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+<button class="btn btn-success" type="submit" name="topic" value="topic">Start New Project</button>
+</div>
+</div>
+        </form>
     
     {% include "pagination.html" %}
 
