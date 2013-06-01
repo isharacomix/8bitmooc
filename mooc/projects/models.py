@@ -14,70 +14,57 @@ from students.models import Student
 class Project(models.Model):
     name        = models.CharField("Project Name",
                                    unique=True,
-                                   max_length=200,
-                                   help_text="""
-                                   Full name of the project.
-                                             """)
+                                   max_length=128,
+                                   help_text="""Full name of the project.""")
+    version     = models.IntegerField("Version",
+                                      default=0,
+                                      help_text="""The version number - is
+                                      incremented with each publication.""")
     description = models.TextField("Description",
-                                   help_text="""
-                                   Description of the project in minimarkdown.
-                                             """)
+                                   help_text="""Description of the project in
+                                   minimarkdown.""")
     owner       = models.ForeignKey(Student,
                                     verbose_name="Owner",
                                     related_name="owns",
-                                    help_text="""
-                                    The original creator of the project.
-                                              """)
+                                    help_text="""The original creator of the
+                                    project.""")
     team        = models.ManyToManyField(Student,
                                          blank=True,
                                          related_name="works_on",
-                                         help_text="""
-                                         List of all students who have commit
-                                         rights to the project.
-                                                   """)
+                                         help_text="""List of all students who
+                                         have commit rights to the project.""")
     watched_by  = models.ManyToManyField(Student,
                                          blank=True,
                                          related_name="watches",
-                                         help_text="""
-                                         List of all students who are following
-                                         the project's updates.
-                                                   """)
+                                         help_text="""List of all students who
+                                         are following the project's updates.""")
     is_public   = models.BooleanField("Is Public",
                                       default=False,
-                                      help_text="""
-                                      If True, the project can be found in the
-                                      project list by non-team-members.
-                                                """)
+                                      help_text="""If True, the project can be
+                                      found in the project list by non
+                                      team-members.""")
     help_wanted = models.BooleanField("Help Wanted",
                                       default=False,
-                                      help_text="""
-                                      If True, the project is actively looking
-                                      for new collaborators.
-                                                """)
+                                      help_text="""If True, the project is
+                                      actively looking for new collaborators.""")
     code        = models.TextField("Code",
-                                   help_text="""
-                                   Current source code.
-                                             """)
+                                   help_text="""Current source code.""")
     pattern     = models.ForeignKey(Pattern,
                                     verbose_name="Pattern",
                                     null=True,
                                     blank=True,
-                                    help_text="""
-                                    The project's sprite sheet.
-                                              """)
+                                    help_text="""The project's sprite sheet.""")
     forked_from =  models.ForeignKey("Project",
                                     verbose_name="Forked From",
                                     null=True,
                                     blank=True,
-                                    help_text="""
-                                    Projects can be forked, like on Github. If
-                                    this project was forked, this is its parent.
-                                              """)
+                                    help_text="""Projects can be forked, like on
+                                    Github. If this project was forked, this is
+                                    its parent.""")
     last_edited = models.DateTimeField("Last Edited",
                                        auto_now=True,
-                                       help_text="""
-                                       The time of the last change to the project.
-                                                """)
+                                       help_text="""The time of the last change
+                                       to the project.""")
     
     # Representation of the challenge
     def __unicode__(self):
@@ -92,27 +79,18 @@ class Project(models.Model):
 class ProjectCommit(models.Model):
     project     =  models.ForeignKey(Project,
                                      verbose_name="Project",
-                                     help_text="""
-                                     The project of this commit.
-                                               """)
+                                     help_text="""The project of this commit.""")
     author      = models.ForeignKey(Student,
                                     verbose_name="Author",
-                                    help_text="""
-                                    Author of the commit.
-                                              """)
+                                    help_text="""Author of the commit.""")
     timestamp   = models.DateTimeField("Timestamp",
                                        auto_now_add=True,
-                                       help_text="""
-                                       The time of the commit.
-                                                """)
+                                       help_text="""The time of the commit.""")
     diff        = models.TextField("Diff",
-                                   help_text="""
-                                   Change in source code in a diff format.
-                                             """)
+                                   help_text="""Change in source code in a diff
+                                   format.""")
     comment     = models.TextField("Comment",
-                                   help_text="""
-                                   Comment about the commit.
-                                             """)
+                                   help_text="""Comment about the commit.""")
 
     # Representation of the commit
     def __unicode__(self):

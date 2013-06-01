@@ -1,0 +1,97 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+{% load avatar_tags %}
+{% load static from staticfiles %}
+
+{% block title %}Workbench: {{ project.name }}{% endblock title %}
+
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li><a href="{% url 'project_list' %}">Project List</a> <span class="divider">/</span></li>
+    <li class="active">Workbench</li>
+</ul>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row">
+        <form name="input" action="{% url 'project' id=project.id %}" method="post">{% csrf_token %}
+        <div class="span8">
+            <h1>{{ project.name }}{% if project.version %}(v.{{project.version}}{% endif %}</h1>
+            <div>
+
+<div id="assembly-editor" style="width: 100%; height: 30em;"></div>
+<textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ project.code }}</textarea>
+            </div>
+            
+            <p>
+            <select name="pattern">
+            {% if project.pattern %}
+                <option value="{{mypattern.name}}">Current sprite sheet: {{project.pattern.name}}</option>
+            {% endif %}
+            {% for p in patterns %}
+                <option value="{{p.name}}">Sprite sheet: {{p.name}}</option>
+            {% endfor %}
+            </select>
+            </p>
+            
+            <div class="well">
+              {% include "asm_cheatsheet.html" %}
+            </div>
+        </div>
+        
+        <div class="span4">
+    
+        
+            <div id="emulator"></div>
+    
+            <div>
+            <button class="btn" type="submit" name="run" value="Assemble">Assemble</button>
+            <button class="btn" type="submit" name="download" value="Download">Download</button>
+            <button class="btn btn-success" type="submit" name="publish" value="publish">Publish</button>
+            </div>
+        
+            <hr />
+            <div class="well">
+                <table class="table table-condensed">
+                <h4>Team</h4>
+                <tr><td><img src="{% avatar_url project.owner.user 24 %}&d=retro" alt="" title="" />
+                        {{ project.owner.username }}</td></tr>
+                {% for t in project.team.all %}
+                <td><td><img src="{% avatar_url t.user 24 %}&d=retro" alt="" title="" />
+                        {{ t.username }}</td></tr>
+                {% endfor %}
+                </table>
+    
+                {% if user.student == project.owner %}
+                <p>
+                <div class="form-inline">            
+                    <input type="text" name="url" class="input input-small" placeholder="username"  />
+                    <button type="submit" class="btn btn-success btn-mini" name="adduser" value="adduser"><i class="icon-plus-sign icon-white"></i> Add to team</button>
+                </div>
+                </p>
+                
+                <p>
+                <div>
+<button class="btn {% if not project.is_public %}disabled{% endif %}" type="submit" name="public" value="no">Private</button>
+<button class="btn {% if project.is_public %}disabled{% endif %}" type="submit" name="public" value="yes">Public</button>
+<button class="btn {% if project.help_wanted %}disabled{% endif %}" type="submit" name="public" value="help">Help Wanted</button>
+                </div>
+                </p>
+                {% endif %}
+                
+                <p>Watched by {{ project.watched_by.all|length }}</p>
+            </div>
+        </div>
+        </form>
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+    {% include "ace.html" %}
+{% endblock scripts %}
+

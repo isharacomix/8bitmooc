@@ -6,6 +6,7 @@ from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import slugify
 
 from students.models import Student
 from challenges.models import ChallengeResponse
@@ -78,11 +79,9 @@ def play_game(request, id):
     if not good:
         return redirect("arcade")
     elif "download" in request.GET:
-        return get_rom(request, "game%d"%int(id))
+        return get_rom(request, slugify(game.title))
     else:
-        return render(request, "arcade.html", {'title': game.title,
-                                               'id': game.id,
-                                               'authors': game.authors.all() } )
+        return render(request, "arcade.html", {'game': game} )
 
 
 # The get_rom view simply returns the current ROM that is in the session

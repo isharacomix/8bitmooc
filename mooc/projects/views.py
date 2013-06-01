@@ -6,10 +6,15 @@ from django.core import exceptions
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden, Http404)
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import slugify
 
 from students.models import Student, LogEntry
 from projects.models import Project
 from django.contrib.auth.models import User
+
+from nes import assembler
+from nes.views import get_rom
+from nes.models import Pattern, Game
 
 import random
 
@@ -63,5 +68,24 @@ def view_project(request, id):
     if not me:
         request.session["alerts"].append(("alert-error","Please sign in first."))
         return redirect("sign-in")   
-    raise Http404()
+    
+    # Make sure the game exists and we are allowed to see it.
+    try: project = Project.objects.get(id=id)
+    except exceptions.ObjectDoesNotExist: return redirect("project_list")
+    if not project.is_public and (me != project.owner and me not in project.team.all()):
+        return redirect("project_list")
+    
+    # If this is a POST request, we are likely compiling code. If it is a GET
+    # request, we are probably watching the project.
+    good = assembler.assemble_and_store(request, project.code, project.pattern)
+    
+    
+    # If we decided we wanted to download the code then we download it.
+    if "download" in request.POST and good:
+        return get_rom(request, slugify(project.name) )
+    else:
+        return render(request, "project.html", {'alerts': request.session.pop('alerts', []),
+                                                'project': project,
+                                                'patterns': Pattern.objects.all()} )
+    
     

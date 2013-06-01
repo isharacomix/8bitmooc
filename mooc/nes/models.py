@@ -31,8 +31,12 @@ class Game(models.Model):
                                max_length=200,
                                help_text="""The game title.""")
     code    = models.TextField("code",
-                               help_text="""Source code for the game.""")
+                               help_text="""Game source code.""")
+    description = models.TextField("Description",
+                                   help_text="""Description of the game in
+                                   minimarkdown.""")
     pattern = models.ForeignKey(Pattern,
+                                verbose_name="Pattern",
                                 null=True,
                                 blank=True,
                                 help_text="""Spritesheet for the game.""")
