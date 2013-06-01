@@ -1,0 +1,51 @@
+{% extends "layout_base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Projects{% endblock title %}
+
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li class="active">Project List</li>
+</ul>
+{% endblock breadcrumbs %}
+
+{% block body %}
+
+    <div class="row">
+      <div class="span8">
+        
+        <ul class="nav nav-pills">
+        <li {% if filter == "mine" %}class="active"{% endif %} ><a href="?filter=mine">My Projects</a></li>
+        <li {% if filter == "watch" %}class="active"{% endif %} ><a href="?filter=watch">Watched</a></li>
+        <li {% if filter == "help" %}class="active"{% endif %} ><a href="?filter=help">Help Wanted</a></li>
+        <li {% if filter == "all" %}class="active"{% endif %} ><a href="?filter=all">All Projects</a></li>
+        </ul>
+        <table class="table table-striped table-condensed">
+            <tr>
+                <th>Project Name</th>
+                <th>Last Edited</th>
+            </tr>
+        
+            {% for p in projects %}
+            <tr>
+                <td><a href="{% url 'project' id=p.id %}">{{ p.name }}</a>
+                    {% if user.student == p.owner or user.student in p.team.all %}<i class="icon-edit"></i>{% endif %}
+                    {% if user.student in p.watched_by.all %}<i class="icon-star"></i>{% endif %}
+                </td>
+                <td>Last edited {{ p.last_edited|timesince }}</td>
+            </tr>
+            {% endfor %}
+        
+        </table>
+      </div>
+      
+      <div class="span4">
+        <div class="well">Porject spotlight goes here.</div>
+      </div>
+    </div>
+    
+    {% include "pagination.html" %}
+
+
+{% endblock body %}

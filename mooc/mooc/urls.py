@@ -13,15 +13,13 @@ urlpatterns = patterns('',
     url(r'^search/$', views.search, name='search'),
     url(r'^chat/$', views.webchat, name='chat'),
     
-    url(r'^project/', views.view_index, name='project_list'),
-    url(r'^project/(?P<name>[\w-]+)/', views.view_index, name='project'),
-
     # Apps!
     url(r'^', include('nes.urls')),
     url(r'^', include('students.urls')),
     url(r'^', include('challenges.urls')),
     url(r'^help/', include('pages.urls')),
     url(r'^forum/', include('forum.urls')),
+    url(r'^project/', include('projects.urls')),
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

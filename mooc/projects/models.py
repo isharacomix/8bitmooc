@@ -18,11 +18,6 @@ class Project(models.Model):
                                    help_text="""
                                    Full name of the project.
                                              """)
-    slug        = models.SlugField("Shortname",
-                                   unique=True,
-                                   help_text="""
-                                   Slug for the project, used for its URL.
-                                             """)
     description = models.TextField("Description",
                                    help_text="""
                                    Description of the project in minimarkdown.
@@ -53,6 +48,12 @@ class Project(models.Model):
                                       If True, the project can be found in the
                                       project list by non-team-members.
                                                 """)
+    help_wanted = models.BooleanField("Help Wanted",
+                                      default=False,
+                                      help_text="""
+                                      If True, the project is actively looking
+                                      for new collaborators.
+                                                """)
     code        = models.TextField("Code",
                                    help_text="""
                                    Current source code.
@@ -72,10 +73,19 @@ class Project(models.Model):
                                     Projects can be forked, like on Github. If
                                     this project was forked, this is its parent.
                                               """)
+    last_edited = models.DateTimeField("Last Edited",
+                                       auto_now=True,
+                                       help_text="""
+                                       The time of the last change to the project.
+                                                """)
     
     # Representation of the challenge
     def __unicode__(self):
         return u"%s" % (self.name)
+        
+    # Order these by timestamp.
+    class Meta:
+        ordering = ['-last_edited']
 
 
 # Version history for projects is kept in the form of commits.
@@ -93,7 +103,7 @@ class ProjectCommit(models.Model):
     timestamp   = models.DateTimeField("Timestamp",
                                        auto_now_add=True,
                                        help_text="""
-                                       The time that the URL was accessed.
+                                       The time of the commit.
                                                 """)
     diff        = models.TextField("Diff",
                                    help_text="""
@@ -107,33 +117,5 @@ class ProjectCommit(models.Model):
     # Representation of the commit
     def __unicode__(self):
         return u"Commit %d for %s" % (self.id, self.project.name)
-
-
-# Students can leave comments on projects.
-class ProjectComment(models.Model):
-    author      = models.ForeignKey(Student,
-                                    verbose_name="Author",
-                                    help_text="""
-                                    Author of the comment.
-                                              """)
-    timestamp   = models.DateTimeField("Timestamp",
-                                       auto_now_add=True,
-                                       help_text="""
-                                       The time that the URL was accessed.
-                                                """)
-    content     = models.TextField("Content",
-                                   help_text="""
-                                   Comment in minimarkdown.
-                                             """)
-    is_public   = models.BooleanField("Is Public",
-                                      default=True,
-                                      help_text="""
-                                      If True, the comment can be seen by
-                                      non-team members.
-                                                """)
-    
-    # Representation of the challenge
-    def __unicode__(self):
-        return u"Comment %d on %s" % (self.id, self.project.name)
 
 
