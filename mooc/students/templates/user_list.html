@@ -25,7 +25,7 @@
         {% for user_list in user_columns %}
         <div class="span4">
             {% for s in user_list %}
-            <div class="media well">
+            <div class="media well {% if s.ta %}well-gold{% endif %} ">
                 <a class="pull-left" href="{% url 'profile' username=s.username %}">
                     <img class="img-polaroid" src="{% avatar_url s.user 64 %}&d=retro" alt="" />
                 </a>

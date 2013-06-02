@@ -10,18 +10,21 @@ from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.models import User
 
-import feedparser
-
 from pages.models import Page
+from forum.models import DiscussionBoard
 from students.models import LogEntry
 
 
-# Display the website index. We have to parse the blog feed for this.
+# On the index, we aggregate the newest posts in the 'news' forum so that
+# students can go and comment on them.
 def view_index(request):
-    try:    feed = feedparser.parse(r'http://blog.8bitmooc.org/rss').entries[:3]
-    except: feed = []
+    try:
+        news = []
+        for d in DiscussionBoard.objects.get(slug="news").discussiontopic_set.all()[:5]:
+            news.append( d.discussionpost_set.all()[0] )
+    except: news = []
     
-    return render( request, 'index.html', {'feed': feed,
+    return render( request, 'index.html', {'news': news,
                                            'alerts': request.session.pop('alerts', []) } )
     
 

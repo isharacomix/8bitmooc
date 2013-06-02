@@ -2,7 +2,7 @@
 {% load avatar_tags %}
 {% load markup %}
 
-{% block title %}Thread: {{ topic.name }}{% endblock title %}
+{% block title %}Thread: {{ topic.title }}{% endblock title %}
 
 {% block breadcrumbs %}
 <ul class="breadcrumb">
@@ -33,7 +33,7 @@ This post has been hidden by default due to downvotes.
         <div class="accordion-inner">
 {% endif %}
 
-            <div class="media well">
+            <div class="media well {% if p.author.ta %}well-gold{% endif %}">
                 <a class="{% cycle 'pull-left' 'pull-right' %}" href="{% url 'profile' username=p.author.username %}">
                     <img class="img-polaroid" src="{% avatar_url p.author.user 128 %}&d=retro" alt="" />
                 </a>
@@ -42,9 +42,10 @@ This post has been hidden by default due to downvotes.
                     {{ p.content|minimarkup }}
                     </article>
                     <p><small><em>Posted by <a href="{% url 'profile' username=p.author.username %}">{{ p.author.username }}</a>
+                    {% if p.author.ta %} (admin) {% endif %}
                     {{ p.timestamp|timesince }} ago.</em></small></p>
                     
-                    {% if student.ta or student.modpoints > 0 %}
+                    {% if user.student.ta or user.student.modpoints > 0 %}
                     <p>
                     <button class="btn btn-success btn-mini" type="submit" name="upvote" value="{{p.id}}">Upvote</button>
                     <button class="btn btn-danger btn-mini" type="submit" name="downvote" value="{{p.id}}">Downvote</button>
@@ -59,10 +60,8 @@ This post has been hidden by default due to downvotes.
 {% endif %}
             {% endfor %}
             
-            {% if student.level >= board.wrestricted or student.ta %}
-                <textarea class="input-block-level" rows="8" name="content"></textarea>
-                <button class="btn btn-large btn-success" type="submit" name="thread" value="thread">Post</button>
-            {% endif %}
+            <textarea class="input-block-level" rows="8" name="content"></textarea>
+            <button class="btn btn-large btn-success" type="submit" name="thread" value="thread">Post</button>
 
         </div>
     </form>

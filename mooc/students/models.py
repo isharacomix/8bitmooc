@@ -73,11 +73,6 @@ class Student(models.Model):
                                        blank=True,
                                        help_text="""The timestamp of the student's
                                        last visit.""")
-    this_login  = models.DateTimeField("This Login",
-                                       null=True,
-                                       blank=True,
-                                       help_text="""The timestamp of the student's
-                                       most recent login.""")
 
 
     # When we represent the student, we put their TA tag on so that others can

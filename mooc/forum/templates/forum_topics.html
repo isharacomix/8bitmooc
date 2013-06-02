@@ -44,19 +44,22 @@
                         <a class="pull-left" href="{% url 'profile' username=last.author.username %}">
                             <img src="{% avatar_url last.author.user 24 %}&d=retro" alt="{{ last.author.username }}" title="{{ last.author.username }}" />
                        </a>
-                       <p>{{ last.timestamp|timesince }} ago</p>
+                       <p(admin) {{ last.timestamp|timesince }} ago</p>
                       {% if new %}</strong>{% endif %}
                     {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </table>
+            
+            {% if board.wrestricted <= user.student.level or user.student.ta  %}
             <button class="btn" type="button" data-toggle="modal" data-target="#newtopic"><i class="icon-plus-sign"></i> New Topic</button>
+            {% endif %}
         </div>
     </div>
     {% include "pagination.html" %}
 
-
+{% if board.wrestricted <= user.student.level or user.student.ta %}
         <form action="{% url 'board' name=board.slug %}" method="POST">{% csrf_token %}
 <div id="newtopic" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtopicLabel" aria-hidden="true">
 <div class="modal-header">
@@ -73,6 +76,7 @@
 </div>
 </div>
         </form>
+{% endif %}
 
 
 {% endblock body %}

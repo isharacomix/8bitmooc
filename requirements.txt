@@ -6,7 +6,6 @@ py-bcrypt
 pytz
 django-redis
 Pygments
-feedparser
 pypng
 markdown
 pil

@@ -89,7 +89,6 @@ def view_board(request, name):
     
     return render( request, "forum_topics.html", {'board': board,
                                                   'topics': topic_tuples,
-                                                  'student': me,
                                                   'alerts': request.session.pop('alerts', []),
                                                   'page': page+1,
                                                   'pages': (len(topic_tuples)/pagination)+1 } )
@@ -113,7 +112,7 @@ def view_thread(request, name, thread):
     # If this is a POST, we are either replying to someone or we are voting.
     # Manage permissions respectively and redirect.
     if request.method == "POST":
-        if "thread" in request.POST and (me.level >= board.wrestricted or me.ta):
+        if "thread" in request.POST:
             p = DiscussionPost()
             p.topic = topic
             p.author = me
@@ -146,7 +145,6 @@ def view_thread(request, name, thread):
     
     return render( request, "forum_thread.html", {'board': board,
                                                   'topic': topic,
-                                                  'student': me,
                                                   'posts': posts[pagination*page:pagination*(page+1)],
                                                   'alerts': request.session.pop('alerts', []),
                                                   'page': page+1,

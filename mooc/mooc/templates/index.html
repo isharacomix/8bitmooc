@@ -1,4 +1,6 @@
 {% extends "layout_base.html" %}
+{% load avatar_tags %}
+{% load markup %}
 
 {% block title %}Welcome{% endblock title %}
 
@@ -18,14 +20,18 @@
         <div class="span8">
             <div class="well" style="overflow-y: scroll; height:400px;">
                 <h1>News and Updates</h1>
-                {% for f in feed %}
+                {% for n in news %}
                     <hr />
                     <div>
-                        <h3>{{ f.title }}</h3>
-                        <h5>{{ f.published }}</h5>
+                        <img class="img-polaroid pull-right" src="{% avatar_url n.author.user 128 %}&d=retro" alt="" />
+                        <h3>{{ n.topic.title }}</h3>
+                        <h5>By {{ n.author.username }} {{ n.timestamp|timesince }} ago</h5>
                         <article>
-                            {{ f.description|safe }}
+                            {{ n.content|minimarkup }}
                         </article>
+                        {% if user.is_authenticated %}
+                        <em><a href="{% url 'thread' name=n.topic.board.slug thread=n.topic.id %}">Comment on this news post in the forums</a></em>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>

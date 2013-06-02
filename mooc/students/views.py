@@ -114,11 +114,11 @@ def sign_in(request):
                 if Student.objects.filter(user=user).exists():
                     login(request, user)
                     s = user.student
-                    s.last_login = s.this_login
-                    s.this_login = timezone.now()
-                    if s.last_login is None:
-                        s.last_login = s.this_login
-                    if s.last_login.day != s.this_login.day:
+                    then = s.last_login
+                    s.last_login = timezone.now()
+                    if then is None:
+                        then = timezone.now()
+                    if s.last_login.day != then.day:
                         s.modpoints = s.level
                     s.save()
                     return redirect("index")

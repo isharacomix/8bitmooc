@@ -15,7 +15,6 @@ setup(name='mooc',
                         'django-redis',
                         'markdown',
                         'Pygments',
-                        'feedparser',
                         'pypng',
                         'pil'],
      )
