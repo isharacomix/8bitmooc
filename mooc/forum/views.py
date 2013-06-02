@@ -28,7 +28,7 @@ def board_list(request):
     if not me.ta: boards = boards.filter(restricted__lte=me.level)
     for b in boards:
         last_posts = b.discussiontopic_set.exclude(hidden=True)
-        new_posts = len( last_posts.filter(last_active__gte=me.last_login) )
+        new_posts = len( last_posts.filter(last_active__gte=me.unread_since) )
         if len(last_posts) == 0: last_posts = [None]
         board_triplets.append( (b, last_posts[0], new_posts) )
     
@@ -84,7 +84,7 @@ def view_board(request, name):
         count = len(posts)
         new = False
         if count == 0: posts = [None]
-        else: new = ( posts[0].timestamp > me.last_login )
+        else: new = ( posts[0].timestamp > me.unread_since )
         topic_tuples.append( (t,count,posts[0],new) )
     
     return render( request, "forum_topics.html", {'board': board,

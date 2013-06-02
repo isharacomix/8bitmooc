@@ -44,7 +44,7 @@
                         <a class="pull-left" href="{% url 'profile' username=last.author.username %}">
                             <img src="{% avatar_url last.author.user 24 %}&d=retro" alt="{{ last.author.username }}" title="{{ last.author.username }}" />
                        </a>
-                       <p(admin) {{ last.timestamp|timesince }} ago</p>
+                       <p>{% if last.author.ta %}(admin){% endif %} {{ last.timestamp|timesince }} ago</p>
                       {% if new %}</strong>{% endif %}
                     {% endif %}
                     </td>

@@ -41,7 +41,9 @@
                     <p>Last topic active: <a href="{% url 'thread' name=board.slug thread=last.id %}">{{ last.title }}</a></p>
                     {% endif %}
                     
+                    {% if new %}
                     <p><small><strong><em>{{ new }} discussions since last visit.</em></strong></small></p>
+                    {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

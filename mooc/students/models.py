@@ -73,6 +73,11 @@ class Student(models.Model):
                                        blank=True,
                                        help_text="""The timestamp of the student's
                                        last visit.""")
+    unread_since= models.DateTimeField("Unread Since",
+                                       null=True,
+                                       blank=True,
+                                       help_text="""The timestamp by which to
+                                       measure unread posts.""")
 
 
     # When we represent the student, we put their TA tag on so that others can
