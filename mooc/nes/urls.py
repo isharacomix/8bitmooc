@@ -8,8 +8,8 @@ from nes import views
 # view that allows it to create and retrieve ROM images.
 urlpatterns = patterns('',
     url(r'^rom/$', views.get_rom, name='rom'),
-    url(r'^play/$', views.games_list, name='arcade'),
-    url(r'^play/(?P<id>[\d]+)/$', views.play_game, name='play'),
+    url(r'^arcade/$', views.games_list, name='arcade'),
+    url(r'^arcade/(?P<id>[\d]+)/$', views.play_game, name='play'),
     url(r'^playground/$', views.view_playground, name='playground'),
 )
 

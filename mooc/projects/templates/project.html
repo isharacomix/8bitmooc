@@ -83,14 +83,6 @@
                     <button type="submit" class="btn btn-danger btn-mini" name="removeuser" value="removeuser"><i class="icon-minus-sign icon-white"></i></button>
                 </p>
                 </div>
-                
-                <div>
-                <p>
-<button class="btn {% if not project.is_public %}disabled{% endif %}" type="submit" name="public" value="no">Private</button>
-<button class="btn {% if project.is_public and not project.help_wanted %}disabled{% endif %}" type="submit" name="public" value="yes">Public</button>
-<button class="btn {% if project.help_wanted %}disabled{% endif %}" type="submit" name="public" value="help">Help Wanted</button>
-                </p>
-                </div>
                 {% endif %}
             </div>
         </div>

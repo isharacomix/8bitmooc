@@ -54,17 +54,10 @@ def project_list(request):
     
     # Filter the project list based on the GET filter parameter.
     project_list = []
-    if filt == "help":
-        project_list += list(Project.objects.filter(is_public=True, help_wanted=True))
-    elif filt == "watch":
-        project_list += list(me.watches.filter(is_public=True))
-    elif filt == "all":
-        project_list += list(me.owns.filter(is_public=False))
-        project_list += list(me.works_on.filter(is_public=False))
-        project_list += list(Project.objects.filter(is_public=True))
+    if filt == "watch": project_list = list(me.watches.all())
+    elif filt == "all": project_list = list(Project.objects.all())
     else:
-        project_list += list(me.owns.all())
-        project_list += list(me.works_on.all())
+        project_list = list(me.owns.all()) + list(me.works_on.all())
         filt = "mine"
     project_list = project_list[page*pagination:(page+1)*pagination]
     
@@ -89,8 +82,6 @@ def view_project(request, id):
     # Make sure the game exists and we are allowed to see it.
     try: project = Project.objects.get(id=id)
     except exceptions.ObjectDoesNotExist: return redirect("project_list")
-    if not project.is_public and (me != project.owner and me not in project.team.all()):
-        return redirect("project_list")
     
     # If we have a POST request, then we need to save the changes we make.
     # We need to come up with a way to improve working together on projects.
@@ -116,31 +107,6 @@ def view_project(request, id):
             elif request.POST["watch"] == "false" and me in project.watched_by.all():
                 project.watched_by.remove(me)
             project.save()
-        if "public" in request.POST and is_owner:
-            if request.POST["public"] == "no":
-                project.is_public = False
-                project.help_wanted = False
-            elif request.POST["public"] == "yes":
-                project.is_public = True
-                project.help_wanted = False
-            elif request.POST["public"] == "help":
-                project.is_public = True
-                project.help_wanted = True
-            project.save()
-        if "fork" in request.POST:
-            name = str(request.POST.get("title"))
-            if len(Project.objects.filter(name="title")) > 0:
-                request.session["alerts"].append(("alert-error",
-                                                  """A project with that name already
-                                                  exists. Please choose a different
-                                                  name."""))
-                return redirect("project_list")
-            else:
-                p = Project()
-                p.name = name
-                p.owner = me
-                p.save()
-                return redirect("project", id=p.id)
         if "adduser" in request.POST and is_owner:
             try:
                 newguy = Student.objects.get( user=User.objects.get(username=request.POST.get("username")) )
@@ -158,6 +124,7 @@ def view_project(request, id):
                 request.session["alerts"].append(("alert-error",
                                                   "Could not find the specifed user. Did you type it in wrong?"))
         
+        # Now compile, publish, and download, as specified.
         good = assembler.assemble_and_store(request, slugify(project.name), project.code, project.pattern)
         if "download" in request.POST:
             return redirect("rom")

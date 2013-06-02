@@ -88,7 +88,7 @@ def user_profile(request, username):
                 alerts.append( ("alert-error", e ) )
     
     # Render the magic.
-    projects = list(me.owns.filter(is_public=True))+list(me.works_on.filter(is_public=True))
+    projects = list(me.owns.all())+list(me.works_on.all())
     return render(request, "user_profile.html", {"student": student,
                                                  "collaborators": student.collaborators(),
                                                  "projects": projects,

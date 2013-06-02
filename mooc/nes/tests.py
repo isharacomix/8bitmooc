@@ -39,9 +39,9 @@ class TestNESViews(TestCase):
 
     #
     def test_arcade(self):
-        response = self.c.get("/play/1/")
+        response = self.c.get("/arcade/1/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("http://twitter.com/isharacomix" in response.content)
-        response = self.c.get("/play/1/?download", follow=True)
+        response = self.c.get("/arcade/1/?download", follow=True)
         self.assertEqual(response.status_code, 200)
 

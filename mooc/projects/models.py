@@ -35,15 +35,6 @@ class Project(models.Model):
                                          related_name="watches",
                                          help_text="""List of all students who
                                          are following the project's updates.""")
-    is_public   = models.BooleanField("Is Public",
-                                      default=False,
-                                      help_text="""If True, the project can be
-                                      found in the project list by non
-                                      team-members.""")
-    help_wanted = models.BooleanField("Help Wanted",
-                                      default=False,
-                                      help_text="""If True, the project is
-                                      actively looking for new collaborators.""")
     code        = models.TextField("Code",
                                    help_text="""Current source code.""")
     pattern     = models.ForeignKey(Pattern,
