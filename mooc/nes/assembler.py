@@ -85,7 +85,7 @@ SYMBOL_TABLE = {   #IMP, REG, IMM, ZPG, ZPX, ABS, ABX, ABY, INX, INY,
 #
 class Assembler(object):
     def __init__(self):
-        self.org = 0x0000
+        self.org = 0xC000
         self.start = 0xC000
         self.prg = [0xff]*0x4000
         self.chr = [0xff]*0x2000
@@ -182,7 +182,7 @@ class Assembler(object):
         
         # Second pass, iterate over each element and generate the binary.
         # Uses the symbol table to match opcodes with addressing modes.
-        self.org = 0
+        self.org = 0xC000
         for label, op, arg, original in elements:
             self.lastline = original
             if   op == '.define': pass
