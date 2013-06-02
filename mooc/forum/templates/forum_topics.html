@@ -27,6 +27,8 @@
                 {% for topic, count, last, new in topics %}
                 <tr>
                     <td>
+                      {% if topic.sticky %}<i class="icon-exclamation-sign"></i>{% endif %}
+                      
                       {% if new %}<strong>{% endif %}
                         <a href="{% url 'thread' name=topic.board.slug thread=topic.id %}">{{topic.title}}</a>
                       {% if new %}</strong>{% endif %}

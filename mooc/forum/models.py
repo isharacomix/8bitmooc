@@ -71,7 +71,7 @@ class DiscussionTopic(models.Model):
 
     # Order these by difficulty.
     class Meta:
-        ordering = ['sticky','-last_active']
+        ordering = ['-sticky','-last_active']
 
     # Representation of the commit
     def __unicode__(self):
