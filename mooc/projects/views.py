@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 
 from students.models import Student, LogEntry
-from projects.models import Project
+from projects.models import Project, ProjectCommit
 from django.contrib.auth.models import User
 
 from nes import assembler
@@ -17,6 +17,7 @@ from nes.views import get_rom
 from nes.models import Pattern, Game
 
 import random
+import difflib
 
 
 # The user can filter out projects based on whether they work on them, the
@@ -97,11 +98,17 @@ def view_project(request, id):
     can_edit = (is_owner or me in project.team.all())
     if request.method == "POST":
         if can_edit:
-            # save the diff in a commit.
             old_code = project.code
             project.code = str(request.POST.get("code"))
-            project.pattern = Pattern.objects.get(name=request.POST.get("pattern"))
-            #except exceptions.ObjectDoesNotExist: project.pattern = None
+            commit = ProjectCommit()
+            commit.author = me
+            commit.project = project
+            commit.diff = ""
+            for d in difflib.unified_diff( old_code.splitlines(), project.code.splitlines()):
+                commit.diff += d+"\n"
+            commit.save()
+            try: project.pattern = Pattern.objects.get(name=request.POST.get("pattern"))
+            except exceptions.ObjectDoesNotExist: project.pattern = None
             project.save()
         if "watch" in request.POST:
             if request.POST["watch"] == "true" and me not in project.watched_by.all():

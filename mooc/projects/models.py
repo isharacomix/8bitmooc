@@ -51,13 +51,6 @@ class Project(models.Model):
                                     null=True,
                                     blank=True,
                                     help_text="""The project's sprite sheet.""")
-    forked_from =  models.ForeignKey("Project",
-                                    verbose_name="Forked From",
-                                    null=True,
-                                    blank=True,
-                                    help_text="""Projects can be forked, like on
-                                    Github. If this project was forked, this is
-                                    its parent.""")
     last_edited = models.DateTimeField("Last Edited",
                                        auto_now=True,
                                        help_text="""The time of the last change
@@ -84,10 +77,8 @@ class ProjectCommit(models.Model):
                                        auto_now_add=True,
                                        help_text="""The time of the commit.""")
     diff        = models.TextField("Diff",
-                                   help_text="""Change in source code in a diff
+                                   help_text="""Change in source code in unidiff
                                    format.""")
-    comment     = models.TextField("Comment",
-                                   help_text="""Comment about the commit.""")
 
     # Representation of the commit
     def __unicode__(self):
