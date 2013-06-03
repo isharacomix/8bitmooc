@@ -16,8 +16,9 @@ def render_markup(text, mini):
         text = re.sub(r"\[(?P<page>[\w-]+)\]\([\S]+\)","\g<page>",text)
     
     # Do the markdownification.
-    text = re.sub(r"\[\[(?P<page>[\w-]+)\]\]","[\g<page>](/help/\g<page>)",text)
-    text = markdown.markdown(text, safe_mode="escape")
+    text = re.sub(r"\[\[(?P<page>[\w\s-]+)\|(?P<link>[\w-]+)\]\]","[\g<page>](/help/\g<link>)",text)
+    text = re.sub(r"\[\[(?P<link>[\w-]+)\]\]","[\g<link>](/help/\g<link>)",text)
+    text = markdown.markdown(text, ['tables'], safe_mode="escape")
     
     # Post processing. If we are not in minimode, then let's add youtube videos.
     if not mini:
