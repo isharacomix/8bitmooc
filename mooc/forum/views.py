@@ -47,7 +47,7 @@ def view_board(request, name):
     # First, try to get the board.
     try: board = DiscussionBoard.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
-    if board.restricted > me.level: raise Http404()
+    if board.restricted > me.level and not me.ta: raise Http404()
     
     # Get the page number!
     page = 0

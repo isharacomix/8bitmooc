@@ -1,0 +1,79 @@
+[
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 1,
+    "fields": {
+        "name": "News and Announcements",
+        "slug": "news",
+        "description": "This forum is for announcements about new site features and updates. Only site staff can post new topics, but anyone can reply and discuss them.",
+        "restricted": 1,
+        "wrestricted": 999
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 2,
+    "fields": {
+        "name": "Newbie Forum",
+        "slug": "newbie",
+        "description": "This is the place where there are no stupid questions! If you're new and having a hard time getting around, feel free to ask us anything and we'll try to help out!",
+        "restricted": 1,
+        "wrestricted": 1
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 3,
+    "fields": {
+        "name": "Technically Speaking",
+        "slug": "tech",
+        "description": "This is the forum where moderately advanced students can come to talk about technical topics such as hardware and optimization tricks for computers. You must be Level 3 or above to participate.",
+        "restricted": 3,
+        "wrestricted": 3
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 4,
+    "fields": {
+        "name": "Games, History, and Society",
+        "slug": "society",
+        "description": "A moderately advanced forum for discussing the human side of computing - how games interacted with society in the past and still do in the present. A perfect place to engage in philosophical discussions about the course content. You must be Level 3 or above to participate.",
+        "restricted": 3,
+        "wrestricted": 3
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 5,
+    "fields": {
+        "name": "Projects and Ideas",
+        "slug": "projects",
+        "description": "Use this forum to discuss Projects that you are currently working on or wanting to start. This is where to go to find potential team mates to develop games for game jams. You must be Level 3 or above to participate.",
+        "restricted": 3,
+        "wrestricted": 3
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 6,
+    "fields": {
+        "name": "Meta-Discussion",
+        "slug": "meta",
+        "description": "This is where #8bitmooc frequent fliers can come to discuss the website - features that are missing that should be added, usability problems, and so on. This isn't for bug reports as much as it is for discussion about the website and how to make it better for future students. You must be Level 5 or above to participate.",
+        "restricted": 5,
+        "wrestricted": 5
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 7,
+    "fields": {
+        "name": "Beyond #8bitmooc",
+        "slug": "beyond",
+        "description": "This is the exclusive club for the students who have successfully completed #8bitmooc by reaching Level 8. Talk about your successes, your failures, and where you plan to go beyond this.",
+        "restricted": 8,
+        "wrestricted": 8
+    }
+  }
+]
