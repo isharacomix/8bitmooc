@@ -14,10 +14,10 @@ tools and processes as game developers from the 1980's.**
 
 Our philosophy is that you can't appreciate why old NES games looked, sounded,
 and played the way they did until you see for youself what it took to put these
-kinds of games together. By developing for a third-generation platform, you are
-exposed to the same limitations and making the same compromises that developers
-in the 1980's had to face, which teaches you more than any textbook or video
-you can watch or read.
+kinds of games together. By developing for a vintage platform such as the NES,
+you are exposed to the same limitations and making the same compromises that
+developers in the 1980's had to face, which teaches you more than any textbook
+or video you can watch or read.
 
 To reach this goal, the class is taught in a number of ways, and you are free
 to pick the approach that comes most naturally to you. The most straightforward
