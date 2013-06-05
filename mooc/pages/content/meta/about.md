@@ -31,12 +31,12 @@ out as you learn the ins-and-outs of the platform.
 
 However, simply following instructions is no substitute for exploring the
 possibilities on your own by making your own game. #8bitmooc gives you a
-[workbench](http://learn.8bitmooc.org/project/) that you can use to develop and
-[publish](http://learn.8bitmooc.org/arcade/) your own games for the world to
-play. In addition to making games and sharing them with your #8bitmooc classmates,
-you are also encouraged to develop games for so-called "game jams" such as
-[Ludum Dare](http://ludumdare.com) and [One Game a Month](http://onegameamonth.com)
-in order to share your work with the public.
+[workbench](/project/) that you can use to develop and [publish](/arcade/) your
+own games for the world to play. In addition to making games and sharing them
+with your #8bitmooc classmates, you are also encouraged to develop games for
+so-called "game jams" such as [Ludum Dare](http://ludumdare.com) and
+[One Game a Month](http://onegameamonth.com) in order to share your work with
+the public.
 
 Yet another way to learn is to critically discuss the NES with your classmates in
 the forums. If you have experience programming, write about how different NES
