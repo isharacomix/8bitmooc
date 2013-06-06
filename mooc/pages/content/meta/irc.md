@@ -1,6 +1,5 @@
 Internet Relay Chat
 ===================
-
 [IRC](https://en.wikipedia.org/wiki/IRC) is an online chat protocol that's been
 around since 1988. #8bitmooc has a channel on the popular Freenode server.
 The downside is that your account isn't tied to the chat room. On the other

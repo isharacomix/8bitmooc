@@ -259,6 +259,7 @@ class Assembler(object):
                 symbol = SYMBOL_TABLE[op][mode]
                 if not symbol:
                     self.err("Incorrect addressing mode for %s"%op)
+                    symbol = 0xFF
                 self.labels["*"] = self.org+2
                 if mode in [M_ABSOLUTE,M_ABSOLUTE_X,M_ABSOLUTE_Y]:
                     self.labels["*"] = self.org+3

@@ -1,6 +1,5 @@
 Welcome to #8bitmooc!
 =====================
-
 The best way to think about #8bitmooc is as a "history course with programming."
 If you want to learn how to make games, there are much better and easier tools
 that will help you make advanced games such as [GameMaker](http://yoyogames.com)
