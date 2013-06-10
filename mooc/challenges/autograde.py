@@ -18,6 +18,16 @@ def rom_size( rom ):
     return 0x4000 - rom[0x10:0x4004].count(0xff)
 
 
+# This runs the emulation and returns how long it takes before the RTS
+# instruction is run. The emulation stops early if the limit is reached.
+def run( emu, limit ):
+    i = 0
+    while i < limit and emu.last_op != 0x60:
+        emu.step()
+        i += 1
+    return i
+
+
 # Test autograded assignment.
 def test(challenge, student, code, completed):
     return 100, 100
@@ -29,12 +39,10 @@ def barcamp1(challenge, student, code, completed):
     if errors: return None
     
     e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
-    for i in range(0x100):
-        e.step()
-        if e.last_op == 0x60: break
+    count = run( e, 0x100 )
     if e.X == 160 and e.Y == 100:
-        return rom_size(rom), 100
-    else: None
+        return rom_size(rom), count
+    return None
     
 def barcamp2(challenge, student, code, completed):
     a = Assembler()
@@ -44,18 +52,17 @@ def barcamp2(challenge, student, code, completed):
     
     rom, errors = a.assemble( preamble+code + postamble )
     if errors: return None
+    counts = []
     for test in [[54,32,1,1],[0,99,0xff,0xff],[55,0xff,0xff,1]]:
         e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
         e.write( test[0], 0x200 )
         e.write( test[1], 0x201 )
         e.X = test[2]
         e.Y = test[3]
-        for i in range(0x100):
-            e.step()
-            if e.last_op == 0x60: break
+        counts.append( run( e, 0x100 ) )
         if e.read(0x200) != (test[0]+test[2])&0xff or e.read(0x201) != (test[1]+test[3])&0xff:
             return None
-    return rom_size(rom), 100
+    return rom_size(rom), sum(counts)
 
 def barcamp3(challenge, student, code, completed):
     a = Assembler()
@@ -65,15 +72,14 @@ def barcamp3(challenge, student, code, completed):
     
     rom, errors = a.assemble( preamble+code + postamble )
     if errors: None
+    counts = []
     for test in [[0],[4],[5],[4,3]]:
         e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
         for t in test: e.controller(1,t)
-        for i in range(0x100):
-            e.step()
-            if e.last_op == 0x60: break
+        counts.append( run( e, 0x100 ) )
         if 4 in test and e.read(0x204) != 1: return None
         if 5 in test and e.read(0x204) != 0xff: return None
-    return rom_size(rom), 100
+    return rom_size(rom), sum(counts)
 
 
 # This function actually runs the autograder, mapping strings to functions.
