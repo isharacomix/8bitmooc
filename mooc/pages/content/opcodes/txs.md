@@ -6,6 +6,6 @@ Affects Flags: None
 |------------------|-----------------|---------:|------:|-------:|
 | Implied          |```TXS```        | $9A      | 1     | 2      |
 
-TXS sets the [[stack pointer|stack]] equal to the value of the
+TXS sets the [[stack pointer|stack_pointer]] equal to the value of the
 [[X register|index_registers]].
 

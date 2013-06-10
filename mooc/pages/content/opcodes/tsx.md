@@ -7,5 +7,5 @@ Affects Flags: [[S|sign]] [[Z|zero]]
 | Implied          |```TSX```        | $BA      | 1     | 2      |
 
 TSX sets the [[X register|index_registers]] equal to the value of the
-[[stack pointer|stack]].
+[[stack pointer|stack_pointer]].
 

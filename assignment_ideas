@@ -1,0 +1,13 @@
+write a subroutine that allows you to...
+
+* read the program counter
+* zero out the zero page
+* zero out all the ram
+
+PONG
+* do collision detection with the paddles
+* 
+
+
+
+
