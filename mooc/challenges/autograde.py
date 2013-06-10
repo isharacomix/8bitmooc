@@ -15,7 +15,7 @@ from nes.emulator import Emulator
 # The length of the ROM is determined by removing all of the dummy characters
 # (0xFF) from the ROM and then counting what's left.
 def rom_size( rom ):
-    return 0x4000 - rom[0x10:0x4004].count(0xff)
+    return 0x4000 - rom[0x10:0x4010].count(0xff)
 
 
 # This runs the emulation and returns how long it takes before the RTS
@@ -85,7 +85,6 @@ def barcamp3(challenge, student, code, completed):
 # This function actually runs the autograder, mapping strings to functions.
 # It essentially returns True if the assignment was successful, and it also
 # does a bunch of side effects when successful as well.
-# TODO: Be sure to collect runtime stats and compile length.
 def grade(challenge, student, code, completed):
     AUTOGRADE_FUNCTIONS = {
                             "test": test,
