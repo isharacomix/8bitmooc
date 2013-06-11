@@ -1,7 +1,9 @@
 Status Register
 ===============
 The status register is an 8-bit register that contains *status flags*, which are
-single bits that contain information about the result of an instruction.
+single bits that contain information about the result of an instruction. A
+flag is considered "set" when it is True or 1, and "clear" when it is False or
+0.
 
     7   6   5   4   3   2   1   0
     S   V   -   B*  D   I   Z   C
