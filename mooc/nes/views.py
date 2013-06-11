@@ -10,7 +10,7 @@ from django.template.defaultfilters import slugify
 
 from students.models import Student
 from challenges.models import ChallengeResponse
-from nes.models import Game
+from nes.models import Game, Pattern
 
 from nes import assembler
 
@@ -63,6 +63,11 @@ def games_list(request):
     return render(request, "arcade_list.html", {'games': game_list,
                                                 'page': page+1,
                                                 'pages': (len(game_list)/pagination)+1 } )
+
+
+# This shows the list of all of the sprites available.
+def sprite_list(request):
+    return render(request, "sprite_list.html", {'patterns': Pattern.objects.all()})
 
 
 # The arcade is like a playground with even less fun. You can view the source

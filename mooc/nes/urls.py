@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^arcade/$', views.games_list, name='arcade'),
     url(r'^arcade/(?P<id>[\d]+)/$', views.play_game, name='play'),
     url(r'^playground/$', views.view_playground, name='playground'),
+    url(r'^sprites/$', views.sprite_list, name='sprites'),
 )
 
