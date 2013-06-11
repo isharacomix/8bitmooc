@@ -45,11 +45,13 @@ This post has been hidden by default due to downvotes.
                     {% if p.author.ta %} (admin) {% endif %}
                     {{ p.timestamp|timesince }} ago.</em></small></p>
                     
-                    {% if user.student.ta or user.student.modpoints > 0 %}
-                    <p>
-                    <button class="btn btn-success btn-mini" type="submit" name="upvote" value="{{p.id}}">Upvote</button>
-                    <button class="btn btn-danger btn-mini" type="submit" name="downvote" value="{{p.id}}">Downvote</button>
-                    </p>
+                    {% if user.student != p.author %}
+                        {% if user.student.ta or user.student.modpoints > 0 %}
+                        <p>
+                        <button class="btn btn-success btn-mini" type="submit" name="upvote" value="{{p.id}}">Upvote</button>
+                        <button class="btn btn-danger btn-mini" type="submit" name="downvote" value="{{p.id}}">Downvote</button>
+                        </p>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>

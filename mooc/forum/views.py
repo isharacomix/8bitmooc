@@ -125,10 +125,13 @@ def view_thread(request, name, thread):
             p_id = request.POST["upvote" if upvote else "downvote"]
             if p_id.isdigit() and (me.modpoints > 0 or me.ta):
                 p = DiscussionPost.objects.get(id=int(p_id))
-                if upvote: p.upvotes += 1
-                else:      p.downvotes += 1
+                if upvote and p.author != me: p.upvotes += 1
+                else                        : p.downvotes += 1
                 request.session["alerts"].append(("alert-success","Post %s."%("upvoted" if upvote else "downvoted")))
                 LogEntry.log(request, "Thread %s"%("upvoted" if upvote else "downvoted"))
+                if p.upvotes == 5 and p.downvotes < 3:
+                    p.author.award_xp(25)
+                    p.upvotes += 1
                 p.save()
                 me.modpoints -= 1
                 me.award_xp(1)

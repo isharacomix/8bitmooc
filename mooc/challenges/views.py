@@ -48,20 +48,18 @@ def challenge_list(request):
             complete = c in complete_set
             size = 0
             speed = 0
-            size_complete = False
-            speed_complete = False
             best_size, best_speed = None, None
             my_size, my_speed = None, None
             if complete:
-                records = ChallengeResponse.objects.filter(challenge=c, is_correct=True).order_by('-rom_size')
+                records = ChallengeResponse.objects.filter(challenge=c, is_correct=True).order_by('rom_size')
                 if len(records) > 0:
                     best_size = records[0].rom_size
-                    records = records.order_by('-runtime')
+                    records = records.order_by('runtime')
                     best_speed = records[0].runtime
-                records = records.filter(student=me).order_by('-rom_size')
+                records = records.filter(student=me).order_by('rom_size')
                 if len(records) > 0:
                     my_size = records[0].rom_size
-                    records = records.order_by('-runtime')
+                    records = records.order_by('runtime')
                     my_speed = records[0].runtime
             sos = len( SOS.objects.filter(active=True, challenge=c).exclude(student=me) )
             challenge_list.append( (c, complete, my_size, my_size==best_size, my_speed, my_speed==best_speed, sos) )
@@ -143,15 +141,15 @@ def view_challenge(request, name):
         best_size, best_speed = None, None
         completed = False
         
-        records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('-rom_size')
+        records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('rom_size')
         if len(records) > 0:
             best_size = records[0].rom_size
-            records = records.order_by('-runtime')
+            records = records.order_by('runtime')
             best_speed = records[0].runtime
-        records = records.filter(student=me).order_by('-rom_size')
+        records = records.filter(student=me).order_by('rom_size')
         if len(records) > 0:
             my_size = records[0].rom_size
-            records = records.order_by('-runtime')
+            records = records.order_by('runtime')
             my_speed = records[0].runtime
             completed = True
         
@@ -221,7 +219,7 @@ def view_feedback(request, name):
                 f.helpful = helpful
                 f.save()
                 if helpful:
-                    f.author.award_xp(50)
+                    f.author.award_xp(25*challenge.difficulty)
                 me.award_xp(5)
                 LogEntry.log(request, "Marked as %shelpful"%("" if helpful else "un"))
 
@@ -320,6 +318,22 @@ def view_sos(request, name):
 def do_asm_challenge(request, student, challenge):
     code = request.POST.get("code") if "code" in request.POST else ""
     
+    # Get the old record before we save this one.
+    size_complete = False
+    speed_complete = False
+    best_size, best_speed = 0x10000, 0x10000
+    my_size, my_speed = 0x10000, 0x10000
+    records = ChallengeResponse.objects.filter(challenge=challenge, is_correct=True).order_by('rom_size')
+    if len(records) > 0:
+        best_size = records[0].rom_size
+        records = records.order_by('runtime')
+        best_speed = records[0].runtime
+    records = records.filter(student=student).order_by('rom_size')
+    if len(records) > 0:
+        my_size = records[0].rom_size
+        records = records.order_by('runtime')
+        my_speed = records[0].runtime
+    
     # Save this in the database whether it compiles or not.
     CR = ChallengeResponse()
     CR.student = student
@@ -331,7 +345,6 @@ def do_asm_challenge(request, student, challenge):
     # Only try to autograde if the program compiles.
     if assembler.assemble_and_store(request, "challenge", code, challenge.pattern,
                                     challenge.preamble, challenge.postamble):
-        
         completed = student in challenge.completed_by.all()
         results = autograde.grade( challenge, student, code, completed )
         
@@ -357,6 +370,36 @@ def do_asm_challenge(request, student, challenge):
                                               size and executed %d lines of
                                               code.'''%results))
             LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
+        
+        # Now check to see if a record is beaten.
+        if results:
+            size, speed = results
+            
+            # Check the size record. We either beat the old record, or we meet
+            # the old record and beat our OWN best.
+            if size < best_size:
+                request.session['alerts'].append(('alert-success',
+                                                  '''You beat the size record 
+                                                  of %d bytes! +%d XP'''%(best_size,challenge.xp/2)))
+                student.award_xp( challenge.xp/2 )
+            elif size == best_size and size < my_size:
+                request.session['alerts'].append(('alert-success',
+                                                  '''You reached the size record
+                                                  of %d bytes! +%d XP'''%(best_size,challenge.xp/2)))
+                student.award_xp( challenge.xp/2 )
+            
+            # Check the speed record. We either beat the old record, or we meet
+            # the old record and beat our OWN best.
+            if size < best_size:
+                request.session['alerts'].append(('alert-success',
+                                                  '''You beat the speed record of 
+                                                  of %d instructions! +%d XP'''%(best_speed,challenge.xp/2)))
+                student.award_xp( challenge.xp/2 )
+            elif size == best_size and size < my_size:
+                request.session['alerts'].append(('alert-success',
+                                                  '''You reached the speed record 
+                                                  of %d instructions! +%d XP'''%(best_speed,challenge.xp/2)))
+                student.award_xp( challenge.xp/2 )
     
     # Is there an SOS involved?
     if "sos" in request.POST and "help" in request.POST:
