@@ -165,8 +165,7 @@ class Assembler(object):
             if op:
                 if   op[0] != '.': self.org += self.size(op, arg)
                 elif op == ".org": self.org = self.num(arg)
-                elif op == ".byte": self.org += 1
-                elif op == ".word" or op == ".dw": self.org += 2
+                elif op == ".words" or op == ".dw": self.org += len(arg.split(','))*2
                 elif op == ".bytes" or op == ".db": self.org += len(arg.split(','))
                 elif op == ".define":
                     lab, val = arg.split('=')
@@ -188,16 +187,13 @@ class Assembler(object):
             if   op == '.define': pass
             elif op == '.org':
                 self.org = self.num(arg)
-            elif op == '.byte':
-                self.labels["*"] = self.org+1
-                self.write_prg( self.num(arg), self.org )
-                self.org += 1
-            elif op == '.word' or op == '.dw':
-                self.labels["*"] = self.org+2
-                val = self.num(arg)
-                self.write_prg( val, self.org )
-                self.write_prg( val>>8, self.org+1 )
-                self.org += 2
+            elif op == '.words' or op == '.dw':
+                for word in arg.split(','):
+                    self.labels["*"] = self.org+2
+                    val = self.num(word.strip())
+                    self.write_prg( val, self.org )
+                    self.write_prg( val>>8, self.org+1 )
+                    self.org += 2
             elif op == '.bytes' or op == '.db':
                 for byte in arg.split(','):
                     self.labels["*"] = self.org+1
@@ -476,6 +472,7 @@ def assemble_and_store(request, name, code, pattern=None, preamble="", postamble
     rom, errors = A.assemble( code, pattern, preamble, postamble )
     request.session["rom"] = rom
     request.session["rom_name"] = name
+    request.session["rom_code"] = code
     
     # Collect the alerts and store them in the 
     if "alerts" not in request.session: request.session["alerts"] = []

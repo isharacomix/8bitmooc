@@ -179,28 +179,22 @@ Assembly Cheat Sheet! This will be linked to the wiki in the future.
 <table class="table table-condensed">
 <tbody>
   <tr>
-    <td><code>.org [address]</code></td>
+    <td><code><a href="{% url 'help' page='org' %}">.org [address]</code></a></td>
     <td>change program counter</td>
-    <td><code>.define [label]=[value]</code></td>
+    <td><code><a href="{% url 'help' page='define' %}">.define [label]=[value]</code></a></td>
     <td>define a constant</td>
   </tr>
   <tr>
-    <td><code>.byte [byte]</code></td>
-    <td>add a byte directly to the code</td>
-    <td><code>.word [word]</code></td>
-    <td>add a word (two bytes)</td>
+    <td><code><a href="{% url 'help' page='bytes' %}">.bytes [byte1],[byte2],...</code></a></td>
+    <td>add bytes directly to the code</td>
+    <td><code><a href="{% url 'help' page='words' %}">.words [word1],[word2],...</code></a></td>
+    <td>add words (two bytes) directly to the code</td>
   </tr>
   <tr>
-    <td><code>.bytes [byte1],[byte2],...</code></td>
-    <td>add a comma seperated list of bytes to the code</td>
-    <td><code>.ascii "[string]"</code></td>
+    <td><code><a href="{% url 'help' page='ascii' %}">.ascii "[string]"</code></a></td>
     <td>add a string of ascii characters to the code</td>
-  </tr>
-  <tr>
-    <td><code>.db</code></td>
-    <td>synonym for ".bytes"</td>
-    <td><code>.dw</code></td>
-    <td>synonym for ".word"</td>
+    <td></td>
+    <td></td>
   </tr>
 </tbody>
 </table>

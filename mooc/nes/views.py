@@ -41,7 +41,8 @@ def view_playground(request):
     
     # Render the page.
     code = "; put default code here one day"
-    if 'code' in request.POST: code = request.POST['code']
+    if 'rom_code' in request.session:
+        code = request.session["rom_code"]
     elif 'source' in request.GET:
         try: code = Game.objects.get(id=int(request.GET['source'])).code
         except: pass
