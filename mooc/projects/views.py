@@ -150,5 +150,4 @@ def view_project(request, id):
                                             'project': project,
                                             'patterns': Pattern.objects.all(),
                                             'can_edit': can_edit} )
-    
-    
+

@@ -24,8 +24,11 @@ def view_playground(request):
     
     # Compile the code and save it in the database.
     good = False
+    pattern = None
     if request.method == "POST":
         code = request.POST.get("code") if "code" in request.POST else ""
+        try: pattern = Pattern.objects.get(name=str(request.POST.get("pattern")))
+        except: pass
         
         # Save this in the database whether it compiles or not.
         CR = ChallengeResponse()
@@ -33,7 +36,8 @@ def view_playground(request):
         CR.code = code
         CR.save()
 
-        good = assembler.assemble_and_store(request, "playground", code)
+        good = assembler.assemble_and_store(request, "playground", code, pattern)
+        
         if "download" in request.POST and good:
             return redirect("rom")
         else:
@@ -43,13 +47,19 @@ def view_playground(request):
     code = "; put default code here one day"
     if 'rom_code' in request.session:
         code = request.session["rom_code"]
+        pattern = request.session.get("rom_pattern")
     elif 'source' in request.GET:
-        try: code = Game.objects.get(id=int(request.GET['source'])).code
+        try:
+            game = Game.objects.get(id=int(request.GET['source']))
+            code = game.code
+            pattern = game.pattern
         except: pass
     elif me:
         subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
         if len(subs) > 0: code = subs[0].code
     return render(request, "playground.html", {'alerts': request.session.pop('alerts', []),
+                                               'pattern': pattern,
+                                               'patterns': Pattern.objects.all(),
                                                'code': code} )
 
 

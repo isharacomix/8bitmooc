@@ -473,6 +473,7 @@ def assemble_and_store(request, name, code, pattern=None, preamble="", postamble
     request.session["rom"] = rom
     request.session["rom_name"] = name
     request.session["rom_code"] = code
+    request.session["rom_pattern"] = pattern
     
     # Collect the alerts and store them in the 
     if "alerts" not in request.session: request.session["alerts"] = []
