@@ -11,8 +11,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
 from pages.models import Page
-from forum.models import DiscussionBoard
-from students.models import LogEntry
+from forum.models import DiscussionBoard, DiscussionPost
+from students.models import Student, LogEntry
 
 
 # On the index, we aggregate the newest posts in the 'news' forum so that
@@ -37,18 +37,30 @@ def search(request):
     
     # Go through the text and find a digest that will allow the user to
     # find relevant data.
-    pages = Page.objects.filter(content__icontains=query)
-    results = []
-    for p in pages:
-        i = p.content.index(query)
-        results.append( (p.name,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
+    pages = []
+    for p in Page.objects.filter(content__icontains=query):
+        i = p.content.lower().index(query.lower())
+        pages.append( (p.name,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
     
-    # TODO search through forum posts and games too
+    # Now search through the forums.
+    me = Student.from_request(request)
+    posts = []
+    projects = []
+    if me:
+        for p in DiscussionPost.objects.filter(content__icontains=query, hidden=False):
+            i = p.content.lower().index(query.lower())
+            if p.topic.board.restricted <= me.level or me.ta:
+                posts.append( (p.topic.board, p.topic.id,
+                               "..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
+    
+        # TODO search through games too
     
     LogEntry.log(request, "search")
     return render(request,
                   "search.html",
-                  {'results': results,
+                  {'pages': pages[:50],
+                   'posts': posts[:50],
+                   'projects': projects[:50],
                    'query': query,
                    'alerts': request.session.pop('alerts', []) })
 

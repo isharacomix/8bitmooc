@@ -10,8 +10,8 @@
                 <h2>Search Results for "{{query}}"</h2>
                 <h3>Help Pages</h3>
                 <ul>
-                {% if results %}
-                    {% for slug, digest in results %}
+                {% if pages %}
+                    {% for slug, digest in pages %}
                     
                         <li><strong><a href="{% url 'help' page=slug%}">{{slug}}</a></strong>: <em> {{digest}}</em></li>
                     
@@ -24,7 +24,20 @@
                 {% if user.is_authenticated %}
                 <h3>Forum Posts</h3>
                 
+                <ul>
+                {% if posts %}
+                    {% for board, thread, digest in posts %}
+                    
+                        <li><strong><a href="{% url 'thread' name=board.slug thread=thread%}">{{board.name}}</a></strong>: <em> {{digest}}</em></li>
+                    
+                    {% endfor %}
+                {% else %}
+                    No results.
+                {% endif %}
+                </ul>
+                
                 <h3>Projects</h3>
+
                 
                 {% endif %}
             </article>
