@@ -355,7 +355,7 @@ draw:                                   ;
         STX SPR_LPAD3+1                 ;
         LDX #$20                        ;
         STX SPR_LPAD4+1                 ;
-        LDX #$00                        ;
+        LDX #$01                        ;
         STX SPR_LPAD1+2                 ; Set the palette and flipping to 0.
         STX SPR_LPAD2+2                 ;
         STX SPR_LPAD3+2                 ;
@@ -386,7 +386,7 @@ draw:                                   ;
         STX SPR_RPAD3+1                 ;
         LDX #$20                        ;
         STX SPR_RPAD4+1                 ;
-        LDX #$01                        ;
+        LDX #$02                        ;
         STX SPR_RPAD1+2                 ; Set the palette and flipping to 0.
         STX SPR_RPAD2+2                 ;
         STX SPR_RPAD3+2                 ;
@@ -399,7 +399,7 @@ draw:                                   ;
         STA SPR_LSCR1+1                 ;
         ADC #$10                        ;
         STA SPR_LSCR2+1                 ;
-        LDX #$03                        ;
+        LDX #$01                        ;
         STX SPR_LSCR1+2                 ;
         STX SPR_LSCR2+2                 ;
         LDA #60                         ;
@@ -446,13 +446,13 @@ draw:                                   ;
         .org $E000                      ;
 palette:                                ;
         .db $0F,$31,$32,$33             ;
-        .db $34,$35,$36,$37             ;
-        .db $38,$39,$3A,$3B             ;
-        .db $3C,$3D,$3E,$0F             ;
-        .db $0F,$1C,$15,$14             ;
-        .db $31,$02,$38,$3C             ;
-        .db $0F,$1C,$15,$14             ;
-        .db $31,$02,$38,$3C             ;
+        .db $0F,$35,$36,$37             ;
+        .db $0F,$39,$3A,$3B             ;
+        .db $0F,$3D,$3E,$0F             ;
+        .db $0F,$28,$18,$38             ;
+        .db $0F,$1C,$0C,$2C             ;
+        .db $0F,$15,$05,$25             ;
+        .db $0F,$02,$38,$3C             ;
 ;----------------------------------------
 ;
 ;
@@ -465,5 +465,6 @@ palette:                                ;
                                         ;   is reset, it will jump to RESET
         .dw 0                           ; External interrupt IRQ is not used
 ;----------------------------------------
+
 
 

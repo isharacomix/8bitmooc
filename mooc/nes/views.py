@@ -41,14 +41,16 @@ def view_playground(request):
         CR.code = code
         CR.save()
         
-        # Convert the last code submission into a diff image.
+        # Convert the last code submission into a diff image, but only save it
+        # if the diff is actually smaller than the full code.
         if old:
             old.parent = CR
             old_code = old.code
             old.code = ""
             for d in difflib.unified_diff( old_code.splitlines(), CR.code.splitlines()):
                 old.code += d + "\n"
-            old.save()
+            if len(old.code) < len(old_code):
+                old.save()
 
         good = assembler.assemble_and_store(request, "playground", code, pattern)
         
