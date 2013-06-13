@@ -74,7 +74,8 @@ it works.
 
 Opcodes and Arguments
 ---------------------
-One of the most important resources for an assembly programmer
+One of the most important resources for an assembly programmer is the
+**spec sheet**
 
 
 Navigation
