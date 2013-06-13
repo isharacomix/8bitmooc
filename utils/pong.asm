@@ -3,11 +3,6 @@
 ; PING PONG
 ; An NES Game
 ;
-;----------------------------------------
-        .org $C000                      ;
-;----------------------------------------
-;
-;
 ; This portion of our code puts the system back into a known state. We don't
 ; exit this code until the memory is reset and the PPU has warmed up (two
 ; vertical blanks).
@@ -65,10 +60,38 @@ loadpalettes:                           ;
         CPX #$20                        ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
         BNE loadpalettes                ; Branch to LoadPalettesLoop if compare was Not Equal to zero
                                         ; if compare was equal to 32, keep going down
-        LDA #%10000000                  ; enable NMI, sprites from Pattern Table 1
+                                        
+                                        
+        
+LoadBackground:
+
+  LDA $2002             ; read PPU status to reset the high/low latch
+  LDA #$20
+  STA $2006             ; write the high byte of $2000 address
+  LDA #$00
+  STA $2006             ; write the low byte of $2000 address
+  LDX #$00              ; start out at 0
+  LDA #1
+Bkgloop:
+  STA $2007
+  STA $2007
+  STA $2007
+  STA $2007
+  DEX
+  BNE Bkgloop
+                                        
+        LDA #%10010000                  ; enable NMI, sprites from Pattern Table 1
         STA $2000                       ;
-        LDA #%00010000                  ; enable sprites
+        LDA #%00011110                  ; enable sprites
         STA $2001                       ;
+        LDA #$00
+        STA $2005
+        STA $2005
+        
+
+  
+  
+  
 ;----------------------------------------
 ;
 ;
@@ -265,7 +288,7 @@ draw:                                   ;
         LDY BALL_Y                      ;
         STY $304                        ; Store the position of the ball
         STX $307                        ;
-        LDX #$00                        ; Pick the ball's sprite
+        LDX #$30                        ; Pick the ball's sprite
         STX $305                        ;
         STX $306                        ;
         
@@ -286,6 +309,18 @@ draw:                                   ;
         STX $313
         STX $317
         
+        LDX #$0             ; Set the sprites for the left paddle equal to
+        STX $309            ; the three sprites on the top left.
+        LDX #$10
+        STX $30D
+        STX $311
+        LDX #$20
+        STX $315
+        STX $316            ; Set the palette and flipping to 0.
+        STX $312
+        STX $30A
+        STX $30E
+        
 
         LDX #230
         LDA PADDLE_2Y
@@ -303,6 +338,22 @@ draw:                                   ;
         STX $31F
         STX $323
         STX $327
+        
+        LDX #$0             ; Set the sprites for the right paddle equal to
+        STX $319            ; the three sprites on the top left.
+        LDX #$10
+        STX $31D
+        STX $321
+        LDX #$20
+        STX $325
+        STX $326            ; Set the palette and flipping to 0.
+        STX $322
+        STX $31A
+        STX $31E
+        
+        ; Now we draw the background
+        
+        
         
         LDA #$00                        ; Now pass the OAM parameters to the PPU
         STA $2003                       ;   and do DMA
@@ -348,4 +399,5 @@ sprites:                                ; vert tile attr horiz
                                         ;   is reset, it will jump to RESET
         .dw 0                           ; External interrupt IRQ is not used
 ;----------------------------------------
+
 
