@@ -71,8 +71,9 @@ LoadBackground:
   LDA #$00
   STA $2006             ; write the low byte of $2000 address
   LDX #$00              ; start out at 0
-  LDA #1
+  LDA #0x00
 Bkgloop:
+  STA $2007
   STA $2007
   STA $2007
   STA $2007
@@ -290,6 +291,7 @@ draw:                                   ;
         STX $307                        ;
         LDX #$30                        ; Pick the ball's sprite
         STX $305                        ;
+        LDX #$00
         STX $306                        ;
         
         LDX #16
@@ -316,6 +318,7 @@ draw:                                   ;
         STX $311
         LDX #$20
         STX $315
+        LDX #$00
         STX $316            ; Set the palette and flipping to 0.
         STX $312
         STX $30A
@@ -346,12 +349,47 @@ draw:                                   ;
         STX $321
         LDX #$20
         STX $325
+        LDX #$00
         STX $326            ; Set the palette and flipping to 0.
         STX $322
         STX $31A
         STX $31E
         
-        ; Now we draw the background
+        ; Now we draw score
+        CLC
+        LDA P1_SCORE
+        ADC #$E0
+        STA $331
+        ADC #$10
+        STA $335
+        STX $332
+        STX $336
+        LDA #60
+        STA $333
+        STA $337
+        LDA #200
+        STA $330
+        ADC #8
+        STA $334
+        LDA P2_SCORE
+        ADC #$E0
+        STA $339
+        ADC #$10
+        STA $33D
+        STX $33A
+        STX $33E
+        LDA #200
+        STA $33B
+        STA $33F
+        LDA #200
+        STA $338
+        ADC #8
+        STA $33C
+        
+        
+        
+        
+        
         
         
         
