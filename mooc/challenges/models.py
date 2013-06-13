@@ -105,6 +105,15 @@ class ChallengeResponse(models.Model):
                                        auto_now_add=True,
                                        help_text="""The time that the response
                                        was submitted.""")
+    parent      = models.ForeignKey("self",
+                                    verbose_name="Parent",
+                                    null=True,
+                                    blank=True,
+                                    help_text="""If the Parent is True, it means
+                                    that this submission's code is actually a
+                                    unified diff. This helps minimize the space
+                                    used by code submissions in the code
+                                    playground.""")
     code        = models.TextField("Code",
                                    help_text="""This is either the code of an
                                    autograded challenge or the URL of a jam.""")

@@ -13,6 +13,7 @@ from challenges.models import ChallengeResponse
 from nes.models import Game, Pattern
 
 from nes import assembler
+import difflib
 
 
 # The playground is just an assembler web page that students can use whether
@@ -26,6 +27,10 @@ def view_playground(request):
     good = False
     pattern = None
     if request.method == "POST":
+        try: old = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')[0]
+        except: old = None
+        
+        # Get code from the POST request.
         code = request.POST.get("code") if "code" in request.POST else ""
         try: pattern = Pattern.objects.get(name=str(request.POST.get("pattern")))
         except: pass
@@ -35,6 +40,15 @@ def view_playground(request):
         CR.student = me
         CR.code = code
         CR.save()
+        
+        # Convert the last code submission into a diff image.
+        if old:
+            old.parent = CR
+            old_code = old.code
+            old.code = ""
+            for d in difflib.unified_diff( old_code.splitlines(), CR.code.splitlines()):
+                old.code += d + "\n"
+            old.save()
 
         good = assembler.assemble_and_store(request, "playground", code, pattern)
         
