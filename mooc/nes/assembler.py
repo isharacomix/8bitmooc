@@ -275,7 +275,7 @@ class Assembler(object):
             else: self.err("Illegal opcode/directive %s"%op)
         
         # Set the ines header. We don't honor different mapper bits.
-        header = [ 0x4E, 0x45, 0x53, 0x1A, 1, 1, 1, 0,
+        header = [ 0x4E, 0x45, 0x53, 0x1A, 1, 1, 8, 0,
                    0, 0, 0 , 0, 0, 0, 0 , 0]
         
         # If there are any errors, nothing is assembled.

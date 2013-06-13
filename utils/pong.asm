@@ -45,7 +45,7 @@ vblankwait2:                            ; After 2 vertical blanks, the PPU is
 ;----------------------------------------
 ;
 ;
-; Here, we prepare our sprites.
+; Now we load our sprite palettes.
 ;----------------------------------------
         LDA $2002                       ; read PPU status to reset the high/low latch
         LDA #$3F                        ;
@@ -59,51 +59,51 @@ loadpalettes:                           ;
         INX                             ; X = X + 1
         CPX #$20                        ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
         BNE loadpalettes                ; Branch to LoadPalettesLoop if compare was Not Equal to zero
-                                        ; if compare was equal to 32, keep going down
-                                        
-                                        
-        
-LoadBackground:
-
-  LDA $2002             ; read PPU status to reset the high/low latch
-  LDA #$20
-  STA $2006             ; write the high byte of $2000 address
-  LDA #$00
-  STA $2006             ; write the low byte of $2000 address
-  LDX #$00              ; start out at 0
-  LDA #0x00
-Bkgloop:
-  STA $2007
-  STA $2007
-  STA $2007
-  STA $2007
-  STA $2007
-  DEX
-  BNE Bkgloop
-                                        
+;end of loadpalettes                    ; if compare was equal to 32, keep going down
+;----------------------------------------
+;
+;
+; Now load a blank background. We need to fill $1000 bytes from $2000 to $3000
+;----------------------------------------
+        LDA $2002                       ; read PPU status to reset the high/low latch                                      
+        LDA #$20                        ; Background VRAM starts at $2000
+        STA $2006                       ;
+        LDA #$00                        ;
+        STA $2006                       ;
+        LDA #$00                        ; We will zero out the VRAM.
+        LDX #$10                        ; We have to iterate over 0-256 only $10 times.
+        LDY #$00                        ;
+bkgloop:                                ;
+        STA $2007                       ; Write to the VRAM. Note that no matter how the
+        DEY                             ; scroll mirroring is set, this will work.
+        BNE bkgloop                     ; BNE will jump if Y != 0
+        DEX                             ;
+        BNE bkgloop                     ; BNE will jump if X != 0
+;----------------------------------------
+;
+;
+; Now we enable the sprites, graphics, and NMI interrupts. We set the sprites
+; to the left pattern table and the graphics to the right.
+;----------------------------------------
         LDA #%10010000                  ; enable NMI, sprites from Pattern Table 1
         STA $2000                       ;
         LDA #%00011110                  ; enable sprites
         STA $2001                       ;
-        LDA #$00
-        STA $2005
-        STA $2005
-        
-
-  
-  
-  
+        LDA #$00                        ;
+        STA $2005                       ; Set the scrolling to 0
+        STA $2005                       ;
 ;----------------------------------------
 ;
 ;
-; This is an infinite loop. In a "real program", we might put logic here.
-; We do all of the logic in the NMI segment, though.
+; This is the initial game start code. We simply set the initial values of
+; all of the variables, then go into an infinite loop, since the game logic
+; occurs during the NMI.
 ;----------------------------------------
 gamestart:                              ;
-        LDX #100                         ; DEBUG: Starting position of the ball
-        LDY #120
-        STY PADDLE_1Y
-        STY PADDLE_2Y
+        LDX #100                        ; DEBUG: Starting position of the ball
+        LDY #120                        ; and the paddles.
+        STY PADDLE_1Y                   ;
+        STY PADDLE_2Y                   ;
         STX BALL_X                      ;
         STY BALL_Y                      ;
         LDA #1                          ;
@@ -113,6 +113,7 @@ forever:                                ; Infinite loop - we do all of our
         JMP forever                     ;   logic during NMI.
 ;----------------------------------------
 ;
+;
 ;         NMI Section (main loop)
 ;         Each frame, we...
 ;            Advance the ball a step
@@ -120,6 +121,7 @@ forever:                                ; Infinite loop - we do all of our
 ;            If up/down are pressed, move the paddle
 ;            Check for collisions
 ;            Change ball's direction if it collides with the paddle
+;            If either player hits 10 points, start them both over
 ;            Draw the paddles, score, etc.
 ; 
 ;----------------------------------------
@@ -140,6 +142,7 @@ NMI:                                    ;
         LDX BALL_X                      ; Prepare the 'collisions' subroutine
         LDY BALL_Y                      ;
         JSR collisions                  ; 
+        JSR resetscore                  ;
         JSR draw                        ; Draw paddles, ball, scores
         RTI                             ;
 ;----------------------------------------
@@ -272,6 +275,29 @@ endcollisions:
 ;----------------------------------------
 ;
 ;
+; Subroutine    : resetscore
+; Precondition  : 
+; Postcondition :
+; Cleanup       :
+; Errors        :
+;
+; This resets the score to zero if either player gets 10 points.
+;----------------------------------------
+resetscore:                             ;
+        LDA #10                         ; If the score is 10 for either player,
+        CMP P1_SCORE                    ; go and actually reset the score.
+        BEQ doresetscore                ;
+        CMP P2_SCORE                    ;
+        BEQ doresetscore                ;
+        RTS                             ; Otherwise, do an early return.
+doresetscore:                           ;
+        LDA #0                          ; Set both player's scores to 0 and
+        STA P1_SCORE                    ; then return.
+        STA P2_SCORE                    ;
+        RTS                             ;
+;----------------------------------------
+;
+;
 ; Subroutine    : draw
 ; Precondition  : 
 ; Postcondition : The ball, paddles, and scores are displayed.
@@ -279,120 +305,127 @@ endcollisions:
 ; Errors        : N/A
 ;
 ; This code works by taking the parameters from the code and setting the
-; OAM sprites on page 3.
-;   Sprite 1: ball (8x8)
-;   Sprite 2-5: top of paddle 1
-;   Sprite 6-9: paddle 2
+; OAM sprites on page $3.
 ;----------------------------------------
+        .define SPR_BALL=$304           ; The ball is just one 8x8 tile
+        .define SPR_LPAD1=$308          ; The paddles are 8x32
+        .define SPR_LPAD2=$30C          ;
+        .define SPR_LPAD3=$310          ;
+        .define SPR_LPAD4=$314          ;
+        .define SPR_RPAD1=$318          ; The right paddle is also 8x32
+        .define SPR_RPAD2=$31C          ;
+        .define SPR_RPAD3=$320          ;
+        .define SPR_RPAD4=$324          ;
+        .define SPR_LSCR1=$328          ; The score is an 8x16 sprite
+        .define SPR_LSCR2=$32C          ;
+        .define SPR_RSCR1=$330          ; The right score is also an 8x16 sprite
+        .define SPR_RSCR2=$334          ;
 draw:                                   ;
         LDX BALL_X                      ; First load the position of the ball
         LDY BALL_Y                      ;
-        STY $304                        ; Store the position of the ball
-        STX $307                        ;
+        STY SPR_BALL+0                  ; Store the position of the ball
+        STX SPR_BALL+3                  ;
         LDX #$30                        ; Pick the ball's sprite
-        STX $305                        ;
-        LDX #$00
-        STX $306                        ;
-        
-        LDX #16
-        LDA PADDLE_1Y
-        STA $308
-        CLC
-        ADC #8
-        STA $30C
-        CLC
-        ADC #8
-        STA $310
-        CLC
-        ADC #8
-        STA $314
-        STX $30B
-        STX $30F
-        STX $313
-        STX $317
-        
-        LDX #$0             ; Set the sprites for the left paddle equal to
-        STX $309            ; the three sprites on the top left.
-        LDX #$10
-        STX $30D
-        STX $311
-        LDX #$20
-        STX $315
-        LDX #$00
-        STX $316            ; Set the palette and flipping to 0.
-        STX $312
-        STX $30A
-        STX $30E
-        
-
-        LDX #230
-        LDA PADDLE_2Y
-        STA $318
-        CLC
-        ADC #8
-        STA $31C
-        CLC
-        ADC #8
-        STA $320
-        CLC
-        ADC #8
-        STA $324
-        STX $31B
-        STX $31F
-        STX $323
-        STX $327
-        
-        LDX #$0             ; Set the sprites for the right paddle equal to
-        STX $319            ; the three sprites on the top left.
-        LDX #$10
-        STX $31D
-        STX $321
-        LDX #$20
-        STX $325
-        LDX #$00
-        STX $326            ; Set the palette and flipping to 0.
-        STX $322
-        STX $31A
-        STX $31E
-        
-        ; Now we draw score
-        CLC
-        LDA P1_SCORE
-        ADC #$E0
-        STA $331
-        ADC #$10
-        STA $335
-        STX $332
-        STX $336
-        LDA #60
-        STA $333
-        STA $337
-        LDA #200
-        STA $330
-        ADC #8
-        STA $334
-        LDA P2_SCORE
-        ADC #$E0
-        STA $339
-        ADC #$10
-        STA $33D
-        STX $33A
-        STX $33E
-        LDA #200
-        STA $33B
-        STA $33F
-        LDA #200
-        STA $338
-        ADC #8
-        STA $33C
-        
-        
-        
-        
-        
-        
-        
-        
+        STX SPR_BALL+1                  ;
+        LDX #$00                        ; Set the ball's palette
+        STX SPR_BALL+2                  ;
+                                        ;
+        ; paddle                        ;
+        LDX #16                         ; The X position of the paddle is fixed
+        LDA PADDLE_1Y                   ; The Y position marks the top pixel.
+        STA SPR_LPAD1                   ; We add 8 pixels each time
+        CLC                             ;
+        ADC #8                          ; 
+        STA SPR_LPAD2                   ;
+        CLC                             ;
+        ADC #8                          ;
+        STA SPR_LPAD3                   ;
+        CLC                             ;
+        ADC #8                          ;
+        STA SPR_LPAD4                   ;
+        STX SPR_LPAD1+3                 ;
+        STX SPR_LPAD2+3                 ;
+        STX SPR_LPAD3+3                 ;
+        STX SPR_LPAD4+3                 ;
+                                        ;
+        LDX #$0                         ; Set the sprites for the left paddle equal to
+        STX SPR_LPAD1+1                 ; the three sprites on the top left.
+        LDX #$10                        ;
+        STX SPR_LPAD2+1                 ;
+        STX SPR_LPAD3+1                 ;
+        LDX #$20                        ;
+        STX SPR_LPAD4+1                 ;
+        LDX #$00                        ;
+        STX SPR_LPAD1+2                 ; Set the palette and flipping to 0.
+        STX SPR_LPAD2+2                 ;
+        STX SPR_LPAD3+2                 ;
+        STX SPR_LPAD4+2                 ;
+                                        ;
+        ; right paddle                  ;
+        LDX #230                        ;
+        LDA PADDLE_2Y                   ;
+        STA SPR_RPAD1                   ;
+        CLC                             ;
+        ADC #8                          ;
+        STA SPR_RPAD2                   ;
+        CLC                             ;
+        ADC #8                          ;
+        STA SPR_RPAD3                   ;
+        CLC                             ;
+        ADC #8                          ;
+        STA SPR_RPAD4                   ;
+        STX SPR_RPAD1+3                 ;
+        STX SPR_RPAD2+3                 ;
+        STX SPR_RPAD3+3                 ;
+        STX SPR_RPAD4+3                 ;
+                                        ;
+        LDX #$0                         ; Set the sprites for the right paddle equal to
+        STX SPR_RPAD1+1                 ; the three sprites on the top left.
+        LDX #$10                        ;
+        STX SPR_RPAD2+1                 ;
+        STX SPR_RPAD3+1                 ;
+        LDX #$20                        ;
+        STX SPR_RPAD4+1                 ;
+        LDX #$01                        ;
+        STX SPR_RPAD1+2                 ; Set the palette and flipping to 0.
+        STX SPR_RPAD2+2                 ;
+        STX SPR_RPAD3+2                 ;
+        STX SPR_RPAD4+2                 ;
+                                        ;
+        ; Now we draw score             ;
+        CLC                             ;
+        LDA P1_SCORE                    ;
+        ADC #$E0                        ;
+        STA SPR_LSCR1+1                 ;
+        ADC #$10                        ;
+        STA SPR_LSCR2+1                 ;
+        LDX #$03                        ;
+        STX SPR_LSCR1+2                 ;
+        STX SPR_LSCR2+2                 ;
+        LDA #60                         ;
+        STA SPR_LSCR1+3                 ;
+        STA SPR_LSCR2+3                 ;
+        LDA #200                        ;
+        STA SPR_LSCR1+0                 ;
+        ADC #8                          ;
+        STA SPR_LSCR2+0                 ;
+        LDA P2_SCORE                    ;
+        ADC #$E0                        ;
+        STA SPR_RSCR1+1                 ;
+        ADC #$10                        ;
+        STA SPR_RSCR2+1                 ;
+        LDX #$02                        ;
+        STX SPR_RSCR1+2                 ;
+        STX SPR_RSCR2+2                 ;
+        LDA #200                        ;
+        STA SPR_RSCR1+3                 ;
+        STA SPR_RSCR2+3                 ;
+        LDA #200                        ;
+        STA SPR_RSCR1+0                 ;
+        ADC #8                          ;
+        STA SPR_RSCR2+0                 ;
+                                        ;
+        ; OAM                           ;
         LDA #$00                        ; Now pass the OAM parameters to the PPU
         STA $2003                       ;   and do DMA
         LDA #$03                        ; Page 3 has our sprites.
@@ -408,7 +441,7 @@ draw:                                   ;
 ;----------------------------------------
 ;
 ;
-; Bank 1 - ROM Data segment and interrupt table
+; Palettes and and interrupt table
 ;----------------------------------------
         .org $E000                      ;
 palette:                                ;
@@ -420,11 +453,6 @@ palette:                                ;
         .db $31,$02,$38,$3C             ;
         .db $0F,$1C,$15,$14             ;
         .db $31,$02,$38,$3C             ;
-sprites:                                ; vert tile attr horiz
-        .db $80, $32, $00, $80          ; sprite 0
-        .db $80, $33, $00, $88          ; sprite 1
-        .db $88, $34, $00, $80          ; sprite 2
-        .db $88, $35, $00, $88          ; sprite 3
 ;----------------------------------------
 ;
 ;

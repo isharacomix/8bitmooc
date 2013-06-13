@@ -32,7 +32,7 @@ class Emulator(object):
         self.sram = [0x00]*0x2000   # Battery backed RAM, from $6000-$8000.
         self.vram = [0x00]*0x4000   # PPU RAM
         self.oam = [0x00]*4*64      # OAM (sprite data)
-        self.vram_mirror = 1        # 0 all mirror, 1 vert, 2 horiz, 3 unique
+        self.vram_mirror = 3        # 0 all mirror, 1 vert, 2 horiz, 3 unique
         
         self.debug = []
         self.last_op = None
