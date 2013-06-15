@@ -60,7 +60,23 @@ divided in to 256 pages of 256 bytes each. When represented in hex notation,
 such as ```$4400```, the higher byte of the address ($44) represents the page
 number, and the lower byte ($00) represents the byte number within that page.
 
+Some pages in memory have special purposes. Some can store information, some are
+read-only, some are especially for graphics, and some are actually connected
+directly to the other hardware of the NES, such as the controller and sound
+chip. The details of these pages is outlined in the [[memory map|memory_map]],
+but we'll go over most of them before this tutorial is over.
 
+
+Registers
+---------
+When it comes down to it, programming in assembly is basically comes down to
+picking up data from memory, doing something with it, and putting it back in
+memory - maybe in the same place, maybe somewhere different. Rinse, lather,
+repeat. When data is in memory, there isn't much you can do with it. Not to
+mention, accessing data in memory is relatively slow.
+
+However, the 6502 can store 3 bytes of data on the *processor itself* in memory
+location called **registers**.
 
 
 
