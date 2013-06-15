@@ -47,7 +47,9 @@ def view_board(request, name):
     # First, try to get the board.
     try: board = DiscussionBoard.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
-    if board.restricted > me.level and not me.ta: raise Http404()
+    if board.restricted > me.level and not me.ta:
+        request.session["alerts"].append(("alert-error","You need to be a higher level to view this forum."))
+        return redirect( "board", name=board.slug )
     
     # Get the page number!
     page = 0
@@ -107,7 +109,9 @@ def view_thread(request, name, thread):
         board = DiscussionBoard.objects.get(slug=name)
         topic = DiscussionTopic.objects.get(id=thread, board=board)
     except exceptions.ObjectDoesNotExist: raise Http404()
-    if not me.ta and (topic.hidden or board.restricted > me.level): raise Http404()
+    if not me.ta and (topic.hidden or board.restricted > me.level):
+        request.session["alerts"].append(("alert-error","You need to be a higher level to view this forum."))
+        return redirect( "board", name=board.slug )
     
     # If this is a POST, we are either replying to someone or we are voting.
     # Manage permissions respectively and redirect.
