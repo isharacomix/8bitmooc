@@ -219,6 +219,8 @@ class Assembler(object):
                 self.labels["*"] = self.org+2
                 self.write_prg( SYMBOL_TABLE[op], self.org )
                 self.write_prg( self.num(arg)-self.org-2, self.org+1 )
+                if abs(self.num(arg)-self.org-2) > 120:
+                    self.err("Branch exceeds one-byte limit. Use a JMP instead.")
                 self.org += 2
             elif op == 'jsr':
                 self.labels["*"] = self.org+3

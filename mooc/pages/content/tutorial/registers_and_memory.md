@@ -1,5 +1,8 @@
 Registers and Memory
 ====================
+In this tutorial, we're going to talk about how data is stored on the NES, and
+how it is understood by the 6502 processor.
+
 
 What is a Byte?
 ---------------
@@ -38,8 +41,8 @@ the number 861 would be represented by two bytes, in this order:
     01011101 00000011
 
 This may seem counter intuitive at first, since the numbers appear backwards
-and all tangled up. However, imagine doing addition and trying to carry a value
-across multiple bytes - the processor reads data from left to right, and it
+and all tangled up. However, imagine doing addition, and what it's like to
+"carry the one". Since the processor reads data from left to right, it
 is much easier to carry the 1 in the direction that the processor already reads
 rather than trying to work backwards. While it is possible to add any number
 of bytes together to make arbitrarily large numbers, two bytes together are
@@ -55,7 +58,7 @@ given a 16-bit address (two bytes... or, as we just read, a *word*), so in a
 game, the byte at address ```$20A``` might be the player's remaining lives, and
 ```$215``` might be the vertical position of a monster on the screen.
 
-In order to organize the memory, the 65536 possible memory addresses are
+In order to organize the memory, the 65536 possible memory **addresses** are
 divided in to 256 pages of 256 bytes each. When represented in hex notation,
 such as ```$4400```, the higher byte of the address ($44) represents the page
 number, and the lower byte ($00) represents the byte number within that page.
@@ -69,16 +72,115 @@ but we'll go over most of them before this tutorial is over.
 
 Registers
 ---------
-When it comes down to it, programming in assembly is basically comes down to
+When data is stored in memory, it mostly remains unchanged. In order to use it
+for addition, subtraction, or other kinds of manipulation, the processor needs
+to take it out of memory and hold on to it. The 6502 can store 3 bytes
+of data on the *processor itself* in memory locations called "registers".
+Registers are like memory, except because they are located directly on the
+processor, they are much faster and excellent for information that will be
+changing very frequently.
+
+When it comes down to it, programming in assembly essentially boils down to
 picking up data from memory, doing something with it, and putting it back in
 memory - maybe in the same place, maybe somewhere different. Rinse, lather,
-repeat. When data is in memory, there isn't much you can do with it. Not to
-mention, accessing data in memory is relatively slow.
+repeat. When data is "picked up" it is loaded in the processor's registers in
+order to be on hand for manipulation. When it is "put back", it is stored
+back in memory.
 
-However, the 6502 can store 3 bytes of data on the *processor itself* in memory
-location called **registers**.
+Unlike memory, registers don't have addresses - they just have names: *A*, *X*,
+and *Y*. The A register, also called the [[accumulator]], is the register used
+most often when doing arithmetic. Operations like [[ADC|adc]] add the argument
+to the value in the accumulator, and store the result in the accumulator.
+Operations like [[SBC|sbc]] and [[AND|and]] behave the same way.
+
+The *X* and *Y* registers are referred to as [[index registers|index_registers]].
+Index registers are not used for arithmetic, but are often used for counting.
+The [[INX|inx]] and [[DEX|dex]] arguments increase and decrease the value in the
+X register by 1, while [[INY|iny]] and [[DEY|dey]] do the same thing for the
+Y register.
+
+Last, but not least, the processor also has a special 16-bit register that you
+can't access directly called the **program counter**. When you assemble a program
+for the NES, the binary code is stored in memory at location ```$8000```. The
+program counter contains the memory address of the next instruction to be read.
+When you perform a [[JMP|jmp]] or branch instruction, you are changing the value
+in the program counter so that it will execute a different instruction.
 
 
+Examples in Code
+----------------
+Let's look at the following code sample to see how memory and registers are
+used on the 6502. This sample does something really silly - it just sets the
+A register to "44", and adds the value in memory location ```$8``` over and
+over again until it equals 100. Then it stores the A register in the memory
+location ```$8 + X register```.
+
+        LDA #44     ; This instruction says "load the value 44 into the
+                    ; the A register". The "#" in front of the number means
+                    ; to treat the argument as a literal value.
+    loop:           ; 
+        ADC $8      ; This instruction says "load the value stored at memory
+                    ; address $8 and add it to the A register". Unlike the ADC
+                    ; instruction above, there is no "#" sign, so the argument
+                    ; is a memory location, not a literal number. The dollar
+                    ; sign indicates that it is a hexadecimal number.
+        CMP #100    ; This instruction says to "compare the value 100 with
+                    ; the A register". Once again, the "#" symbole indicates
+                    ; the 100 should be treated as a literal number.
+        BEQ loop    ; This instruction says "if the result of the previous
+                    ; comparison was equal, jump to the memory location of
+                    ; the 'loop' label". Labels are actually shorthand for
+                    ; memory addresses that correspond to where the binary
+                    ; program code is located. If you were to do an "lda loop",
+                    ; you would get the binary code for the "ADC" instruction
+        STA $8,X    ; This instruction says "store the value in the A register
+                    ; in the memory location $8 plus the X register". The index
+                    ; registers are special since you can add them to instructions
+                    ; like this in order to change the memory addresses used
+                    ; in instructions. The X and Y registers can't be used with
+                    ; the "#" symbol.
+
+In the 6502 assembly language, all arguments to instructions are either literal
+values (which start with the "#" symbol) or memory addresses.
+
+Also, in this example, we see a special feature of the index registers - it's
+possible to add them to memory locations in order to change where data is
+written or read from. When they are used in this way, it is called **offset
+addressing**, since the register acts as an offset to where the data is being
+written. You may wonder how this could be useful... one example is when you need
+to copy a single value to multiple locations.
+
+        LDX #0      ; We are going to put "42" in all of the memory locations
+        LDA #42     ; on the zero page!
+    loop2:          ;
+        STA $0, X   ; Store "42" at 0+X.
+        INX         ; Increment the X register.
+        CPX #$0     ; When the X register wraps back around to 0, we can stop.
+        BNE loop2   ; Otherwise, continue looping.
+
+This allows you to do the same thing 256 times with only six instructions. Loops
+are very powerful.
+
+
+Special Memory Locations
+------------------------
+Below, we'll cover the most important memory locations. If you are interested
+in a deeper discussion, visit the [[memory map|memory_map]] page.
+
+ * Pages $00-$07: **Random Access Memory**, or [[RAM|ram]]. This is a general
+   purpose area where you can store any data for a game that you need to.
+ * Page $00: The [[Zero Page|zero_page]], a special area of RAM that is faster
+   to access than RAM in the other pages. This should be used for data that
+   changes frequently, like position, health, lives, etc.
+ * Page $01: The [[Stack|stack]], another special page of RAM. You shouldn't use
+   this one. It will be explained in [[Part 5|subroutines_and_the_stack]] of
+   this tutorial.
+ * Page $20: Graphics Hardware Interface ([[PPU|ppu]]).
+ * Page $40: Sound and Controller Interface ([[APU|apu]]).
+ * Pages $80-$FF: **Program Read-Only Memory**, or [[PRG ROM|prg_rom]]. This is
+   where the compiled assembly code is stored after being compiled. In general,
+   this code can not be written to - only read from.
+   
 
 Navigation
 ----------

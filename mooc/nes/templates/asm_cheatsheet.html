@@ -1,6 +1,7 @@
 
 <p>
-Assembly Cheat Sheet! This will be linked to the wiki in the future.
+Assembly Cheat Sheet! Click on an opcode, directive, or memory location to read
+its help page!
 </p>
 
 <table class="table table-condensed">
@@ -15,11 +16,11 @@ Assembly Cheat Sheet! This will be linked to the wiki in the future.
     <td><code><a href="{% url 'help' page='asl' %}">ASL</a></code></td>
     <td>Arithmetic Shift Left</td>
     <td><code><a href="{% url 'help' page='bcc' %}">BCC</a></code></td>
-    <td>Branch on Carry Clear</td>
+    <td>Branch on Carry Clear (less than)</td>
   </tr>
   <tr>
     <td><code><a href="{% url 'help' page='bcs' %}">BCS</a></code></td>
-    <td>Branch on Carry Set</td>
+    <td>Branch on Carry Set (greater than/equal to)</td>
     <td><code><a href="{% url 'help' page='beq' %}">BEQ</a></code></td>
     <td>Branch if EQual</td>
   </tr>
@@ -176,6 +177,8 @@ Assembly Cheat Sheet! This will be linked to the wiki in the future.
 </tbody>
 </table>
 
+
+
 <table class="table table-condensed">
 <tbody>
   <tr>
@@ -198,5 +201,27 @@ Assembly Cheat Sheet! This will be linked to the wiki in the future.
   </tr>
 </tbody>
 </table>
+
+
+
+<table class="table table-condensed">
+<tbody>
+  <tr>
+    <td><code>$4016 (read/write)</code></td>
+    <td>Player 1's controller. Write a 1, followed by 0 to bit 0 to
+        enable reading the button presses.</td>
+  </tr>
+  <tr>
+    <td><code>$4016 (read)</code></td>
+    <td>Player 1's controller. Bit 0 can be read 8 times to read the 8 buttons:
+        A, B, Start, Select, Up, Down, Left, Right</td>
+  </tr>
+  <tr>
+    <td><code>$4017 (read)</code></td>
+    <td>Player 2's controller. Same as $4016</td>
+  </tr>
+</tbody>
+</table>
+
 
 
