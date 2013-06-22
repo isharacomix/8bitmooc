@@ -41,9 +41,9 @@ the end of our code to tell the assembly to put data in the vector table.
                     ; the order of the bytes so that the smaller byte comes
                     ; first.
 
-This program will begin by doing the very important task of putting 44 in the
-accumulator, adding 1 to it, and going off and doing its thing. If we hit the
-reset button, it will go back to that point and do it again.
+This program will begin by simply storing 44 in the accumulator, and then
+adding 1 to it. If we press the reset button, it will go back to that point and
+do it again.
 
 
 Interrupts
