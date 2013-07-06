@@ -44,7 +44,7 @@
             <button class="btn" type="button" data-toggle="modal" data-target="#SOS">SOS</button>
             </div>
         
-            {% if completed %}
+            {% if completed and challenge.autograde %}
             <br />
             <div class="well">
                 <p>Now that you've completed this challenge, you can try to
@@ -72,15 +72,20 @@
                         {% else %}{{ best_speed }}{% endif %}</td>
                 </tr>
                 </table>
-                
-                {% if challenge.is_badge %}
-                <p><a class="btn btn-success" href="#" onclick="getBadge()">Add to Badge Backpack</a></p>
-                {% endif %}
+            </div>
+            {% elif completed and not challenge.autograde %}
+            <br />
+            <div class="well">
+                <p>You have successfully created an NES game and have passed
+                #8bitmooc! Now that you've completed the course, feel free to
+                spend as much time as you like in the playground and the
+                forums making a talking about 8-bit games!</p>
             </div>
             {% endif %}
         
         </div>
-        
+
+
 <div id="SOS" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="SOSLabel" aria-hidden="true">
 <div class="modal-header">
 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -100,6 +105,8 @@ with. You can see your classmate's responses on the SOS tab of this challenge.</
 </div>
 </div>
 
+
+
         </form>
     </div>
 
@@ -108,6 +115,5 @@ with. You can see your classmate's responses on the SOS tab of this challenge.</
 
 {% block scripts %}
     {% include "nes.html" %}
-    {% include "badges.html" %}
     {% include "ace.html" %}
 {% endblock scripts %}

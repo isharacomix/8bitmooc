@@ -10,8 +10,5 @@ urlpatterns = patterns('',
     url(r'^challenge/(?P<name>[\w-]+)/$', views.view_challenge, name='challenge'),
     url(r'^challenge/(?P<name>[\w-]+)/sos/$', views.view_sos, name='sos'),
     url(r'^challenge/(?P<name>[\w-]+)/feedback/$', views.view_feedback, name='feedback'),
-    url(r'^badge/$', views.badge_issuer, name='badge_issuer'),
-    url(r'^badge/(?P<challenge>[\w-]+)/$', views.badge_details, name='badge_details'),
-    url(r'^badge/(?P<challenge>[\w-]+)/(?P<student>[\w-]+)/$', views.badge_assertion, name='badge_assertion'),
 )
 

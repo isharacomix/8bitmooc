@@ -43,11 +43,9 @@ class Game(models.Model):
     hits    = models.IntegerField("hits",
                                   default=0,
                                   help_text="""Number of visits to the game.""")
-    authors = models.ManyToManyField(Student,
-                                     blank=True,
-                                     help_text="""The authors of this project.
-                                     Displayed, linked to their twitter accounts
-                                     if available.""")
+    author = models.ForeignKey(Student,
+                               blank=True,
+                               help_text="""The author of this project.""")
 
     # Unicode representation of the pattern.
     def __unicode__(self):

@@ -47,9 +47,7 @@ def view_board(request, name):
     # First, try to get the board.
     try: board = DiscussionBoard.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
-    if board.restricted > me.level and not me.ta:
-        request.session["alerts"].append(("alert-error","You need to be a higher level to view this forum."))
-        return redirect( "board", name=board.slug )
+    if not board.can_read(me): raise Http404()
     
     # Get the page number!
     page = 0
@@ -93,7 +91,8 @@ def view_board(request, name):
                                                   'topics': topic_tuples,
                                                   'alerts': request.session.pop('alerts', []),
                                                   'page': page+1,
-                                                  'pages': (len(topic_tuples)/pagination)+1 } )
+                                                  'pages': (len(topic_tuples)/pagination)+1,
+                                                  'can_post': board.can_post(me) } )
 
 
 # This displays a single thread on the specified board.
@@ -109,9 +108,8 @@ def view_thread(request, name, thread):
         board = DiscussionBoard.objects.get(slug=name)
         topic = DiscussionTopic.objects.get(id=thread, board=board)
     except exceptions.ObjectDoesNotExist: raise Http404()
-    if not me.ta and (topic.hidden or board.restricted > me.level):
-        request.session["alerts"].append(("alert-error","You need to be a higher level to view this forum."))
-        return redirect( "board", name=board.slug )
+    if not board.can_read(me): raise Http404()
+    if not me.ta and topic.hidden: raise Http404()
     
     # If this is a POST, we are either replying to someone or we are voting.
     # Manage permissions respectively and redirect.
@@ -123,23 +121,6 @@ def view_thread(request, name, thread):
             p.content = str(request.POST.get("content"))
             p.save()
             topic.save()
-        elif "upvote" in request.POST or "downvote" in request.POST:
-            upvote = True
-            if "downvote" in request.POST: upvote = False
-            p_id = request.POST["upvote" if upvote else "downvote"]
-            if p_id.isdigit() and (me.modpoints > 0 or me.ta):
-                p = DiscussionPost.objects.get(id=int(p_id))
-                if upvote and p.author != me: p.upvotes += 1
-                else                        : p.downvotes += 1
-                request.session["alerts"].append(("alert-success","Post %s."%("upvoted" if upvote else "downvoted")))
-                LogEntry.log(request, "Thread %s"%("upvoted" if upvote else "downvoted"))
-                if p.upvotes == 5 and p.downvotes < 3:
-                    p.author.award_xp(25)
-                    p.upvotes += 1
-                p.save()
-                me.modpoints -= 1
-                me.award_xp(1)
-                me.save()
         return redirect( "thread", name=board.slug, thread=topic.id )
     
     # Get all of the posts. Start on the last page by default.

@@ -52,14 +52,14 @@
                 {% endfor %}
             </table>
             
-            {% if board.wrestricted <= user.student.level or user.student.ta  %}
+            {% if can_write  %}
             <button class="btn" type="button" data-toggle="modal" data-target="#newtopic"><i class="icon-plus-sign"></i> New Topic</button>
             {% endif %}
         </div>
     </div>
     {% include "pagination.html" %}
 
-{% if board.wrestricted <= user.student.level or user.student.ta %}
+{% if can_post %}
         <form action="{% url 'board' name=board.slug %}" method="POST">{% csrf_token %}
 <div id="newtopic" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtopicLabel" aria-hidden="true">
 <div class="modal-header">

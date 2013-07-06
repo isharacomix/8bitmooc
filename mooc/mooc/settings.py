@@ -120,7 +120,6 @@ INSTALLED_APPS = (
     'students',
     'pages',
     'challenges',
-    'projects',
     'forum',
 )
 

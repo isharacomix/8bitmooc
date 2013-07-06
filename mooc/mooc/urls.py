@@ -19,7 +19,6 @@ urlpatterns = patterns('',
     url(r'^', include('challenges.urls')),
     url(r'^help/', include('pages.urls')),
     url(r'^forum/', include('forum.urls')),
-    url(r'^project/', include('projects.urls')),
 
     # Django-admin panel
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

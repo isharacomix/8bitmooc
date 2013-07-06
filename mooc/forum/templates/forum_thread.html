@@ -21,17 +21,6 @@
             <h1>{{ topic.title }}</h1>
             
             {% for p in posts %}
-{% if p.downvotes > 3 %}
-<div class="accordion" id="post{{p.id}}">
-<div class="accordion-group">
-    <div class="accordion-heading">
-        <a class="accordion-toggle" data-toggle="collapse" data-parent="#selector" href="#collapse{{ p.id }}">
-This post has been hidden by default due to downvotes.
-        </a>
-    </div>
-    <div id="collapse{{ p.id }}" class="accordion-body collapse">
-        <div class="accordion-inner">
-{% endif %}
 
             <div class="media well {% if p.author.ta %}well-gold{% endif %}">
                 <a class="{% cycle 'pull-left' 'pull-right' %}" href="{% url 'profile' username=p.author.username %}">
@@ -44,22 +33,9 @@ This post has been hidden by default due to downvotes.
                     <p><small><em>Posted by <a href="{% url 'profile' username=p.author.username %}">{{ p.author.username }}</a>
                     {% if p.author.ta %} (admin) {% endif %}
                     {{ p.timestamp|timesince }} ago.</em></small></p>
-                    
-                    {% if user.student != p.author %}
-                        {% if user.student.ta or user.student.modpoints > 0 %}
-                        <p>
-                        <button class="btn btn-success btn-mini" type="submit" name="upvote" value="{{p.id}}">Upvote</button>
-                        <button class="btn btn-danger btn-mini" type="submit" name="downvote" value="{{p.id}}">Downvote</button>
-                        </p>
-                        {% endif %}
-                    {% endif %}
                 </div>
             </div>
 
-{% if p.downvotes > 3 %}
-        </div>
-
-{% endif %}
             {% endfor %}
             
             <textarea class="input-block-level" rows="8" name="content"></textarea>

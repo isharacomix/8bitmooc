@@ -20,25 +20,6 @@ class Challenge(models.Model):
                                        unique=True,
                                        help_text="""Short name of the challenge. 
                                        Used in the URL.""")
-    graphic         = models.SlugField("Graphic",
-                                       help_text="""The graphic for the challenge. 
-                                       Should be a 128x128 PNG.""")
-    difficulty      = models.IntegerField("Difficulty Level",
-                                          help_text="""Level a player should be 
-                                          before attempting this challenge.""")
-    xp              = models.IntegerField("XP Awarded",
-                                          help_text="""XP awarded by completing
-                                          this challenge.""")
-    prereq          = models.ForeignKey("Challenge",
-                                        null=True,
-                                        blank=True,
-                                        help_text="""Optional prerequisite for
-                                        the challenge.""")
-    is_badge        = models.BooleanField("Is Badge",
-                                          default=False,
-                                          help_text="""When true, this challenge
-                                          can be exported as a Mozilla Open
-                                          Badge.""")
     description     = models.TextField("Description",
                                        help_text="""Markdown description of the
                                        challenge.""")
@@ -46,15 +27,8 @@ class Challenge(models.Model):
                                        blank=True,
                                        help_text="""Specifies the function for
                                        the autograder if this is an autograded 
-                                       challenge. If left blank, this is more like 
-                                       an achievement that is accomplished in the
-                                       rest of the MOOC.""")
-    is_jam          = models.BooleanField("Is Jam",
-                                          default=False,
-                                          help_text="""When true, this challenge 
-                                          is beaten by submitting a link to an
-                                          externally hosted game jam, like
-                                          Ludum Dare.""")
+                                       challenge. If left blank, it must be
+                                       manually graded.""")
     preamble        = models.TextField("Preamble",
                                        blank=True,
                                        help_text="""Preamble of an autograded 
@@ -72,10 +46,9 @@ class Challenge(models.Model):
                                              blank=True,
                                              help_text="""List of all students
                                              who have completed this challenge.""")
-    expired         = models.BooleanField("Is Expired",
-                                          default=False,
-                                          help_text="""When true, this challenge 
-                                          will accept no further submissions.""")
+    ordering = models.IntegerField("Ordering",
+                                   help_text="""Order in which challenges will
+                                   appear.""")
 
     # Representation of the challenge
     def __unicode__(self):
@@ -83,7 +56,8 @@ class Challenge(models.Model):
     
     # Order these by difficulty.
     class Meta:
-        ordering = ['-difficulty','xp']
+        ordering = ['ordering']
+    
     
 # Challenge Responses are student submissions for Challenges that are either
 # jams or autograded.
@@ -135,6 +109,7 @@ class ChallengeResponse(models.Model):
     def __unicode__(self):
         return u"Challenge Response %d for %s" % (self.id,
                                                   self.challenge if self.challenge else "Playground")
+
 
 
 # SOS: requests for feedback on a submission. It is also possible to create
@@ -203,20 +178,4 @@ class Feedback(models.Model):
     def __unicode__(self):
         return u"Feedback: %s" % (self.sos)
 
-# Badge awards. The date and time a badge is awarded is when it is redeemed.
-class Badge(models.Model):
-    student = models.ForeignKey(Student,
-                                verbose_name="Student",
-                                help_text="""The student who got the badge.""")
-    challenge = models.ForeignKey(Challenge,
-                                  verbose_name="Challenge",
-                                  help_text="""The challenge for the badge.""")
-    when = models.DateTimeField("When",
-                                auto_now_add=True,
-                                help_text="""The time that the badge was
-                                actually redeemed by the user.""")
-    revoked = models.BooleanField("Revoked?",
-                                  default=False,
-                                  help_text="""This is true whenever the badge
-                                  has been revoked due to student naughtiness.""")
 

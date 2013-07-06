@@ -8,7 +8,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from students.models import Student, LogEntry
-from challenges.models import Challenge, ChallengeResponse, Badge, SOS, Feedback
+from challenges.models import Challenge, ChallengeResponse, SOS, Feedback
 from django.contrib.auth.models import User
 
 from nes import assembler
@@ -100,27 +100,13 @@ def view_challenge(request, name):
     # First, try to get the challenge.
     try: challenge = Challenge.objects.get(slug=name)
     except exceptions.ObjectDoesNotExist: raise Http404()
-    feedback = len( SOS.objects.filter(challenge=challenge, student=me) )
-    
-    # Now make sure that the student can actually see the challenge before
-    # letting them look at it. They can see expired challenges, but can't
-    # submit to them.
-    if challenge.difficulty > me.level:
-        request.session["alerts"].append(("alert-error",
-                                          """You need to reach level %d before
-                                          you can attempt this challenge."""%challenge.difficulty))
-        return redirect("challenge_list") 
-    if challenge.prereq and challenge.prereq not in me.challenge_set.all():
-        request.session["alerts"].append(("alert-error",
-                                          """You have not unlocked this challenge yet."""))
-        return redirect("challenge_list")
     
     # If it was a POST request, then we'll take care of that now. This takes
     # care of the side-effects and creates the challenge responses that will be
     # handled below.
     if request.method == "POST":
-        if challenge.autograde: do_asm_challenge(request, me, challenge)
-        elif challenge.is_jam: do_jam_challenge(request, me, challenge)
+        do_asm_challenge(request, me, challenge)
+        
         if "download" in request.POST:
             good = True
             for e in request.session['alerts']:
@@ -153,43 +139,17 @@ def view_challenge(request, name):
             my_speed = records[0].runtime
             completed = True
         
-        # Try to load up the best submissions by everyone.
-        return render(request, "challenge_asm.html", {'challenge': challenge,
-                                                      'alerts': request.session.pop('alerts', []),
-                                                      'code': code,
-                                                      'my_size': my_size,
-                                                      'my_speed': my_speed,
-                                                      'best_size': best_size,
-                                                      'best_speed': best_speed,
-                                                      'completed': completed,
-                                                      'badge_domain': settings.ISSUER_DOMAIN,
-                                                      'feedback': feedback} )
-                                                          
-    elif challenge.is_jam:
-        # Grey out the submission if the student has already submitted a link for
-        # this challenge or if it's expired.
-        records = ChallengeResponse.objects.filter(challenge=challenge, student=me)
-        url = ""
-        submit_ok = True
-        completed = me in challenge.completed_by.all()
-        if len(records) > 0:
-            url = records[0].code
-            if records[0].is_correct is not None: submit_ok = False
-        if challenge.expired: submit_ok = False
-        return render(request, "challenge_jam.html", {'challenge': challenge,
-                                                      'alerts': request.session.pop('alerts', []),
-                                                      'url': url,
-                                                      'submit_ok': submit_ok,
-                                                      'completed': completed,
-                                                      'badge_domain': settings.ISSUER_DOMAIN,
-                                                      'feedback': feedback})
-    else:
-        completed = me in challenge.completed_by.all()
-        return render(request, "challenge_other.html", {'challenge': challenge,
-                                                        'alerts': request.session.pop('alerts', []),
-                                                        'completed': completed,
-                                                        'badge_domain': settings.ISSUER_DOMAIN,
-                                                        'feedback': feedback})
+    # Try to load up the best submissions by everyone.
+    return render(request, "challenge_asm.html", {'challenge': challenge,
+                                                  'alerts': request.session.pop('alerts', []),
+                                                  'code': code,
+                                                  'my_size': my_size,
+                                                  'my_speed': my_speed,
+                                                  'best_size': best_size,
+                                                  'best_speed': best_speed,
+                                                  'completed': completed,
+                                                  'badge_domain': settings.ISSUER_DOMAIN,
+                                                  'feedback': feedback} )
 
 
 # Viewing feedback is easy. Just pass along all of the SOSes and their respective
@@ -300,17 +260,14 @@ def view_sos(request, name):
 
     # Filtering is now over. Time to render.
     request.session["sos-id"] = str(target.id)
-    if challenge.autograde:
-        assembler.assemble_and_store(request, "challenge", target.submission.code, challenge.pattern,
-                                     challenge.preamble, challenge.postamble)
-        return render(request, "sos_asm.html", {'challenge': challenge,
-                                                'alerts': request.session.pop('alerts', []),
-                                                'sos': target } )
-    elif challenge.is_jam:
-        return redirect("challenge_list")
-    else:
-        return redirect("challenge_list")
+    assembler.assemble_and_store(request, "challenge", target.submission.code, challenge.pattern,
+                                 challenge.preamble, challenge.postamble)
+    return render(request, "sos_asm.html", {'challenge': challenge,
+                                            'alerts': request.session.pop('alerts', []),
+                                            'sos': target } )
     
+
+
 
 
 # This is a student submission for an ASM challenge. Here we compile the code
@@ -345,62 +302,65 @@ def do_asm_challenge(request, student, challenge):
     # Only try to autograde if the program compiles.
     if assembler.assemble_and_store(request, "challenge", code, challenge.pattern,
                                     challenge.preamble, challenge.postamble):
-        completed = student in challenge.completed_by.all()
-        results = autograde.grade( challenge, student, code, completed )
-        
-        # Save its correctness in the database.
-        CR.is_correct = True if results else False
-        if results: CR.rom_size, CR.runtime = results
-        CR.save()
-        
-        # Award XP if the program is correct.
-        if results and not completed:
-            challenge.completed_by.add(student)
-            challenge.save()
-            student.award_xp(challenge.xp)
-            student.save()
-            request.session['alerts'].append(('alert-success',
-                                              '''Congratulations! You completed
-                                              this challenge and earned %d
-                                              XP.'''%challenge.xp))
-            LogEntry.log(request, "Completed %s"%challenge.slug)
-        elif results:
-            request.session['alerts'].append(('alert-success',
-                                              '''This solution was %d bytes in
-                                              size and executed %d lines of
-                                              code.'''%results))
-            LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
-        
-        # Now check to see if a record is beaten.
-        if results:
-            size, speed = results
+        if challenge.autograde:
+            completed = student in challenge.completed_by.all()
+            results = autograde.grade( challenge, student, code, completed )
             
-            # Check the size record. We either beat the old record, or we meet
-            # the old record and beat our OWN best.
-            if size < best_size:
-                request.session['alerts'].append(('alert-success',
-                                                  '''You beat the size record 
-                                                  of %d bytes! +%d XP'''%(best_size,challenge.xp/2)))
-                student.award_xp( challenge.xp/2 )
-            elif size == best_size and size < my_size:
-                request.session['alerts'].append(('alert-success',
-                                                  '''You reached the size record
-                                                  of %d bytes! +%d XP'''%(best_size,challenge.xp/2)))
-                student.award_xp( challenge.xp/2 )
+            # Save its correctness in the database.
+            CR.is_correct = True if results else False
+            if results: CR.rom_size, CR.runtime = results
+            CR.save()
             
-            # Check the speed record. We either beat the old record, or we meet
-            # the old record and beat our OWN best.
-            if size < best_size:
+            # Award XP if the program is correct.
+            if results and not completed:
+                challenge.completed_by.add(student)
+                challenge.save()
                 request.session['alerts'].append(('alert-success',
-                                                  '''You beat the speed record of 
-                                                  of %d instructions! +%d XP'''%(best_speed,challenge.xp/2)))
-                student.award_xp( challenge.xp/2 )
-            elif size == best_size and size < my_size:
+                                                  '''Congratulations! You completed
+                                                  this challenge!'''))
+                LogEntry.log(request, "Completed %s"%challenge.slug)
+            elif results:
                 request.session['alerts'].append(('alert-success',
-                                                  '''You reached the speed record 
-                                                  of %d instructions! +%d XP'''%(best_speed,challenge.xp/2)))
-                student.award_xp( challenge.xp/2 )
-    
+                                                  '''This solution was %d bytes in
+                                                  size and executed %d lines of
+                                                  code.'''%results))
+                LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
+            
+            # Now check to see if a record is beaten.
+            if results:
+                size, speed = results
+                
+                # Check the size record. We either beat the old record, or we meet
+                # the old record and beat our OWN best.
+                if size < best_size:
+                    request.session['alerts'].append(('alert-success',
+                                                      '''You beat the size record 
+                                                      of %d bytes!'''%(best_size)))
+                elif size == best_size and size < my_size:
+                    request.session['alerts'].append(('alert-success',
+                                                      '''You reached the size record
+                                                      of %d bytes!'''%(best_size)))
+                
+                # Check the speed record. We either beat the old record, or we meet
+                # the old record and beat our OWN best.
+                if size < best_size:
+                    request.session['alerts'].append(('alert-success',
+                                                      '''You beat the speed record of 
+                                                      of %d instructions!'''%(best_speed)))
+                elif size == best_size and size < my_size:
+                    request.session['alerts'].append(('alert-success',
+                                                      '''You reached the speed record 
+                                                      of %d instructions!'''%(best_speed)))
+        else:
+            CR.is_correct = None
+            CR.save()
+            request.session['alerts'].append(('alert-success',
+                                              '''Your project has been submitted. Please
+                                              wait for up to a week for the teacher to
+                                              look over your program and grade it. You
+                                              will receive a notification when it is
+                                              graded!'''))
+
     # Is there an SOS involved?
     if "sos" in request.POST and "help" in request.POST:
         for s in SOS.objects.filter(challenge=challenge, student=student):
@@ -413,102 +373,4 @@ def do_asm_challenge(request, student, challenge):
         s.content = request.POST["help"]
         s.student = student
         s.save()
-
-
-# Jam Challenges are much simpler - we just submit a URL to the database.
-# However, the thing about Jam Challenges is that students only submit a single
-# URL for the challenge.
-def do_jam_challenge(request, student, challenge):
-    code = request.POST.get("url") if "url" in request.POST else ""
-    
-    # Save this in the database.
-    try: CR = ChallengeResponse.objects.get(challenge=challenge, student=student)
-    except exceptions.ObjectDoesNotExist:
-        CR = ChallengeResponse()
-        CR.student = student
-        CR.challenge = challenge
-        CR.save()
-    
-    # If the challenge is alrady completed or expired, don't permit changes.
-    if challenge.expired or CR.is_correct is not None:
-        request.session['alerts'].append(('alert-error',
-                                          'This Jam is over - no further changes are permitted.'))
-    else:
-        CR.code = code
-        CR.save()
-        request.session['alerts'].append(('alert-success',
-                                          'Jam URL updated.'))
-
-
-# The badge issuer just returns basic information about #8bitmooc in JSON
-# format.
-def badge_issuer(request):
-    badge_issuer_dict = { 
-                          "name": settings.ISSUER_NAME,
-                          "image": "%s/static/img/logo.png"%settings.ISSUER_DOMAIN,
-                          "url": settings.ISSUER_DOMAIN,
-                          "email": settings.ISSUER_CONTENT,
-                        }
-    
-    badge_issuer_json = json.dumps(badge_issuer_dict)
-    return HttpResponse(badge_assertion_json, content_type='application/json')
-
-
-# This returns details of the badge itself. Returns 404 unless the challenge
-# exists and is_badge is true.
-def badge_details(request, challenge):
-    try: challenge = Challenge.objects.get(slug=challenge)
-    except: raise Http404()
-    if not challenge.is_badge: raise Http404()
-    
-    badge_details_dict = {
-                           "name": challenge.name,
-                           "description": "Completed the '%s' challenge on #8bitmooc"%challenge.name,
-                           "image": "%s/static/img/challenge/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
-                           "criteria": "%s/badge/%s/"%(settings.ISSUER_DOMAIN, challenge.slug),
-                           "issuer": "%s/badge/"%(settings.ISSUER_DOMAIN)
-                         }
-    
-    badge_details_json = json.dumps(badge_details_dict)
-    return HttpResponse(badge_details_json, content_type='application/json')
-    
-
-# This returns the badge assertion.
-def badge_assertion(request, challenge, student):
-    try: challenge = Challenge.objects.get(slug=challenge)
-    except: raise Http404()
-    if not challenge.is_badge: raise Http404()
-    try: student = Student.objects.get( user=User.objects.get(username=student) )
-    except: raise Http404()
-    if student not in challenge.completed_by.all(): raise Http404()
-    try: badge = Badge.objects.get( student=student, challenge=challenge )
-    except:
-        badge = Badge( student=student, challenge=challenge )
-        badge.save()
-    
-    # Now that we know what's happening...
-    if badge.revoked:
-        badge_assertion_dict = {"revoked": True}
-        badge_assertion_json = json.dumps(badge_assertion_dict)
-        return HttpResponse(badge_assertion_json, content_type='application/json', status=410)
-    else:
-        badge_assertion_dict = {
-                                "uid": "%s/%s"%(challenge.slug, student.username),
-                                "recipient": {
-                                              "type": "email",
-                                              "hashed": True,
-                                              "salt": settings.BADGE_SALT,
-                                              "identity": "sha256$%s"%(hashlib.sha256(student.email+settings.BADGE_SALT).hexdigest())
-                                             },
-                                "image": "%s/static/img/challenge/%s.png"%(settings.ISSUER_DOMAIN, challenge.graphic),
-                                "evidence": settings.ISSUER_DOMAIN,
-                                "issuedOn": int(time.mktime(badge.when.timetuple())),
-                                "badge": "%s/badge/%s/"%(settings.ISSUER_DOMAIN, challenge.slug),
-                                "verify": {
-                                           "type": "hosted",
-                                           "url": "%s/badge/%s/%s/"%(settings.ISSUER_DOMAIN, challenge.slug, student.username),
-                                          }
-                               }
-        badge_assertion_json = json.dumps(badge_assertion_dict)
-        return HttpResponse(badge_assertion_json, content_type='application/json')
 

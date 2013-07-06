@@ -20,26 +20,35 @@ class DiscussionBoard(models.Model):
     description = models.TextField("Description",
                                    help_text="""Description of the board in
                                    minimarkdown.""")
-    restricted  = models.IntegerField("Restriction",
-                                      help_text="""Minimum level needed to
-                                      access the board. Set to a high value
-                                      for a TA board.""")
-    wrestricted = models.IntegerField("Write Restriction",
-                                      help_text="""Minimum level needed to
-                                      post to the board. Set to a high value
-                                      for a TA board.""")
+    restriction  = models.IntegerField("Restriction",
+                                      help_text="""The restriction for the
+                                      board. A code number.""")
+    ordering = models.IntegerField("Ordering",
+                                   help_text="""Order in which boards will
+                                   appear.""")
     
     # Order by restriction levels.
     class Meta:
-        ordering = ['restricted','-wrestricted']
+        ordering = ['ordering']
     
     # Representation of the challenge
     def __unicode__(self):
         return u"%s Discussion Board" % (self.name)
 
+    # Returns true if the given student can read a board's posts.
+    def can_read(self, student):
+        if self.restriction == 0: return True
+        elif student.ta: return True
+    
+    # Returns true if the given student can post to a board.
+    def can_post(self, student):
+        if self.restriction == 0: return True
+        elif student.ta: return True
+        
+
 
 # A topic within a discussion board. Can be created by any student in good
-# standing
+# standing.
 class DiscussionTopic(models.Model):
     title        = models.CharField("Topic Title",
                                     max_length=200,
@@ -92,12 +101,6 @@ class DiscussionPost(models.Model):
     topic       = models.ForeignKey(DiscussionTopic,
                                     verbose_name="Topic",
                                     help_text="""Topic containing this post.""")
-    upvotes     = models.IntegerField("Upvotes",
-                                      default=0,
-                                      help_text="""Upvotes by other students.""")
-    downvotes   = models.IntegerField("Downvotes",
-                                      default=0,
-                                      help_text="""Downvotes by other students.""")
     hidden      = models.BooleanField("Hidden",
                                       default=False,
                                       help_text="""Hidden posts can never be

@@ -34,14 +34,13 @@ class TestNESViews(TestCase):
         self.ishara = self.s1
         
         self.G = Game(title="Foo", code="")
+        self.G.author = self.ishara
         self.G.save()
-        self.G.authors.add(self.ishara)
 
     #
     def test_arcade(self):
         response = self.c.get("/arcade/1/")
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("http://twitter.com/isharacomix" in response.content)
         response = self.c.get("/arcade/1/?download", follow=True)
         self.assertEqual(response.status_code, 200)
 

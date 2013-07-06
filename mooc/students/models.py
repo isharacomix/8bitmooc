@@ -14,21 +14,6 @@ class Student(models.Model):
                                            The user that this student is
                                            connected to. If None, this student
                                            has not confirmed their registration.""")
-    xp              = models.IntegerField("Experience Points",
-                                          default=0,
-                                          help_text="""
-                                          The student's current experience
-                                          points. When this goes up, the student
-                                          gains levels. Resets to 0 when a level
-                                          is gained.""")
-    level           = models.IntegerField("Level",
-                                          default=1,
-                                          help_text="""
-                                          The student's current experience
-                                          level. As it goes up, the student
-                                          gains new abilities in #8bitmooc.
-                                          Each new level is unlocked at
-                                          100*(2**level) XP.""")
     bio             = models.TextField("Biography",
                                        blank=True,
                                        help_text="""
@@ -45,11 +30,24 @@ class Student(models.Model):
                                           help_text="""
                                           When true, the student has access to
                                           grading interfaces.""")
-    modpoints       = models.IntegerField("Mod Points",
-                                          default=0,
-                                          help_text="""
-                                          Mod points for upvoting posts.
-                                          """)
+    ncsu            = models.BooleanField("NCSU Student",
+                                          default=False,
+                                          help_text="""True for students who are
+                                          part of the NCSU in-person cohort.""")
+    agreed          = models.BooleanField("Agreed to Terms",
+                                          default=False,
+                                          help_text="""Until the user agrees to
+                                          the terms of use, they can't use the
+                                          site.""")
+    banned          = models.BooleanField("Is Banned",
+                                          default=False,
+                                          help_text="""If banned, the user can
+                                          no longer log into the site.""")
+    complete        = models.BooleanField("Complete",
+                                          default=False,
+                                          help_text="""Set to True when the
+                                          student completes all of the
+                                          challenges.""")
     twitter         = models.SlugField("Twitter",
                                        blank=True,
                                        help_text="""
@@ -94,47 +92,6 @@ class Student(models.Model):
     @property
     def email(self):
         return self.user.email
-    
-    # Return the percentage of completion to the next level.
-    def xp_progress(self):
-        return int(self.xp*100. / (100*(2**(self.level))))
-    
-    # Return number of XP for next level.
-    def next_level(self):
-        return (100*(2**(self.level)))-self.xp
-    
-    # Award the student XP. Returns True if the student gains a level.
-    def award_xp(self, xp):
-        self.xp += xp
-        l = LogEntry(student=self,
-                     url="XP",
-                     notes="+%d XP"%xp)
-        l.save()
-        self.save()
-        if self.next_level() <= 0:
-            self.xp = -self.next_level()
-            self.level += 1
-            l = LogEntry(student=self,
-                         url="XP",
-                         notes="Level Up!")
-            l.save()
-            self.save()
-            return True
-        return False
-    
-    # Return all of the students on projects with this one.
-    def collaborators(self):
-        collaborators = []
-        my_projects = self.owns.all()
-        for p in my_projects:
-            for c in p.team.all():
-                if c not in collaborators: collaborators.append(c)
-        all_projects = self.works_on.all()
-        for p in all_projects:
-            if p.owner not in collaborators: collaborators.append(p.owner)
-            for c in p.team.all():
-                if c not in collaborators and c is not self: collaborators.append(c)
-        return collaborators
     
     # Grab the Student out of the request. Returns None if a student is
     # not logged in. If redirect is True, then an error message will be
