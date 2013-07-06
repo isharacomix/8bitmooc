@@ -178,9 +178,6 @@ def view_feedback(request, name):
             if f.sos in feedback and f.helpful is None:
                 f.helpful = helpful
                 f.save()
-                if helpful:
-                    f.author.award_xp(25*challenge.difficulty)
-                me.award_xp(5)
                 LogEntry.log(request, "Marked as %shelpful"%("" if helpful else "un"))
 
     
@@ -225,9 +222,7 @@ def view_sos(request, name):
             
             request.session["alerts"].append(("alert-success",
                                               """Thank you for helping your classmates
-                                              by participating in the SOS system!
-                                              (+10 XP)"""))
-            me.award_xp(10)
+                                              by participating in the SOS system!"""))
             LogEntry.log(request, "SOS for %s"%(challenge.slug))
         else:
             request.session["alerts"].append(("alert-error",
@@ -311,7 +306,7 @@ def do_asm_challenge(request, student, challenge):
             if results: CR.rom_size, CR.runtime = results
             CR.save()
             
-            # Award XP if the program is correct.
+            # Figure out if the program is correct.
             if results and not completed:
                 challenge.completed_by.add(student)
                 challenge.save()
