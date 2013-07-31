@@ -79,7 +79,7 @@ class Student(models.Model):
     # she is banned. The first argument in *args must be the request
     @staticmethod
     def permission(f):
-        def new_f(*args):
+        def new_f(*args, **kwargs):
             request = args[0]
             if "alerts" not in request.session: request.session["alerts"] = []
             me = Student.from_request(request)
@@ -98,7 +98,7 @@ class Student(models.Model):
             elif not me.agreed:
                 return redirect("shrinkwrap")
             else:
-                return f(*args)
+                return f(*args, **kwargs)
         return new_f
 
 

@@ -1,0 +1,73 @@
+{% extends "layout_base.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Playground{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <form name="input" action="{% url 'playground' %}" method="post">{% csrf_token %}
+        <div class="span8">
+            <div>
+                <div>
+                    <h1>Welcome to the playground!</h1>
+                    
+                    <p>
+                    The purpose of the playground is to give you a space where
+                    you can try out the things you learn and make your own
+                    games!
+                    {% if user.is_authenticated %}
+                    If you want to publish and share your creations,
+                    <a href="{% url 'login' %}">log in with Github</a> and join
+                    the MOOC!
+                    {% endif %}
+                    </p>
+                </div>
+
+<div id="assembly-editor" style="width: 100%; height: 30em;"></div>
+<textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
+            </div>
+            
+            <p>
+            <select name="pattern">
+            {% if pattern %}
+                <option value="{{pattern.name}}">Current sprite sheet: {{pattern.name}}</option>
+            {% endif %}
+            {% for p in patterns %}
+                <option value="{{p.name}}">Sprite sheet: {{p.name}}</option>
+            {% endfor %}
+            </select>
+            </p>
+            
+            <div class="well">
+              {% include "asm_cheatsheet.html" %}
+            </div>
+        </div>
+        
+        <div class="span4">
+    
+        
+            <div id="emulator"></div>
+    
+            <div>
+            <button class="btn" type="submit" name="run" value="Assemble">Assemble</button>
+            <button class="btn" type="submit" name="download" value="Download">Download</button>
+            <button class="btn" type="submit" name="publish" value="Publish">Publish</button>
+            </div>
+        
+            <div class="well">
+                <h4>Recently published games</h4>
+            </div>
+        </div>
+        </form>
+        
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+    {% include "ace.html" %}
+{% endblock scripts %}
+

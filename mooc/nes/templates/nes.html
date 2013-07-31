@@ -1,0 +1,17 @@
+{% load static from staticfiles %}
+
+<script src="{% static 'js/dynamicaudio-min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'js/jsnes.js' %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    var nes;
+    $(function() {
+        nes = new JSNES({
+            'swfPath': '{% static "js/" %}',
+            'ui': $('#emulator').JSNESUI("/rom/")
+        });
+    });
+</script>
+<!--[if IE]>
+<script type="text/vbscript" src="source/jsnes-ie-hacks.vbscript"></script>
+<![endif]-->
+

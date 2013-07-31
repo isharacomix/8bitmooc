@@ -116,3 +116,18 @@ def terms_of_use(request):
                   "terms_of_use.html",
                   {'alerts': request.session.pop('alerts', []) })
 
+
+# The student profile page shows the avatar, links to their Github account,
+# and shows progress and publications throughout the course.
+@Student.permission
+def user_profile(request, username):
+    try: student = User.objects.get(username=username).student
+    except exceptions.ObjectDoesNotExist:
+        request.session["alerts"].append(("alert-error","That user does not exist."))
+        return redirect("index")
+    
+    return render(request,
+                  "profile.html",
+                  {'student': student,
+                   'alerts': request.session.pop('alerts', []) })
+

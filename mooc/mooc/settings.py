@@ -117,6 +117,7 @@ INSTALLED_APPS = (
     # My Apps
     'mooc',
     'students',
+    'nes',
 )
 
 LOGIN_REDIRECT_URL = '/'

@@ -1,0 +1,27 @@
+{% extends "layout_base.html" %}
+{% load avatar_tags %}
+
+{% block title %}{{ student.username }}'s Progress{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span2">
+            <img src="{% avatar_url student.user 256 %}&d=retro" alt="" />
+            <a href="http://github.com/{{ student.username }}" class="btn btn-block btn-success">Github Profile</a>
+        </div>
+        
+        <div class="span10">
+            <div>
+                <h2>Progress in #8bitmooc</h2>
+            </div>
+            
+            <div>
+                <h2>Sandbox Games</h2>
+                
+            </div>
+        </div>
+    </div>
+
+
+{% endblock body %}
