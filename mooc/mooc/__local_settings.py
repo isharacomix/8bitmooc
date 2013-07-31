@@ -46,6 +46,8 @@ DATABASES = {
 SECRET_KEY = ''
 BADGE_SALT = ''
 REGISTER_SALT = ''
+GITHUB_ID = ''
+GITHUB_SECRET = ''
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

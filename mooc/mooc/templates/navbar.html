@@ -7,13 +7,19 @@
                 #8bitmooc
             </a>
             <ul class="nav">
-                <form class="navbar-search" action="{% url 'search' %}" method="get">
-                    <div class="input-prepend">
-                    <span class="add-on"><i class="icon-search"></i></span>
-                    <input type="text" class="" placeholder="Search" name="query" />
-                    </div>
-                </form>
+                <li><a href="#">Playground</a></li>
+                <li><a href="#">Community</a></li>
+                <li><a href="#">Help Center</a></li>
+                <li>
+                    <form class="navbar-search" action="#" method="get">
+                        <div class="input-prepend">
+                        <span class="add-on"><i class="icon-search"></i></span>
+                        <input type="text" class="" placeholder="Search" name="query" />
+                        </div>
+                    </form>
+                </li>
             </ul>
+            
             <ul class="nav pull-right">
                 <li class="dropdown">
                     {% if user.is_authenticated %}
@@ -21,16 +27,14 @@
                         Hello, {{ user.username }}! <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                         <li><a href="{% url 'profile' username=user.username %}">Profile Page</a></li>
-                         <li><a href="{% url 'sign-out' %}">Logout</a></li>
+                         <li><a href="{% url 'logout' %}">Logout</a></li>
                     </ul>
                     {% else %}
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         (not signed in) <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                         <li><a href="{% url 'sign-in' %}">Sign In</a></li>
-                         <li><a href="{% url 'sign-up' %}">Join #8bitmooc!</a></li>
+                         <li><a href="{% url 'login' %}">Login with Github</a></li>
                     </ul>
                     {% endif %}
                 </li>

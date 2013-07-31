@@ -6,7 +6,7 @@ TEMPLATE_DEBUG = DEBUG
 PROJECT_DIR = os.path.dirname(__file__)
 CHECKOUT_DIR = os.path.dirname(PROJECT_DIR)
 PUBLIC_DIR = os.path.join(PROJECT_DIR, 'public')
-SITE_URL = "learn.8bitmooc.org"
+SITE_URL = "www.8bitmooc.org"
 
 ADMINS = (
     ('Barry Peddycord', 'ishara@isharacomix.org'),
@@ -79,7 +79,7 @@ STATICFILES_FINDERS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -116,11 +116,7 @@ INSTALLED_APPS = (
     'bootstrap_toolkit',
     # My Apps
     'mooc',
-    'nes',
     'students',
-    'pages',
-    'challenges',
-    'forum',
 )
 
 LOGIN_REDIRECT_URL = '/'

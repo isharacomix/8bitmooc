@@ -1,6 +1,4 @@
 {% extends "layout_base.html" %}
-{% load avatar_tags %}
-{% load markup %}
 
 {% block title %}Welcome{% endblock title %}
 
@@ -17,39 +15,20 @@
     </div>
 
     <div class="row">
-        <div class="span8">
-            <div class="well" style="overflow-y: scroll; height:400px;">
-                <h1>News and Updates</h1>
-                {% for n in news %}
-                    <hr />
-                    <div>
-                        <img class="img-polaroid pull-right" src="{% avatar_url n.author.user 128 %}&d=retro" alt="" />
-                        <h3>{{ n.topic.title }}</h3>
-                        <h5>By {{ n.author.username }} {{ n.timestamp|timesince }} ago</h5>
-                        <article>
-                            {{ n.content|minimarkup }}
-                        </article>
-                        {% if user.is_authenticated %}
-                        <em><a href="{% url 'thread' name=n.topic.board.slug thread=n.topic.id %}">Comment on this news post in the forums</a></em>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+        <div class="span4"><div class="well">
+            <h3>Let's make some games!</h3>
+            lorem ipsum potato skillet
+        </div></div>
         
-        <div class="span4">
-            <ul>
-            {% if not user.is_authenticated %}
-                <a href="{% url 'help' page='about' %}" class="btn btn-huge btn-block"><i class="icon-info-sign"></i> Learn More!</a></li>
-                <a href="{% url 'playground' %}" class="btn btn-huge btn-block"><i class="icon-edit"></i> Try it Out!</a></li>
-                <a href="{% url 'arcade' %}" class="btn btn-huge btn-block"><i class="icon-star"></i> Play!</a></li>
-                <a href="{% url 'sign-up' %}" class="btn btn-huge btn-block"><i class="icon-plus"></i> Sign Up!</a></li>
-            {% else %}
-                <a href="{% url 'challenge_list' %}" class="btn btn-huge btn-block"><i class="icon-bookmark"></i> Challenges</a></li>
-                <a href="{% url 'help' page='index' %}" class="btn btn-huge btn-block"><i class="icon-book"></i> Help Center</a></li>
-                <a href="{% url 'forums' %}" class="btn btn-huge btn-block"><i class="icon-comment"></i> Community</a></li>
-            {% endif %}
-        </div>
+        <div class="span4"><div class="well">
+            <h3>Cool way to advertise!</h3>
+            lorem ipsum potato skillet
+        </div></div>
+        
+        <div class="span4"><div class="well">
+            <h3>Something else!</h3>
+            lorem ipsum potato skillet
+        </div></div>
     </div>
 
 

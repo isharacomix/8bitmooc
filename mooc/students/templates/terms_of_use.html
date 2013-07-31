@@ -1,0 +1,25 @@
+{% extends "layout_base.html" %}
+
+{% block title %}Terms of Use{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="offset3 span6">
+            <div class="well">
+            Terms of Use and stuff.
+            </div>
+        
+        {% if not user.student.agreed %}
+            <form action="{% url 'shrinkwrap' %}" method="POST">{% csrf_token %}
+            <button class="btn btn-large btn-block btn-success" type="submit" name="agre" value="agree">
+            <i class="icon-ok icon-white"></i> I agree</button>
+            </form>
+            <a class="btn btn-large btn-block btn-danger" href="{% url 'logout' %}">
+            <i class="icon-remove icon-white"></i> I do not agree</a>
+        {% endif %}
+        </div>
+    </div>
+
+
+{% endblock body %}

@@ -10,63 +10,33 @@ from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.models import User
 
-from pages.models import Page
-from forum.models import DiscussionBoard, DiscussionPost
 from students.models import Student, LogEntry
 
 
-# On the index, we aggregate the newest posts in the 'news' forum so that
-# students can go and comment on them.
+# This views the home page. If the user is logged in, we redirect to the
+# dashboard. This is non-dynamic.
 def view_index(request):
-    try:
-        news = []
-        for d in DiscussionBoard.objects.get(slug="news").discussiontopic_set.all()[:5]:
-            news.append( d.discussionpost_set.all()[0] )
-    except: news = []
+    me = Student.from_request(request)
+    if me: return view_dashboard(request, me)
     
-    return render( request, 'index.html', {'news': news,
-                                           'alerts': request.session.pop('alerts', []) } )
+    return render(request,
+                  "index.html",
+                  {'alerts': request.session.pop('alerts', []) })
     
 
-# This function returns a list of tuples in the format (slug, digest). The
-# page is responsible for handling that list.
-def search(request):
-    query = ""
-    if "query" in request.GET:
-        query = request.GET["query"]
-    
-    # Go through the text and find a digest that will allow the user to
-    # find relevant data.
-    pages = []
-    for p in Page.objects.filter(content__icontains=query):
-        i = p.content.lower().index(query.lower())
-        pages.append( (p.name,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
-    
-    # Now search through the forums.
-    me = Student.from_request(request)
-    posts = []
-    projects = []
-    if me:
-        for p in DiscussionPost.objects.filter(content__icontains=query, hidden=False):
-            i = p.content.lower().index(query.lower())
-            if p.topic.board.restricted <= me.level or me.ta:
-                posts.append( (p.topic.board, p.topic.id,
-                               "..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
-    
-        # TODO search through games too
-    
-    LogEntry.log(request, "search")
+# This is the dashboard for the student (or TA!). This displays the news and
+# announcements on the left side of the page, the remaining challenges on the
+# right, and all of the buttons to other locations in the site.
+def view_dashboard(request, me):
     return render(request,
-                  "search.html",
-                  {'pages': pages[:50],
-                   'posts': posts[:50],
-                   'projects': projects[:50],
-                   'query': query,
-                   'alerts': request.session.pop('alerts', []) })
+                  "dashboard.html",
+                  {'alerts': request.session.pop('alerts', []) })
 
 
 # View the embedded IRC!
+@Student.permission
 def webchat(request):
+    me = Student.from_request(request)
     LogEntry.log(request, "chat")
     return render(request, "chat.html")
 
