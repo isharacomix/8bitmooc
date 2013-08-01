@@ -6903,10 +6903,10 @@ if (typeof jQuery !== 'undefined') {
                 
                 self.controls = $('<div class="nes-controls"></div>').appendTo(self.root);
                 self.buttons = {
-                    pause: $('<input type="button" value="pause" class="nes-pause" disabled="disabled">').appendTo(self.controls),
-                    restart: $('<input type="button" value="restart" class="nes-restart" disabled="disabled">').appendTo(self.controls),
-                    sound: $('<input type="button" value="enable sound" class="nes-enablesound">').appendTo(self.controls),
-                    zoom: $('<input type="button" value="zoom in" class="nes-zoom">').appendTo(self.controls)
+                    pause: $('<a href="#" class="btn nes-pause" disabled="disabled"><i class="icon-pause"></i></a>').appendTo(self.controls),
+                    restart: $('<a href="#" class="btn nes-restart" disabled="disabled"><i class="icon-repeat"></i></a>').appendTo(self.controls),
+                    sound: $('<a href="#" class="btn nes-enablesound"><i class="icon-volume-up"></i></a>').appendTo(self.controls),
+                    zoom: $('<a href="#" class="btn nes-zoom"><i class="icon-zoom-in"></i></a>').appendTo(self.controls)
                 };
                 self.status = $('<p class="nes-status">Booting up...</p>').appendTo(self.root);
                 self.root.appendTo(parent);
@@ -6925,11 +6925,11 @@ if (typeof jQuery !== 'undefined') {
                     if (self.nes.isRunning) {
                         self.nes.stop();
                         self.updateStatus("Paused");
-                        self.buttons.pause.attr("value", "resume");
+                        self.buttons.pause.html('<i class="icon-play"></i>');
                     }
                     else {
                         self.nes.start();
-                        self.buttons.pause.attr("value", "pause");
+                        self.buttons.pause.html('<i class="icon-pause"></i>');
                     }
                 });
         
@@ -6941,11 +6941,11 @@ if (typeof jQuery !== 'undefined') {
                 self.buttons.sound.click(function() {
                     if (self.nes.opts.emulateSound) {
                         self.nes.opts.emulateSound = false;
-                        self.buttons.sound.attr("value", "enable sound");
+                        self.buttons.sound.html('<i class="icon-volume-up"></i>');
                     }
                     else {
                         self.nes.opts.emulateSound = true;
-                        self.buttons.sound.attr("value", "disable sound");
+                        self.buttons.sound.html('<i class="icon-volume-off"></i>');
                     }
                 });
         
@@ -6956,7 +6956,7 @@ if (typeof jQuery !== 'undefined') {
                             width: '256px',
                             height: '240px'
                         });
-                        self.buttons.zoom.attr("value", "zoom in");
+                        self.buttons.zoom.html('<i class="icon-zoom-in"></i>');
                         self.zoomed = false;
                     }
                     else {
@@ -6964,7 +6964,7 @@ if (typeof jQuery !== 'undefined') {
                             width: '512px',
                             height: '480px'
                         });
-                        self.buttons.zoom.attr("value", "zoom out");
+                        self.buttons.zoom.html('<i class="icon-zoom-out"></i>');
                         self.zoomed = true;
                     }
                 });
@@ -7086,17 +7086,17 @@ if (typeof jQuery !== 'undefined') {
                 enable: function() {
                     this.buttons.pause.attr("disabled", null);
                     if (this.nes.isRunning) {
-                        this.buttons.pause.attr("value", "pause");
+                        this.buttons.pause.html('<i class="icon-pause"></i>');
                     }
                     else {
-                        this.buttons.pause.attr("value", "resume");
+                        this.buttons.pause.html('<i class="icon-play"></i>');
                     }
                     this.buttons.restart.attr("disabled", null);
                     if (this.nes.opts.emulateSound) {
-                        this.buttons.sound.attr("value", "disable sound");
+                        this.buttons.sound.html('<i class="icon-volume-off"></i>');
                     }
                     else {
-                        this.buttons.sound.attr("value", "enable sound");
+                        this.buttons.sound.html('<i class="icon-volume-up"></i>');
                     }
                 },
             
