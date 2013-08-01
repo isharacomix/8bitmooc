@@ -88,7 +88,7 @@ def view_playground(request):
                                                'pattern': pattern,
                                                'patterns': Pattern.objects.all(),
                                                'code': code,
-                                               'recently_published': recent[:10],
+                                               'recently_published': recent[:25],
                                                'alerts': request.session.pop('alerts', []) } )
 
 
