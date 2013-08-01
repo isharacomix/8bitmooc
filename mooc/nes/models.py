@@ -58,6 +58,13 @@ class CodeSubmission(models.Model):
     code        = models.TextField("Code",
                                    help_text="""This is either the code of an
                                    autograded challenge or the URL of a jam.""")
+    published   = models.IntegerField("Published",
+                                      default=0,
+                                      help_text="""If this program is published,
+                                      its ID. An ID of 0 means unpublished. A
+                                      published program has no parent.""")
+    name        = models.SlugField("name",
+                                   help_text="""The name of the program.""")
     is_correct  = models.NullBooleanField("Is Correct",
                                           default=None,
                                           help_text="""When true, this challenge 

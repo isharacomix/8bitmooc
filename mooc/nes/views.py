@@ -11,8 +11,7 @@ from django.template.defaultfilters import slugify
 import difflib
 
 from students.models import Student
-#from challenges.models import ChallengeResponse
-from nes.models import Game, Pattern
+from nes.models import Pattern, CodeSubmission
 from nes import assembler
 
 
@@ -32,19 +31,26 @@ def view_playground(request):
         except: old = None
         
         # Get code from the POST request.
+        name = requst.POST.get("name") if "name" in request.POST else "untitled"
         code = request.POST.get("code") if "code" in request.POST else ""
         try: pattern = Pattern.objects.get(name=str(request.POST.get("pattern")))
         except: pass
         
         # Save this in the database whether it compiles or not.
-        CR = ChallengeResponse()
+        CR = CodeSubmission()
+        CR.name = name
         CR.student = me
         CR.code = code
         CR.save()
         
+        good = assembler.assemble_and_store(request, name, code, pattern)
+        publish = False
+        if "publish" in request.POST and me and not me.banned and good:
+            publish = True
+        
         # Convert the last code submission into a diff image, but only save it
         # if the diff is actually smaller than the full code.
-        if old:
+        if old and not publish:
             old.parent = CR
             old_code = old.code
             old.code = ""
@@ -52,10 +58,13 @@ def view_playground(request):
                 old.code += d + "\n"
             if len(old.code) < len(old_code):
                 old.save()
-
-        good = assembler.assemble_and_store(request, "playground", code, pattern)
         
-        if "download" in request.POST and good:
+        # Redirect based on which button was clicked.
+        if publish:
+            CR.published = len(CodeSubmission.objects.filter(published__gt=0))+1
+            CR.save()
+            return redirect("playground")
+        else "download" in request.POST and good:
             return redirect("rom")
         else:
             return redirect("playground")
