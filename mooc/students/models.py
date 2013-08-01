@@ -96,7 +96,7 @@ class Student(models.Model):
                                                   administrator."""))
                 return redirect("index")
             elif not me.agreed:
-                return redirect("shrinkwrap")
+                return redirect("terms")
             else:
                 return f(*args, **kwargs)
         return new_f

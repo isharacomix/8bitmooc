@@ -17,8 +17,15 @@
             </div>
             
             <div>
-                <h2>Sandbox Games</h2>
-                
+                <h2>Published in the Sandbox</h2>
+                <div class="well">
+                    {% for g in published %}
+                    <div>
+                    <a href="{% url 'play' g.published %}"><em>{{ g.name }}</em></a> 
+                    {{ g.timestamp|timesince }} ago
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

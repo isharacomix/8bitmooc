@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     url(r'^oauth/$', views.handle_oauth, name="oauth"),
     url(r'^login/$', views.handle_login, name="login"),
     url(r'^logout/$', views.handle_logout, name="logout"),
-    url(r'^terms/$', views.terms_of_use, name="shrinkwrap"),
-    url(r'^user/(?P<username>[\w-]+)/$', views.user_profile, name='user_profile'),
+    url(r'^terms/$', views.terms_of_use, name="terms"),
+    url(r'^user/(?P<username>[\w-]+)/$', views.user_profile, name='profile'),
 )
 

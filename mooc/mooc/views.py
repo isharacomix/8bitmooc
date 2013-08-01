@@ -17,7 +17,10 @@ from students.models import Student, LogEntry
 # dashboard. This is non-dynamic.
 def view_index(request):
     me = Student.from_request(request)
-    if me: return view_dashboard(request, me)
+    
+    if me and not me.agreed: return redirect("terms")
+    elif me and me.banned: return redirect("logout")
+    elif me: return view_dashboard(request, me)
     
     return render(request,
                   "index.html",

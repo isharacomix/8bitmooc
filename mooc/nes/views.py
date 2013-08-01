@@ -21,26 +21,27 @@ from nes import assembler
 # their last submission.
 def view_playground(request):
     me = Student.from_request(request)
-    if "alerts" not in request.session: request.session["alerts"] = []
     
     # Compile the code and save it in the database.
     good = False
     pattern = None
+    name = ""
     if request.method == "POST":
-        try: old = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')[0]
+        try: old = CodeSubmission.objects.filter(student=me).order_by('-timestamp')[0]
         except: old = None
         
         # Get code from the POST request.
-        name = requst.POST.get("name") if "name" in request.POST else "untitled"
-        code = request.POST.get("code") if "code" in request.POST else ""
+        name = slugify(request.POST.get("name") if request.POST.get("name") else "untitled")[:32]
+        code = request.POST.get("code") if request.POST.get("code") else ""
         try: pattern = Pattern.objects.get(name=str(request.POST.get("pattern")))
-        except: pass
+        except: pattern = None
         
         # Save this in the database whether it compiles or not.
         CR = CodeSubmission()
         CR.name = name
         CR.student = me
         CR.code = code
+        CR.pattern = pattern
         CR.save()
         
         good = assembler.assemble_and_store(request, name, code, pattern)
@@ -50,7 +51,7 @@ def view_playground(request):
         
         # Convert the last code submission into a diff image, but only save it
         # if the diff is actually smaller than the full code.
-        if old and not publish:
+        if old and old.published == 0:
             old.parent = CR
             old_code = old.code
             old.code = ""
@@ -64,7 +65,7 @@ def view_playground(request):
             CR.published = len(CodeSubmission.objects.filter(published__gt=0))+1
             CR.save()
             return redirect("playground")
-        else "download" in request.POST and good:
+        elif "download" in request.POST and good:
             return redirect("rom")
         else:
             return redirect("playground")
@@ -74,20 +75,31 @@ def view_playground(request):
     if 'rom_code' in request.session:
         code = request.session["rom_code"]
         pattern = request.session.get("rom_pattern")
-    elif 'source' in request.GET:
-        try:
-            game = Game.objects.get(id=int(request.GET['source']))
-            code = game.code
-            pattern = game.pattern
-        except: pass
+        name = str(request.session.get("rom_name"))
     elif me:
-        subs = ChallengeResponse.objects.filter(student=me).order_by('-timestamp')
-        if len(subs) > 0: code = subs[0].code
-    return render(request, "playground.html", {'alerts': request.session.pop('alerts', []),
+        subs = CodeSubmission.objects.filter(student=me).order_by('-timestamp')
+        if len(subs) > 0:
+            code = subs[0].code
+            name = subs[0].name
+    
+    # Get recently published games.
+    recent = CodeSubmission.objects.filter(published__gt=0).order_by('-timestamp')
+    return render(request, "playground.html", {'name': name,
                                                'pattern': pattern,
                                                'patterns': Pattern.objects.all(),
-                                               'code': code} )
+                                               'code': code,
+                                               'recently_published': recent[:10],
+                                               'alerts': request.session.pop('alerts', []) } )
 
+
+# This loads a previously published game.
+def view_published(request, id):
+    if id > 0:
+        try:
+            c = CodeSubmission.objects.get(published=id)
+            assembler.assemble_and_store(request, c.name, c.code, c.pattern)
+        except: pass
+    return redirect("playground")
 
 # The get_rom view simply returns the current ROM that is in the session
 # variables.

@@ -16,7 +16,7 @@
                     The purpose of the playground is to give you a space where
                     you can try out the things you learn and make your own
                     games!
-                    {% if user.is_authenticated %}
+                    {% if not user.is_authenticated %}
                     If you want to publish and share your creations,
                     <a href="{% url 'login' %}">log in with Github</a> and join
                     the MOOC!
@@ -24,7 +24,7 @@
                     </p>
                 </div>
 
-            <input class="input-block-level" type="text" placeholder="Project Name" name="name"></input>
+            <input class="input-block-level" type="text" placeholder="Project Name" name="name" value="{{name}}" />
 
 <div id="assembly-editor" style="width: 100%; height: 30em;"></div>
 <textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
@@ -42,7 +42,7 @@
             </p>
             
             <div class="well">
-              {% include "asm_cheatsheet.html" %}
+              {#% include "asm_cheatsheet.html" %#}
             </div>
         </div>
         
@@ -58,9 +58,17 @@
             <button class="btn" type="submit" name="publish" value="Publish">Publish</button>
             {% endif %}
             </div>
-        
+            
+            <br />
             <div class="well">
-                <h4>Recently published games</h4>
+                <h4>Recently published</h4>
+                {% for g in recently_published %}
+                <div>
+                <a href="{% url 'play' g.published %}"><em>{{ g.name }}</em></a> by
+                <a href="{% url 'profile' g.student.username %}">@{{ g.student.username }}</a>
+                {{ g.timestamp|timesince }} ago
+                </div>
+                {% endfor %}
             </div>
         </div>
         </form>

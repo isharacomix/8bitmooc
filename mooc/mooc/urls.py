@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     url(r'^chat/$', views.webchat, name='chat'),
     
     # Apps!
-    #url(r'^', include('nes.urls')),
+    url(r'^', include('nes.urls')),
     url(r'^', include('students.urls')),
     #url(r'^', include('challenges.urls')),
     #url(r'^help/', include('pages.urls')),

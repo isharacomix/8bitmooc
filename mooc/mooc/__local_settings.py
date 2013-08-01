@@ -45,19 +45,9 @@ DATABASES = {
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 BADGE_SALT = ''
-REGISTER_SALT = ''
 GITHUB_ID = ''
 GITHUB_SECRET = ''
 
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = ''
-    EMAIL_PORT = ''
-    EMAIL_HOST_USER = ''
-    EMAIL_HOST_PASSWORD = ''
-    EMAIL_USE_TLS = True
-    EMAIL_SUBJECT_PREFIX = ''
-    
-    
+# We don't need e-mail since we use Github for account management.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+

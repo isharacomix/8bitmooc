@@ -10,8 +10,8 @@
             Terms of Use and stuff.
             </div>
         
-        {% if not user.student.agreed %}
-            <form action="{% url 'shrinkwrap' %}" method="POST">{% csrf_token %}
+        {% if user.is_authenticated and not user.student.agreed %}
+            <form action="{% url 'terms' %}" method="POST">{% csrf_token %}
             <button class="btn btn-large btn-block btn-success" type="submit" name="agre" value="agree">
             <i class="icon-ok icon-white"></i> I agree</button>
             </form>
@@ -21,5 +21,5 @@
         </div>
     </div>
 
-
 {% endblock body %}
+

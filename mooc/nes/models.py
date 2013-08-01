@@ -62,7 +62,8 @@ class CodeSubmission(models.Model):
                                       default=0,
                                       help_text="""If this program is published,
                                       its ID. An ID of 0 means unpublished. A
-                                      published program has no parent.""")
+                                      published program has no parent, but can
+                                      be a parent.""")
     name        = models.SlugField("name",
                                    help_text="""The name of the program.""")
     is_correct  = models.NullBooleanField("Is Correct",
@@ -70,6 +71,12 @@ class CodeSubmission(models.Model):
                                           help_text="""When true, this challenge 
                                           was correct. If None, the jam link
                                           hasn't been evaluated yet.""")
+    pattern     = models.ForeignKey(Pattern,
+                                    null=True,
+                                    blank=True,
+                                    verbose_name="pattern",
+                                    help_text="""The spritesheet for this
+                                    submission.""")
     rom_size    = models.IntegerField("ROM size",
                                       default=0xffff,
                                       help_text="""The size of the compiled ROM

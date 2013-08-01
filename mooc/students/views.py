@@ -17,6 +17,7 @@ import json
 from django.contrib.auth.models import User
 
 from students.models import Student, LogEntry
+from nes.models import CodeSubmission
 
 
 # This redirects and starts the github handshake.
@@ -66,16 +67,22 @@ def handle_oauth(request):
     except exceptions.ObjectDoesNotExist: user = None
     
     # Log in or create the account.
-    if user:
+    if user and not user.student.banned:
         login(request, user)
         request.session["alerts"].append(("alert-success","Welcome back, %s!"%username))
+        return redirect("index")
+    elif user and user.student.banned:
+        request.session["alerts"].append(("alert-error","""This account has
+                                          been suspended. If you believe this
+                                          is in error, please contact the site
+                                          administrator."""))
         return redirect("index")
     else:
         user = User.objects.create_user(username, email, str(random.randint(100000000,999999999)))
         user.save()
         student = Student(user=user)
         student.save()
-        return redirect("index")
+        return redirect("terms")
         
     
 # This handles the logout process, clearing out the cookies and whatnot.
@@ -96,19 +103,16 @@ def handle_logout(request):
 # and we can let them use the website.
 def terms_of_use(request):
     me = Student.from_request(request)
-    if not me:
-        request.session["alerts"].append(("alert-error","Please log in to access this feature."))
-        return redirect("index")
     
     # A POST request means that the user has agreed to the terms of use.
-    if request.method == "POST":
+    if request.method == "POST" and me:
         me.agreed = True
         me.save()
         request.session["alerts"].append(("alert-success","Thanks! Welcome to #8bitmooc!"))
         return redirect("index")
     
     # If they've already agreed, let them know.
-    if me.agreed:
+    if me and me.agreed:
         request.session["alerts"].append(("alert-success","You have already agreed to the terms of use."))
     
     # Render the page.
@@ -129,5 +133,6 @@ def user_profile(request, username):
     return render(request,
                   "profile.html",
                   {'student': student,
+                   'published': CodeSubmission.objects.filter(published__gt=0, student=student).order_by('-timestamp'),
                    'alerts': request.session.pop('alerts', []) })
 
