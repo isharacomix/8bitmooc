@@ -118,6 +118,7 @@ INSTALLED_APPS = (
     'mooc',
     'students',
     'nes',
+    'pages',
 )
 
 LOGIN_REDIRECT_URL = '/'

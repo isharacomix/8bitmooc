@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'^', include('nes.urls')),
     url(r'^', include('students.urls')),
     #url(r'^', include('challenges.urls')),
-    #url(r'^help/', include('pages.urls')),
+    url(r'^help/', include('pages.urls')),
     #url(r'^forum/', include('forum.urls')),
 
     # Django-admin panel
