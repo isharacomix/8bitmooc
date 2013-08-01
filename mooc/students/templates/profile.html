@@ -13,11 +13,15 @@
         
         <div class="span10">
             <div>
-                <h2>Progress in #8bitmooc</h2>
+                <h2>{{ student.username }} {% if student.ta %}(admin){% endif %}</h2>
+                Member for {{ student.joined | timesince }}.
+            <div>
+            <div>
+                <h3>Progress in #8bitmooc</h3>
             </div>
             
             <div>
-                <h2>Published in the Sandbox</h2>
+                <h3>Published in the Sandbox</h3>
                 <div class="well">
                     {% for g in published %}
                     <div>
