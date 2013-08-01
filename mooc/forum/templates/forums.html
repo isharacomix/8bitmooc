@@ -1,0 +1,51 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}Community Forums{% endblock title %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="span10 offset1">
+        
+        <ul class="nav nav-pills">
+        <li class="active"><a href="#">Forums</a></li>
+        </ul>        
+        
+        
+            <h1>Community Discussion Boards</h1>
+            <p>
+                Welcome to the community discussion boards! Join your classmates
+                in discussing old games, whether it's about programming them,
+                taking them apart, or just playing them.
+            </p>
+        </div>
+        <div class="span8 offset2">
+            <table class="table table-striped">
+                {% for board, last, new in boards %}
+                <tr>
+                    <td>
+                      <h4>
+                        <a href="{% url 'board' category=board.slug %}">{{board.name}}</a>
+                      </h4>
+                      
+                      {{ board.description|markup }}
+                    </td>
+                    <td>
+                    <h4> </h4>
+                    {% if last %}
+                    <p>Last topic active: <a href="{% url 'thread' category=board.slug thread=last.id %}">{{ last.title }}</a></p>
+                    {% endif %}
+                    
+                    {% if new %}
+                    <p><small><strong><em>{{ new }} discussions since last visit.</em></strong></small></p>
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock body %}
+

@@ -1,0 +1,81 @@
+{% extends "layout_base.html" %}
+{% load avatar_tags %}
+{% load markup %}
+
+{% block title %}Community: {{ board.name }}{% endblock title %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="span10 offset1">
+        
+        <ul class="nav nav-pills">
+        <li><a href="{% url 'forums' %}">Forums</a></li>
+        <li class="active"><a href="#">{{ board.name }}</a></li>
+        </ul>
+        
+            <h1>{{ board.name }}</h1>
+            
+            <table class="table table-striped">
+                <tr>
+                    <th>Topic</th>
+                    <th>Posts</th>
+                    <th>Last Post</th>
+                </tr>
+                {% for topic, count, last, new in topics %}
+                <tr>
+                    <td>
+                      {% if topic.sticky %}<i class="icon-exclamation-sign"></i>{% endif %}
+                      
+                      {% if new %}<strong>{% endif %}
+                        <a href="{% url 'thread' category=topic.board.slug thread=topic.id %}">{{topic.title}}</a>
+                      {% if new %}</strong>{% endif %}
+                    </td>
+                    <td>
+                      {% if new %}<strong>{% endif %}
+                        {{ count }}
+                      {% if new %}</strong>{% endif %}
+                    </td>
+                    <td>
+                    {% if last %}
+                      {% if new %}<strong>{% endif %}
+                        <a class="pull-left" href="{% url 'profile' username=last.author.username %}">
+                            <img src="{% avatar_url last.author.user 24 %}&d=retro" alt="{{ last.author.username }}" title="{{ last.author.username }}" />
+                       </a>
+                       <p>{% if last.author.ta %}(admin){% endif %} {{ last.timestamp|timesince }} ago</p>
+                      {% if new %}</strong>{% endif %}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            
+            {% if can_write  %}
+            <button class="btn" type="button" data-toggle="modal" data-target="#newtopic"><i class="icon-plus-sign"></i> New Topic</button>
+            {% endif %}
+        </div>
+    </div>
+    {% include "pagination.html" %}
+
+{% if can_write %}
+        <form action="{% url 'board' category=board.slug %}" method="POST">{% csrf_token %}
+<div id="newtopic" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtopicLabel" aria-hidden="true">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<h3 id="newtopicLabel">Create a new Thread</h3>
+</div>
+<div class="modal-body">
+<input class="input-block-level" type="text" placeholder="Thread Title" name="title"></input>
+<textarea class="input-block-level" rows="10" name="content" placeholder="Enter your post content here."></textarea>
+</div>
+<div class="modal-footer">
+<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+<button class="btn btn-success" type="submit" name="topic" value="topic">Post New Thread</button>
+</div>
+</div>
+        </form>
+{% endif %}
+
+
+{% endblock body %}
+

@@ -1,0 +1,14 @@
+[
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 1,
+    "fields": {
+        "name": "News and Announcements",
+        "slug": "news",
+        "description": "This forum is for announcements about new site features and updates. Only site staff can post new topics, but anyone can reply and discuss them.",
+        "restricted": 0,
+        "wrestricted": 999,
+        "ordering": 1
+    }
+  }
+]

@@ -41,11 +41,13 @@ class Student(models.Model):
     last_login      = models.DateTimeField("Last Login",
                                            null=True,
                                            blank=True,
+                                           auto_now_add=True,
                                            help_text="""The timestamp of the student's
                                            last visit.""")
     unread_since    = models.DateTimeField("Unread Since",
                                            null=True,
                                            blank=True,
+                                           auto_now_add=True,
                                            help_text="""The timestamp by which to
                                            measure unread posts.""")
 
