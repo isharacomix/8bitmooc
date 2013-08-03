@@ -28,7 +28,7 @@
                       {% if topic.sticky %}<i class="icon-exclamation-sign"></i>{% endif %}
                       
                       {% if new %}<strong>{% endif %}
-                        <a href="{% url 'thread' category=topic.board.slug thread=topic.id %}">{{topic.title}}</a>
+                        <a href="{% url 'thread' topic.board.slug topic.id %}">{{topic.title}}</a>
                       {% if new %}</strong>{% endif %}
                     </td>
                     <td>
@@ -39,7 +39,7 @@
                     <td>
                     {% if last %}
                       {% if new %}<strong>{% endif %}
-                        <a class="pull-left" href="{% url 'profile' username=last.author.username %}">
+                        <a class="pull-left" href="{% url 'profile' last.author.username %}">
                             <img src="{% avatar_url last.author.user 24 %}&d=retro" alt="{{ last.author.username }}" title="{{ last.author.username }}" />
                        </a>
                        <p>{% if last.author.ta %}(admin){% endif %} {{ last.timestamp|timesince }} ago</p>
@@ -58,7 +58,7 @@
     {% include "pagination.html" %}
 
 {% if can_write %}
-        <form action="{% url 'board' category=board.slug %}" method="POST">{% csrf_token %}
+        <form action="{% url 'board' board.slug %}" method="POST">{% csrf_token %}
 <div id="newtopic" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtopicLabel" aria-hidden="true">
 <div class="modal-header">
 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

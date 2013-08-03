@@ -100,8 +100,11 @@ def view_challenge(request, name):
                                                   size and executed %d instructions.'''%results))
                 LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
             
-            return redirect("challenge", challenge.slug)        
-        
+            if "download" in request.POST:
+                return redirect("rom")
+            else:
+                return redirect("challenge", challenge.slug)
+    
     # Load the latest submission code to display it on the screen.
     subs = CodeSubmission.objects.filter(student=me, challenge=challenge).order_by('-timestamp')
     if len(subs) > 0: code = subs[0].code

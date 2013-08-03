@@ -6,12 +6,12 @@
 
 {% block body %}
     <div class="row">
-    <form action="{% url 'thread' category=board.slug thread=topic.id %}" method="POST">{% csrf_token %}
+    <form action="{% url 'thread' board.slug topic.id %}" method="POST">{% csrf_token %}
         <div class="span10 offset1">
         
         <ul class="nav nav-pills">
         <li><a href="{% url 'forums' %}">Forums</a></li>
-        <li><a href="{% url 'board' category=board.slug %}">{{ board.name }}</a></span></li>
+        <li><a href="{% url 'board' board.slug %}">{{ board.name }}</a></span></li>
         <li class="active"><a href="#">{{ topic.title }}</a></li>
         </ul>
         
@@ -21,14 +21,14 @@
 
 
             <div class="media well {% if p.author.ta %}well-gold{% endif %}">
-                <a class="{% cycle 'pull-left' 'pull-right' %}" href="{% url 'profile' username=p.author.username %}">
+                <a class="{% cycle 'pull-left' 'pull-right' %}" href="{% url 'profile' p.author.username %}">
                     <img class="img-polaroid" src="{% avatar_url p.author.user 128 %}&d=retro" alt="" />
                 </a>
                 <div class="media-body">
                     <article>
                     {{ p.content|minimarkup }}
                     </article>
-                    <p><small><em>Posted by <a href="{% url 'profile' username=p.author.username %}">@{{ p.author.username }}</a>
+                    <p><small><em>Posted by <a href="{% url 'profile' p.author.username %}">@{{ p.author.username }}</a>
                     {% if p.author.ta %} (admin) {% endif %}
                     {{ p.timestamp|timesince }} ago.</em></small></p>
                 </div>

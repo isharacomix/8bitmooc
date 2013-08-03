@@ -26,7 +26,7 @@
                 <tr>
                     <td>
                       <h4>
-                        <a href="{% url 'board' category=board.slug %}">{{board.name}}</a>
+                        <a href="{% url 'board' board.slug %}">{{board.name}}</a>
                       </h4>
                       
                       {{ board.description|markup }}
@@ -34,7 +34,7 @@
                     <td>
                     <h4> </h4>
                     {% if last %}
-                    <p>Last topic active: <a href="{% url 'thread' category=board.slug thread=last.id %}">{{ last.title }}</a></p>
+                    <p>Last topic active: <a href="{% url 'thread' board.slug last.id %}">{{ last.title }}</a></p>
                     {% endif %}
                     
                     {% if new %}
