@@ -61,7 +61,6 @@ class Challenge(models.Model):
     # This method returns all of the challenges so that the they can be displayed
     # to the student.
     # TODO: Add SOS to the mix.
-    # TODO: Add "waiting for grade"
     @staticmethod
     def show_for(student):
         challenges = Challenge.objects.all()
@@ -88,4 +87,73 @@ class Challenge(models.Model):
                         my_speed = records[0].runtime
             report.append(( c, complete, my_size, my_speed, best_size, best_speed ))
         return report
+
+
+# SOS: requests for feedback on a submission. It is also possible to create
+# "null" SOS requests for grading purposes.
+class SOS(models.Model):
+    student     = models.ForeignKey(Student,
+                                    verbose_name="Student",
+                                    help_text="""The student requesting help.""")
+    challenge   = models.ForeignKey(Challenge,
+                                    verbose_name="Challenge",
+                                    help_text="""The challenge that this
+                                    request is associated with. This helps us
+                                    filter open SOSes, despite being redundant.""")
+    submission  = models.ForeignKey(CodeSubmission,
+                                    verbose_name="Challenge Submission",
+                                    help_text="""The challenge response that this
+                                    request is associated with.""")
+    content     = models.TextField("Content",
+                                   help_text="""The question being asked by the
+                                   student.""")
+    timestamp   = models.DateTimeField("Timestamp",
+                                       auto_now_add=True,
+                                       help_text="""The time that the request
+                                       was submitted.""")
+    active      = models.BooleanField("Active?",
+                                  default=True,
+                                  help_text="""An SOS is active until it gets
+                                  three feedbacks or until the student submits
+                                  a new one for the same challenge.""")
+
+    # Representation of the SOS
+    def __unicode__(self):
+        return u"SOS %d for %s" % (self.id, self.challenge)
+
+
+# Feedback for a challenge. Feedback can exist for any challenge, and while it
+# is often explicitly tied with an SOS, a None for the SOS field means that
+# it's simply feedback from a teacher.
+class Feedback(models.Model):
+    author      = models.ForeignKey(Student,
+                                    verbose_name="Author",
+                                    help_text="""The student giving the feedback.""")
+    sos         = models.ForeignKey(SOS,
+                                    verbose_name="SOS",
+                                    help_text="""The SOS being responded to.""")
+    timestamp   = models.DateTimeField("Timestamp",
+                                       auto_now_add=True,
+                                       help_text="""The time that the request
+                                       was answered.""")
+    content     = models.TextField("Content",
+                                   help_text="""The feedback description.""")
+    confident   = models.BooleanField("Confident?",
+                                      default=False,
+                                      help_text="""True if the student giving
+                                      the help was confident in their response?""")
+    good        = models.BooleanField("Good SOS?",
+                                      default=False,
+                                      help_text="""True if the student giving
+                                      the help thought the question was a good
+                                      one.""")
+    helpful     = models.NullBooleanField("Helpful?",
+                                          help_text="""When a student gets their
+                                          feedback, they can then mark it as
+                                          helpful or unhelpful.""")
+    
+    # Representation of the SOS
+    def __unicode__(self):
+        return u"Feedback: %s" % (self.sos)
+
 

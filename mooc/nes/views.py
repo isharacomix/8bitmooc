@@ -77,7 +77,7 @@ def view_playground(request):
         pattern = request.session.get("rom_pattern")
         name = str(request.session.get("rom_name"))
     elif me:
-        subs = CodeSubmission.objects.filter(student=me).order_by('-timestamp')
+        subs = CodeSubmission.objects.filter(student=me, challenge=None).order_by('-timestamp')
         if len(subs) > 0:
             code = subs[0].code
             name = subs[0].name

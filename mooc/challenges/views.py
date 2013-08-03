@@ -8,7 +8,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import render, redirect
 
 from students.models import Student, LogEntry
-from challenges.models import Challenge
+from challenges.models import Challenge, SOS, Feedback
 from nes.models import CodeSubmission
 from django.contrib.auth.models import User
 
@@ -64,8 +64,7 @@ def view_challenge(request, name):
         
         # Convert the last code submission into a diff image, but only save it
         # if the diff is actually smaller than the full code.
-        #TODO if the old has an sos attached, then 
-        if old:
+        if old and len(SOS.objects.filter(submission=old)) == 0:
             old.parent = CR
             old_code = old.code
             old.code = ""
@@ -75,8 +74,9 @@ def view_challenge(request, name):
                 old.save()
         
         # Only try to autograde if the program compiles.
-        if assembler.assemble_and_store(request, "challenge", code, challenge.pattern,
-                                        challenge.preamble, challenge.postamble):
+        compiles = assembler.assemble_and_store(request, "challenge%s"%challenge.slug,
+                   code, challenge.pattern, challenge.preamble, challenge.postamble)
+        if compiles and challenge.autograde:
             completed = me in challenge.completed_by.all()
             results = autograde.grade( challenge, me, code, completed )
             
@@ -85,7 +85,7 @@ def view_challenge(request, name):
             if results: CR.rom_size, CR.runtime = results
             CR.save()
             
-            # Award XP if the program is correct.
+            # Award victory if the program is correct.
             if results and not completed:
                 challenge.completed_by.add(me)
                 challenge.save()
@@ -99,11 +99,24 @@ def view_challenge(request, name):
                                                   '''This solution was %d bytes in
                                                   size and executed %d instructions.'''%results))
                 LogEntry.log(request, "%s: %d, %d"%(challenge.slug,results[0],results[1]))
-            
-            if "download" in request.POST:
-                return redirect("rom")
-            else:
-                return redirect("challenge", challenge.slug)
+        
+        # Is there an SOS involved?
+        if "sos" in request.POST and "help" in request.POST:
+            for s in SOS.objects.filter(challenge=challenge, student=me):
+                s.active = False
+                s.save()
+        
+            s = SOS()
+            s.challenge = challenge
+            s.submission = CR
+            s.content = request.POST["help"]
+            s.student = me
+            s.save()
+        
+        # Handle the redirect.
+        if "download" in request.POST and compiles:
+            return redirect("rom")
+        return redirect("challenge", challenge.slug)
     
     # Load the latest submission code to display it on the screen.
     subs = CodeSubmission.objects.filter(student=me, challenge=challenge).order_by('-timestamp')
@@ -119,3 +132,81 @@ def view_challenge(request, name):
                                               'best_speed': best_speed,
                                               'completed': completed} )
 
+
+# This views the SOSes for a challenge. There are some prerequisites to
+# responding to an SOS.
+#  * Student must have completed the stage
+#  * The student must not have already responded to this SOS
+@Student.permission
+def view_sos(request, name):
+    me = Student.from_request(request)
+    
+    # First, try to get the challenge.
+    try: challenge = Challenge.objects.get(slug=name)
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    # Make sure the student has completed it.
+    if challenge not in me.challenge_set.all():
+        request.session['alerts'].append(('alert-error',
+                                          '''You can't respond to SOS requests
+                                          until you complete the challenge!'''))
+        return redirect("index")
+    
+    
+    # If this is a POST request, we are responding.
+    if request.method == "POST":
+        if "id" in request.POST and request.POST["id"] == request.session.get("sos-id"):
+            target = SOS.objects.get(id=int(request.session.pop("sos-id")))
+            fb = Feedback()
+            fb.author = me
+            fb.sos = target
+            fb.content = str(request.POST.get("response"))
+            fb.confident = True if request.POST.get("confident") else False
+            fb.good = True if request.POST.get("good") else False
+            fb.save()
+            
+            if (len( target.feedback_set.all() ) >= 3):
+                target.active = False
+                target.save()
+            
+            request.session["alerts"].append(("alert-success",
+                                              """Thank you for helping your classmates
+                                              by participating in the SOS system!"""))
+        else:
+            request.session["alerts"].append(("alert-error",
+                                              """There was an error with your
+                                              SOS submission."""))
+            LogEntry.log(request, "Botched SOS job.")
+        return redirect("index")
+    
+    
+    # Find all of the SOS requests for this challenge.
+    all_sos = list( SOS.objects.filter(active=True, challenge=challenge).exclude(student=me) )
+    if len(all_sos) == 0:
+        request.session["alerts"].append(("alert-error",
+                                          "There are no active SOS requests for this challenge."))
+        return redirect("index")
+    
+    # Get a random challenge if you are not the TA. If you're the TA, get the
+    # oldest one.
+    if not me.ta: random.shuffle( all_sos )
+    target = None
+    while len(all_sos) > 0 and target is None:
+        x = all_sos.pop(0)
+        feedbacks = Feedback.objects.filter( sos=x, author=me )
+        if len(feedbacks) == 0:
+            target = x
+    if target is None:
+        request.session["alerts"].append(("alert-error",
+                                          "You have already responded to all active SOS requests for this challenge!"))
+        return redirect("index")
+    
+    # Now try to assemble the game and then load the page so that we can try to
+    # help!
+    request.session["sos-id"] = str(target.id)
+    assembler.assemble_and_store(request, "challenge", target.submission.code, challenge.pattern,
+                                 challenge.preamble, challenge.postamble)
+    return render(request, "sos.html", {'challenge': challenge,
+                                        'alerts': request.session.pop('alerts', []),
+                                        'sos': target } )
+    

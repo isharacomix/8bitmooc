@@ -1,0 +1,68 @@
+{% extends "layout_base.html" %}
+{% load markup %}
+
+{% block title %}SOS: {{ challenge.name }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span8">
+            <div>
+                <div>
+                    <h1>Challenge {{ challenge.slug }}: {{ challenge.name }}</h1>
+                    
+                    <div>
+                        {{ challenge.description|markup }}
+                    </div>
+                </div>
+
+<div id="assembly-editor" style="width: 100%; height: 30em;"></div>
+<textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" disabled wrap="soft">{{ sos.submission.code }}</textarea>
+            </div>
+            
+            
+            <div>
+                <p>Your fellow student has posed the following question. Please try to
+                provide a complete answer that addresses their question, referencing
+                course material and where that material comes from without revealing
+                the solution to the assignment. If you answer questions well, you
+                may even earn a reward!</p>
+                
+                
+                <div class="well">
+                    {{ sos.content | minimarkup }}
+                    
+                    <div>
+                        <form name="input" action="{% url 'sos' challenge.slug %}" method="post">{% csrf_token %}
+                        <input type="hidden" name="id" value="{{sos.id}}" />
+                        <textarea class="input-block-level" name="response" wrap="soft"></textarea>
+                        <label class="checkbox">
+                            <input type="checkbox" name="confident" value="True" />
+                            Do you feel confident in your response?
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" name="good" value="True" />
+                            Was this a good question?
+                        </label>
+                        <button class="btn btn-success" type="submit" name="Respond" value="respond">Respond!</button>
+                        </form>
+                    </div>
+                </div>
+            </div>    
+        </div>
+        
+        
+        
+        <div class="span4">
+            <div id="emulator"></div>
+        </div>
+        
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+    {% include "ace.html" %}
+{% endblock scripts %}
