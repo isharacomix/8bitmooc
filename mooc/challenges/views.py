@@ -130,7 +130,8 @@ def view_challenge(request, name):
                                               'my_speed': my_speed,
                                               'best_size': best_size,
                                               'best_speed': best_speed,
-                                              'completed': completed} )
+                                              'completed': completed,
+                                              'feedback': SOS.objects.filter(challenge=challenge, student=me) } )
 
 
 # This views the SOSes for a challenge. There are some prerequisites to
@@ -210,3 +211,36 @@ def view_sos(request, name):
                                         'alerts': request.session.pop('alerts', []),
                                         'sos': target } )
     
+    
+
+# Viewing feedback is easy. Just pass along all of the SOSes and their respective
+# feedbacks.
+@Student.permission
+def view_feedback(request, name):
+    me = Student.from_request(request)
+    
+    # First, try to get the challenge.
+    try: challenge = Challenge.objects.get(slug=name)
+    except exceptions.ObjectDoesNotExist: raise Http404()
+    
+    # Now get all of the SOSses related to this user and challenge.
+    feedback = SOS.objects.filter(challenge=challenge, student=me)
+    
+    # Mark feedback as helpful or not.
+    if "helpful" in request.GET or "unhelpful" in request.GET:
+        helpful = True
+        if "unhelpful" in request.GET: helpful = False
+        f_id = request.GET["helpful" if helpful else "unhelpful"]
+        if f_id.isdigit():
+            try:
+                f = Feedback.objects.get(id=int(f_id))
+                if f.sos in feedback and f.helpful is None:
+                    f.helpful = helpful
+                    f.save()
+                    LogEntry.log(request, "Marked as %shelpful"%("" if helpful else "un"))
+            except exceptions.ObjectDoesNotExist:
+                LogEntry.log(request, "Feedback voting naughtiness.")
+    
+    return render(request, "feedback.html", {'challenge': challenge,
+                                             'feedback': feedback})
+

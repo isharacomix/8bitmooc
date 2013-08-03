@@ -28,7 +28,9 @@
         </div>
         
         <div class="span4">
-    
+            {% if feedback %}
+                <a class="btn btn-block" href="{% url 'feedback' challenge.slug %}">View Feedbacks</a><br />
+            {% endif %}
         
             <div id="emulator"></div>
     
