@@ -1,0 +1,67 @@
+{% extends "layout_base.html" %}
+{% load static from staticfiles %}
+{% load markup %}
+
+{% block title %}Challenge {{ challenge.slug }}: {{ challenge.name }}{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <form name="input" action="{% url 'challenge' challenge.slug %}" method="post">{% csrf_token %}
+        <div class="span8">
+            <div>
+                <div>
+                    <h1>Challenge {{ challenge.slug }}: {{ challenge.name }}</h1>
+                    
+                    <div>
+                        {{ challenge.description|markup }}
+                    </div>
+                </div>
+
+<div id="assembly-editor" style="width: 100%; height: 30em;"></div>
+<textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
+            </div>
+            
+            <div class="well">
+              {% include "asm_cheatsheet.html" %}
+            </div>
+        </div>
+        
+        <div class="span4">
+    
+        
+            <div id="emulator"></div>
+    
+            <div>
+            <button class="btn" type="submit" name="run" value="Assemble">Assemble</button>
+            <button class="btn" type="submit" name="download" value="Download">Download</button>
+            
+            </div>
+            
+            {% if completed and challenge.autograde %}
+            <br />
+            <div class="well">
+                <h4>Records</h4>
+                Now that you've completed this challenge, can you make the
+                smallest and fastest solution for it?
+                <table class="table">
+                  <tr><td>Your Size</td><td>{{ my_size }}</td>
+                  <tr><td>Your Speed</td><td>{{ my_speed }}</td>
+                  <tr><td>Best Size</td><td>{{ best_size }}</td>
+                  <tr><td>Best Speed</td><td>{{ best_speed }}</td>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+        </form>
+        
+    </div>
+
+{% endblock body %}
+
+
+{% block scripts %}
+    {% include "nes.html" %}
+    {% include "ace.html" %}
+{% endblock scripts %}
+

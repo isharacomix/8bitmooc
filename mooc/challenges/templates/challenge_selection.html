@@ -1,0 +1,28 @@
+<table class="table">
+  <tr>
+    <th>Challenge Name</th>
+    <th>Size</th>
+    <th>Speed</th>
+    <th>Best Size</th>
+    <th>Best Speed</th>
+  </tr>
+  
+  {% for c, complete, my_size, my_speed, best_size, best_speed in challenges %}
+  <tr>
+    <td><a href="{% url 'challenge' c.slug %}">{{ c.name }}</a></td>
+    {% if not complete %}
+      <td colspan="4"><em>Not completed</em></td>    
+    {% elif not c.autograde %}
+      <td colspan="4"><em>Completed!</em></td>
+    {% else %}
+      <td>{{ my_size }}</td>
+      <td>{{ my_speed }}</td>
+      <td>{{ best_size }}</td>
+      <td>{{ best_speed }}</td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+  
+</table>
+
+

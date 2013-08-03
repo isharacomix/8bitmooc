@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 
 from students.models import Student, LogEntry
 from nes.models import CodeSubmission
+from challenges.models import Challenge
 
 
 # This redirects and starts the github handshake.
@@ -27,8 +28,10 @@ def handle_login(request):
     if me:
         request.session["alerts"].append(("alert-error","You are already logged in!"))
         return redirect("index")
+    request.session["secret_state"] = str(random.randint(100000000,999999999))
     
-    return redirect("https://github.com/login/oauth/authorize?client_id=%s&scope=user:email"%settings.GITHUB_ID)
+    return redirect("https://github.com/login/oauth/authorize?client_id=%s&state=%s&scope=user:email"%
+                    (settings.GITHUB_ID, request.session["secret_state"]))
 
 
 # When a user logs into Github, this is the function that will be called
@@ -36,8 +39,10 @@ def handle_login(request):
 def handle_oauth(request):
     me = Student.from_request(request)
     
-    # Github will give us a code. If we don't get the code, fail early.
-    if "code" not in request.GET:
+    # Github will give us a code. If we don't get the code or if the secrets
+    # have been screwed up, fail early.
+    if ("code" not in request.GET or request.session.get("secret_state") is None
+       or request.GET.get("state") != request.session.get("secret_state")):
         request.session["alerts"].append(("alert-error","Error getting token from Github."))
         return redirect("index")    
     
@@ -135,6 +140,7 @@ def user_profile(request, username):
     return render(request,
                   "profile.html",
                   {'student': student,
+                   'challenges': Challenge.show_for(student),
                    'published': CodeSubmission.objects.filter(published__gt=0, student=student).order_by('-timestamp'),
                    'alerts': request.session.pop('alerts', []) })
 

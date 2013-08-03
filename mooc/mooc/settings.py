@@ -119,7 +119,8 @@ INSTALLED_APPS = (
     'students',
     'nes',
     'pages',
-    'forum'
+    'forum',
+    'challenges',
 )
 
 LOGIN_REDIRECT_URL = '/'

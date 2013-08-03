@@ -27,7 +27,7 @@ def view_playground(request):
     pattern = None
     name = ""
     if request.method == "POST":
-        try: old = CodeSubmission.objects.filter(student=me).order_by('-timestamp')[0]
+        try: old = CodeSubmission.objects.filter(student=me, challenge=None).order_by('-timestamp')[0]
         except: old = None
         
         # Get code from the POST request.

@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
 from students.models import Student, LogEntry
+from challenges.models import Challenge
 
 
 # This views the home page. If the user is logged in, we redirect to the
@@ -33,7 +34,8 @@ def view_index(request):
 def view_dashboard(request, me):
     return render(request,
                   "dashboard.html",
-                  {'alerts': request.session.pop('alerts', []) })
+                  {'challenges': Challenge.show_for(me),
+                   'alerts': request.session.pop('alerts', []) })
 
 
 # View the embedded IRC!

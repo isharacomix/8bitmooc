@@ -35,13 +35,13 @@ class CodeSubmission(models.Model):
                                     help_text="""The author of the challenge
                                     response.""")
     challenge = None
-    #challenge   = models.ForeignKey("challenge.Challenge",
-    #                                verbose_name="Challenge",
-    #                                null=True,
-    #                                blank=True,
-    #                                help_text="""The challenge being responded
-    #                                to. If None, this is a playground
-    #                                submission.""")
+    challenge   = models.ForeignKey("challenges.Challenge",
+                                    verbose_name="Challenge",
+                                    null=True,
+                                    blank=True,
+                                    help_text="""The challenge being responded
+                                    to. If None, this is a playground
+                                    submission.""")
     timestamp   = models.DateTimeField("Timestamp",
                                        auto_now_add=True,
                                        help_text="""The time that the response
@@ -82,7 +82,7 @@ class CodeSubmission(models.Model):
                                       help_text="""The size of the compiled ROM
                                       of a successful response.""")
     runtime     = models.IntegerField("Running Time",
-                                      default=0xffff,
+                                      default=0xffffff,
                                       help_text="""The number of steps it takes
                                       to complete the test cases.""")
     
