@@ -68,15 +68,17 @@ def handle_oauth(request):
     # account, we log them in. If not, we create an account for them.
     try:
         response = urllib2.urlopen('https://api.github.com/user?access_token=%s'%token)
-        apidata = json.loads(response.read())
+        userdata = json.loads(response.read())
+        response = urllib2.urlopen('https://api.github.com/user/emails?access_token=%s'%token)
+        emaildata = json.loads(response.read())
+        username = userdata["login"]
+        email = emaildata[0]
     except:
         request.session["alerts"].append(("alert-error","Error getting token from Github."))
         return redirect("index")   
     
     # Get the user and username. If the user is in the db, log it in. Otherwise,
     # create an account.
-    username = apidata["login"]
-    email = apidata["email"]
     try: user = User.objects.get(username=username)
     except exceptions.ObjectDoesNotExist: user = None
     
