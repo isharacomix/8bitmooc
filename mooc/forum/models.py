@@ -42,9 +42,9 @@ class DiscussionBoard(models.Model):
     def can_read(self, student):
         if student.ta: return True
         if self.restricted == 0: return True
-        if self.restricted == 1 and len(student.challenge_set.all()) > 3: return True
-        if self.restricted == 2 and len(student.challenge_set.all()) > 6: return True
-        if self.restricted == 3 and student.completed: return True
+        if self.restricted == 1 and len(student.challenge_set.all()) >= 3: return True
+        if self.restricted == 2 and len(student.challenge_set.all()) >= 6: return True
+        if self.restricted == 3 and len(student.challenge_set.all()) >= 10: return True
         if self.restricted == 4 and student.in_person: return True
         return False
     
@@ -52,9 +52,9 @@ class DiscussionBoard(models.Model):
     def can_write(self, student):
         if student.ta: return True
         if self.wrestricted == 0: return True
-        if self.wrestricted == 1 and len(student.challenge_set.all()) > 3: return True
-        if self.wrestricted == 2 and len(student.challenge_set.all()) > 6: return True
-        if self.wrestricted == 3 and student.completed: return True
+        if self.wrestricted == 1 and len(student.challenge_set.all()) >= 3: return True
+        if self.wrestricted == 2 and len(student.challenge_set.all()) >= 6: return True
+        if self.wrestricted == 3 and len(student.challenge_set.all()) >= 10: return True
         if self.wrestricted == 4 and student.in_person: return True
         return False
 
