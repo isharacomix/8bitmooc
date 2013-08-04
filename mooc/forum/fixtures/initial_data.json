@@ -5,10 +5,82 @@
     "fields": {
         "name": "News and Announcements",
         "slug": "news",
-        "description": "This forum is for announcements about new site features and updates. Only site staff can post new topics, but anyone can reply and discuss them.",
+        "description": "This forum is for announcements about new site features and updates. Only site staff can post new topics, but anyone can read them.",
         "restricted": 0,
         "wrestricted": 999,
         "ordering": 1
     }
-  }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 2,
+    "fields": {
+        "name": "Newbie Central",
+        "slug": "newbies",
+        "description": "Anyone in #8bitmooc can post to this forum! If you're having trouble or need help, remember that there are no stupid questions!",
+        "restricted": 0,
+        "wrestricted": 0,
+        "ordering": 2
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 3,
+    "fields": {
+        "name": "Coder's Club",
+        "slug": "coders",
+        "description": "This forum is open to all students who have completed at least three challenges in order to avoid having higher level conversations interrupted by beginner questions. Since the bar for participating is higher, you can rest assured that conversations will be of a higher caliber.",
+        "restricted": 1,
+        "wrestricted": 1,
+        "ordering": 3
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 4,
+    "fields": {
+        "name": "Advanced Programming",
+        "slug": "advanced",
+        "description": "This forum is restricted to students who have completed six challenges. Since most people in this forum are likely to be trying to actually complete the course, this is a great place to talk about game design and planning issues and other advanced optimization tricks.",
+        "restricted": 2,
+        "wrestricted": 2,
+        "ordering": 4
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 5,
+    "fields": {
+        "name": "Winner's Circle",
+        "slug": "winners",
+        "description": "Congratulations on completing #8bitmooc and all of its challenges! This forum is for people just like you, so if you want to talk about material beyond the class and ensure that the instructors hear what you have to say and take you seriously, this is your chance!",
+        "restricted": 3,
+        "wrestricted": 3,
+        "ordering": 5
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 6,
+    "fields": {
+        "name": "In-Person Discussion Board",
+        "slug": "in-person",
+        "description": "This is an exclusive forum for students in the in-person version of this class.",
+        "restricted": 4,
+        "wrestricted": 4,
+        "ordering": 6
+    }
+  },
+  {
+    "model": "forum.DiscussionBoard",
+    "pk": 7,
+    "fields": {
+        "name": "Area 51",
+        "slug": "area51",
+        "description": "This is a discussion board for moderators.",
+        "restricted": 999,
+        "wrestricted": 999,
+        "ordering": 7
+    }
+  },
 ]
