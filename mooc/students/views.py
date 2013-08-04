@@ -104,7 +104,9 @@ def handle_oauth(request):
         user.save()
         student = Student(user=user)
         student.save()
-        return redirect("terms")
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user)
+        return redirect("index")
         
     
 # This handles the logout process, clearing out the cookies and whatnot.
