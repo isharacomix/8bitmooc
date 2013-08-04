@@ -137,5 +137,3 @@ class LogEntry(models.Model):
     def __unicode__(self):
         return u"Log entry at %s" % (str(self.timestamp))
 
-
-

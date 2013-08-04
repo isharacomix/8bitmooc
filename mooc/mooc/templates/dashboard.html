@@ -1,4 +1,6 @@
 {% extends "layout_base.html" %}
+{% load avatar_tags %}
+{% load markup %}
 
 {% block title %}Dashboard{% endblock title %}
 
@@ -6,17 +8,16 @@
 
     <div class="row">
         <div class="span6">
+            {% for a in announcements %}
             <div class="well">
-                News 1
+                <img class="img-polaroid pull-right" src="{% avatar_url a.author.user 128 %}&d=retro" alt="" />
+                <h3>{{ a.topic.title }}</h3>
+                <h5>By <a href="{% url 'profile' a.author.username %}">@{{ a.author.username }}</a> {{ a.timestamp|timesince }} ago</h5>
+                <article>
+                    {{ a.content|minimarkup }}
+                </article>
             </div>
-            
-            <div class="well">
-                News 2
-            </div>
-            
-            <div class="well">
-                News 3
-            </div>
+            {% endfor %}
         </div>
         
         <div class="span6">

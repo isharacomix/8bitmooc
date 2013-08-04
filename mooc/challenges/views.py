@@ -211,7 +211,6 @@ def view_sos(request, name):
                                         'alerts': request.session.pop('alerts', []),
                                         'sos': target } )
     
-    
 
 # Viewing feedback is easy. Just pass along all of the SOSes and their respective
 # feedbacks.

@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 
 from students.models import Student, LogEntry
 from challenges.models import Challenge
+from forum.models import DiscussionBoard, DiscussionTopic, DiscussionPost
 
 
 # This views the home page. If the user is logged in, we redirect to the
@@ -32,9 +33,17 @@ def view_index(request):
 # announcements on the left side of the page, the remaining challenges on the
 # right, and all of the buttons to other locations in the site.
 def view_dashboard(request, me):
+    announcements = []
+    try:
+        board = DiscussionBoard.objects.get(slug="news")
+        topics = list(DiscussionTopic.objects.filter(board=board, hidden=False))[:5]
+        for t in topics:
+            announcements.append( (DiscussionPost.objects.filter(topic=t, hidden=False)[0]) )
+    except: pass
     return render(request,
                   "dashboard.html",
                   {'challenges': Challenge.show_for(me),
+                   'announcements': announcements,
                    'alerts': request.session.pop('alerts', []) })
 
 
