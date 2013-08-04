@@ -18,6 +18,16 @@ programmed before will have an easier time *at first*, the course is entirely
 self-paced, and there's no rush to get to the level you need in order to
 understand where the couse is going.
 
+This class is not designed to be easy. It's meant to be a challenge, since it
+involves programming using technology that's essentially 20 years old. If you
+don't have a programming background, then it will be even more challenging.
+However, the idea behind this course is that the challenge is part of the
+reward, and that the work will pay for itself in due time.
+
+If you're interested in the history of technology or video games, or have ever
+wanted to understand how hardware works, then there's something in this course
+for you.
+
 
 What will you learn
 -------------------
@@ -54,18 +64,22 @@ You are responsible for teaching yourself what you need to learn in order to
 successfully complete the challenge, which ensures that what you learn sticks
 with you.
 
-However, automatically graded exercises can only do so much. Once you've learned
-the basics, you go from writing bits of programs to entire games using the #8bitmooc
-[[workbench]] to collaborate with other students on games. Once you make your
-game, you can publish it in the [arcade](/arcade/) for the world to see, and
-from there, encourage and inspire your classmates. We encourage our participants
-to submit their games to online game development competitions, such as
-[One Game a Month](http://onegameamonth.com) and [Ludum Dare](http://ludumdare.com).
+However, automatically graded exercises can only do so much. Part of learning
+a computer language is learning how to explore it for yourself. For that reason,
+a [[playground]] that allows you to program NES games from scratch is made
+available to give you a safe sandbox to try out the techniques you learn from
+readings, videos, and other students on the [[forums]]. It's even possible to
+publish your games for others to play and learn from.
 
-This is only the tip of the iceberg. You can get credit for posting in the
-forums, discussing the course material in depth, making videos, writing blog
-posts, and helping your classmates when they get stuck on assignments. However
-you want to engage the material and however you learn best, you'll find some
-way to learn in #8bitmooc, and other people who learn the same way to connect
-with.
+
+When am I done?
+---------------
+As soon as you can make an entire program from scratch on your own, you can
+consider yourself finished with what this course has to offer you. You won't get
+any credit or merit badges for completing the course - your reward will be the
+knowledge it took to get you to this point.
+
+You're done when you say you are. Even after you finish all of the challenges,
+you're welcome to stay for as long as you like, writing programs, learning more
+tricks, optimizing your programs, and interacting with others on the forums.
 

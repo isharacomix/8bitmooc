@@ -6,8 +6,8 @@ by attempting assembly challenges.
 In most cases, a challenge is an incomplete NES game that is missing some
 vital functionality. Your challenge is to read the description of what needs
 to be done and implement it. Every time you compile your code, it will test it
-against its acceptance tests. Once it passes, the challenge will be marked
-*complete*, and you'll be awarded some number of experience points.
+against its acceptance tests. You can see which challenges you've completed on
+the [Dashboard](/).
 
 Note that the challenge description only tells you *what* you need to do...
 not *how* to do it. It's up to you to determine what you need to teach yourself
