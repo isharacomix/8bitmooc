@@ -52,7 +52,7 @@ def handle_oauth(request):
     try: response = urllib2.urlopen('https://github.com/login/oauth/access_token',
                                     'client_id=%s&client_secret=%s&code=%s'%keys)
     except:
-        request.session["alerts"].append(("alert-error","No response from Github - it might be down."))
+        request.session["alerts"].append(("alert-error","Error getting token from Github."))
         return redirect("index") 
                                
     data = response.read()
@@ -66,8 +66,12 @@ def handle_oauth(request):
     
     # Now, we find out the user's name and e-mail address. If this user has an
     # account, we log them in. If not, we create an account for them.
-    response = urllib2.urlopen('https://api.github.com/user/?access_token=%s'%token)
-    apidata = json.loads(response.read())
+    try:
+        response = urllib2.urlopen('https://api.github.com/user?access_token=%s'%token)
+        apidata = json.loads(response.read())
+    except:
+        request.session["alerts"].append(("alert-error","Error getting token from Github."))
+        return redirect("index")   
     
     # Get the user and username. If the user is in the db, log it in. Otherwise,
     # create an account.
@@ -78,6 +82,7 @@ def handle_oauth(request):
     
     # Log in or create the account.
     if user and not user.student.banned:
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, user)
         user.student.unread_since = user.student.last_login
         user.student.last_login = timezone.now()
