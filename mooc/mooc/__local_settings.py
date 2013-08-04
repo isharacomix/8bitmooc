@@ -5,6 +5,7 @@ LOCAL_SETTINGS = True
 from settings import *
 
 DEBUG = True
+NO_NEW_ACCOUNTS = False
 
 DATABASES = {
     'default': {

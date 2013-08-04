@@ -13,6 +13,7 @@ from django.utils import timezone
 import hashlib
 import urllib2
 import json
+import random
 
 from django.contrib.auth.models import User
 
@@ -48,8 +49,12 @@ def handle_oauth(request):
     
     # Send the data to Github and get our token!
     keys = (settings.GITHUB_ID, settings.GITHUB_SECRET, request.GET["code"])
-    response = urllib2.urlopen('https://github.com/login/oauth/access_token',
-                               'client_id=%s&client_secret=%s&code=%s'%keys)
+    try: response = urllib2.urlopen('https://github.com/login/oauth/access_token',
+                                    'client_id=%s&client_secret=%s&code=%s'%keys)
+    except:
+        request.session["alerts"].append(("alert-error","No response from Github - it might be down."))
+        return redirect("index") 
+                               
     data = response.read()
     if "access_token" not in data:
         request.session["alerts"].append(("alert-error","Error getting token from Github."))
@@ -83,6 +88,11 @@ def handle_oauth(request):
                                           been suspended. If you believe this
                                           is in error, please contact the site
                                           administrator."""))
+        return redirect("index")
+    elif settings.NO_NEW_ACCOUNTS:
+        request.session["alerts"].append(("alert-error","""New account creation is not
+                                          enabled at this time. Please try again in the
+                                          future!"""))
         return redirect("index")
     else:
         user = User.objects.create_user(username, email, str(random.randint(100000000,999999999)))
