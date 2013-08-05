@@ -101,10 +101,11 @@ Y register.
 
 Last, but not least, the processor also has a special 16-bit register that you
 can't access directly called the **program counter**. When you assemble a program
-for the NES, the binary code is stored in memory at location ```$8000```. The
-program counter contains the memory address of the next instruction to be read.
-When you perform a [[JMP|jmp]] or branch instruction, you are changing the value
-in the program counter so that it will execute a different instruction.
+for the NES, the binary code is stored in memory starting at location
+```$8000```. The program counter contains the memory address of the next
+instruction to be read. When you perform a [[JMP|jmp]] or branch instruction,
+you are changing the value in the program counter so that it will execute a
+different instruction.
 
 
 Examples in Code
