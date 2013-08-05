@@ -8,7 +8,7 @@ to act out what you're told. Instead, you're given challenges that you have to
 solve, and then it's up to you to read through the help pages to figure out
 what you need to be able to do in order to complete them.
 
-If you haven't read [[about #8bitmooc|about]] yet, now might be a good time
+If you haven't read [[about the MOOC|about]] yet, now might be a good time
 to do it.
 
 
