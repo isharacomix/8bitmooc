@@ -5,6 +5,9 @@
     <th>Speed</th>
     <th>Best Size</th>
     <th>Best Speed</th>
+    {% if not student %}
+    <th></th>
+    {% endif %}
   </tr>
   
   {% for c, complete, my_size, my_speed, best_size, best_speed in challenges %}
@@ -19,6 +22,9 @@
       <td>{{ my_speed }}</td>
       <td>{{ best_size }}</td>
       <td>{{ best_speed }}</td>
+    {% endif %}
+    {% if complete and c.autograde and not student %}
+      <td><a href="{% url 'sos' c.slug %}" class="btn btn-danger btn-mini"><i class="icon-user icon-white"> </a></td>
     {% endif %}
   </tr>
   {% endfor %}
