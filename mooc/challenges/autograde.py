@@ -104,44 +104,46 @@ def easy1(challenge, student, code, completed):
     return rom_size(rom), count
 
 
-
-
-def barcamp2(challenge, student, code, completed):
+# Challenge 1-3: Sprites and OAM.
+def easy3(challenge, student, code, completed):
     a = Assembler()
-   
-    preamble = ".org $C000\n.define BALL_X=$200\n.define BALL_Y=$201\n.define BALL_DX=$202\n.define BALL_DY=$203\n"
-    postamble = "\nforever:\n jmp forever\n.org $fffa\n.dw $C000\n.dw $C000\n.dw $C000"
-    
-    rom, errors = a.assemble( preamble+code + postamble )
+    rom, errors = a.assemble( """%s
+                              .org $C000
+                              .define PLAYER1X=$200
+                              .define PLAYER1Y=$201
+                              .define PLAYER2X=$202
+                              .define PLAYER2Y=$203
+                              .define BALLX=$204
+                              .define BALLY=$205
+                              %s
+                              forever: jmp forever
+                              .org $fffa
+                              .dw $C000
+                              .dw $C000
+                              .dw $C000
+                              """%(memmap, code) )
     if errors: return None
-    counts = []
-    for test in [[54,32,1,1],[0,99,0xff,0xff],[55,0xff,0xff,1]]:
-        e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
-        e.write( test[0], 0x200 )
-        e.write( test[1], 0x201 )
-        e.X = test[2]
-        e.Y = test[3]
-        counts.append( run( e, 0x100 ) )
-        if e.read(0x200) != (test[0]+test[2])&0xff or e.read(0x201) != (test[1]+test[3])&0xff:
-            return None
-    return rom_size(rom), sum(counts)
 
-def barcamp3(challenge, student, code, completed):
-    a = Assembler()
-    
-    preamble = ".org $C000\n.define PADDLE_1Y=$204\n"
-    postamble = "\nforever:\n jmp forever\n.org $fffa\n.dw $C000\n.dw $C000\n.dw $C000"
-    
-    rom, errors = a.assemble( preamble+code + postamble )
-    if errors: None
-    counts = []
-    for test in [[0],[4],[5],[4,3]]:
+    count = 0
+    for test in [[41,61,11,13,9,14],[61,11,13,9,14,99]]:
+        p1x,p1y,p2x,p2y,bx,by = test
         e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
-        for t in test: e.controller(1,t)
-        counts.append( run( e, 0x100 ) )
-        if 4 in test and e.read(0x204) != 1: return None
-        if 5 in test and e.read(0x204) != 0xff: return None
-    return rom_size(rom), sum(counts)
+        i = 0
+        while i < 6:
+            e.write( test[i], 0x200+i )
+            i += 1
+        count += run( e, 0x200 )
+        if e.oam[0:4] != [0,0,0,0]: return None
+        if e.oam[4:8] != [p1y,0,1,p1x]: return None
+        if e.oam[8:12] != [p1y+8,0,1,p1x]: return None
+        if e.oam[12:16] != [p1y+16,0,1,p1x]: return None
+        if e.oam[16:20] != [by,0,0,bx]: return None
+        if e.oam[20:24] != [p2y,0,2,p2x]: return None
+        if e.oam[24:28] != [p2y+8,0,2,p2x]: return None
+        if e.oam[28:32] != [p2y+16,0,2,p2x]: return None
+        for a in e.oam[32:]:
+            if a != 0: return None
+    return rom_size(rom), count
 
 
 # This function actually runs the autograder, mapping strings to functions.
@@ -150,9 +152,8 @@ def barcamp3(challenge, student, code, completed):
 def grade(challenge, student, code, completed):
     AUTOGRADE_FUNCTIONS = {
                             "test": test,
-                            "barcamp2": barcamp2,
-                            "barcamp3": barcamp3,
                             "easy1": easy1,
+                            "easy3": easy3,
                           }
     if challenge.autograde in AUTOGRADE_FUNCTIONS:
         func = AUTOGRADE_FUNCTIONS[challenge.autograde]

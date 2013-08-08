@@ -608,7 +608,7 @@ class Emulator(object):
             self.write( self.X, addr )
         elif op in [0x84, 0x94, 0x8C]: #STY
             addr = None
-            if op == 0x84:
+            if op == 0x8C:
                 addr = self.read_word_PC()
             else:
                 addr = self.read_PC()

@@ -1,19 +1,36 @@
-%% name: Controller Input
-%% autograde: easy1
-%% ordering: 1
+%% name: Drawing Sprites
+%% autograde: easy3
+%% ordering: 3
 
 % description
-In this assignment, you will write a [[subroutine]] that will handle the input
-from player one's controller in order to move a sprite on the screen. If the up
-button is pressed, the sprite should be moved 1 pixel upwards, if the left
-button is pressed, the sprite should be moved 1 pixel to the left, and so on.
-The sprite's X and Y position are at the memory locations ```PLAYER_X``` and
-```PLAYER_Y``` respectively.
+In this assignment, you will write a [[subroutine]] that will draw the paddles
+and ball of a pong game.
+
+You will prepare the [[OAM|oam]] data for the sprites in the memory locations
+on page $03. This project requires a total of seven 8x8 sprites, three sprites
+for the left paddle, three for the right paddle, and one for the ball.
+
+### Variables
+ * ```PADDLE1X``` and ```PADDLE1Y``` The X and Y position of the top-left pixel
+   of the paddle on left side.
+ * ```PADDLE2X``` and ```PADDLE2Y``` Same for the right side.
+ * ```BALLX``` and ```BALLY``` The X and Y position of the top-left pixel of the
+   ball.
+
+### Where to store the information
+ * ```$304-$307``` Top segment of left paddle
+ * ```$308-$30B``` Middle segment of left paddle
+ * ```$30C-$30F``` Bottom segment of left paddle
+ * ```$310-$313``` Ball
+ * ```$314-$317``` Top segment of right paddle
+ * ```$318-$31B``` Middle segment of right paddle
+ * ```$31C-$31F``` Bottom segment of right paddle
+
 
 ### Tips
  * Make sure your subroutine ends with an [[RTS|rts]] instruction
  * If you make any labels in the subroutine, make sure they all begin with
-   ```ctl_```
+   ```draw_```
  * If you need extra memory locations, use the [[zero page|zero_page]] - don't
    use any other RAM, since it might be used for other parts of the program.
    
@@ -29,11 +46,25 @@ The sprite's X and Y position are at the memory locations ```PLAYER_X``` and
 ; starts!
 ;----------------------------------------
 START:                                  ;
-    .define PLAYER_X=$200               ;
-    .define PLAYER_Y=$201               ;
+    .define PLAYER1X=$200               ;
+    .define PLAYER1Y=$201               ;
+    .define PLAYER2X=$202               ;
+    .define PLAYER2Y=$203               ;
+    .define BALLX=$204                  ;
+    .define BALLY=$205                  ;
+    .define BALLDX=$206                 ;
+    .define BALLDY=$207                 ;
+    LDA #10                             ;
+    STA PLAYER1X                        ;
+    LDA #230                            ;
+    STA PLAYER2X                        ;
     LDA #50                             ;
-    STA PLAYER_X                        ;
-    STA PLAYER_Y                        ;
+    STA PLAYER1Y                        ;
+    STA PLAYER2Y                        ;
+    STA BALLX                           ;
+    STA BALLY                           ;
+    INC BALLDX
+    INC BALLDY
     LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
     STA PPUCTRL                         ;
     LDA #%00010100                      ; enable sprites
@@ -46,6 +77,18 @@ INFLOOP: JMP INFLOOP                    ;
 ;----------------------------------------
 NMI:                                    ;
     JSR handle_input                    ;
+    JSR ai                              ;
+                                        ;
+    LDA BALLX                           ;
+    CLC                                 ;
+    ADC BALLDX                          ;
+    STA BALLX                           ;
+    LDA BALLY                           ;
+    CLC                                 ;
+    ADC BALLDY                          ;
+    STA BALLY                           ;
+                                        ;
+    JSR collisions                      ;
     JSR render                          ;
     RTI                                 ; Return from interrupt whenever
 ;---------------------------------------- the frame code is finished.
@@ -53,36 +96,131 @@ NMI:                                    ;
 
 
 ;----------------------------------------
-; Handle Input:
-;
-; Looks at the controller and increments
-; or decrements PLAYER_X and PLAYER_Y
-; depending on the button pressed.
+; Handle input
 ;----------------------------------------
 handle_input:                           ;
+    LDX #1                              ; Strobe the controller
+    STX CONTROL1                        ;
+    DEX                                 ;
+    STX CONTROL1                        ;
+                                        ;
+    LDA CONTROL1                        ; Get rid of A, B, Start, Select
+    LDA CONTROL1                        ; We only need to look at the next
+    LDA CONTROL1                        ; two reads, now.
+    LDA CONTROL1                        ;
+                                        ;
+    LDA CONTROL1                        ; looking at UP
+    AND #1                              ;
+    BEQ not_up                          ; If not pressed, zero flag is set
+    DEC PLAYER1Y                        ;
+    DEC PLAYER1Y                        ;
+not_up:                                 ;
+    LDA CONTROL1                        ;
+    AND #1                              ;
+    BEQ not_down                        ;
+    INC PLAYER1Y                        ;
+    INC PLAYER1Y                        ;
+not_down:                               ;
+    RTS                                 ;
+;----------------------------------------
+; The ai controls paddle 2.
+;----------------------------------------
+ai:                                     ;
+    INC PLAYER2Y                        ; The AI isn't very smart.
+    INC PLAYER2Y                        ; The AI isn't very smart.
+    RTS                                 ;
+;----------------------------------------
+; Collisions
+;----------------------------------------
+collisions:                             ;
+    LDY BALLY                           ;
+    LDX BALLX
+    CPY #6                              ;
+    BCS nohittop                        ;
+    LDA #1                              ;
+    STA BALLDY                          ;
+nohittop:                               ;
+    CPY #220                            ;
+    BCC nohitbottom                     ;
+    LDA #-1                             ;
+    STA BALLDY                          ;
+nohitbottom:                            ;
+    CPX #2
+    BCS nohitleft
+    LDA #1
+    STA BALLDX
+    LDA #100
+    STA BALLX
+nohitleft:
+    CPX #244
+    BCC nohitright
+    LDA #-1
+    STA BALLDX
+    LDA #100
+    STA BALLX
+nohitright:
+    CPX #18
+    BNE nohitlpad
+    LDX #40
+    LDY PLAYER1Y
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+lpadloop:
+    CPY BALLY
+    BEQ hitlpad
+    INY
+    DEX
+    BEQ nohitlpad
+    JMP lpadloop
+hitlpad:    
+    LDA #1
+    STA BALLDX
+nohitlpad:
+    LDX BALLX
+    CPX #222
+    BNE nohitrpad
+    LDX #40
+    LDY PLAYER2Y
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+    DEY
+rpadloop:
+    CPY BALLY
+    BEQ hitrpad
+    INY
+    DEX
+    BEQ nohitrpad
+    JMP rpadloop
+hitrpad:
+    LDA #-1
+    STA BALLDX
+nohitrpad:
+    RTS                                 ;
+;----------------------------------------
 
-% postamble
+
 ;----------------------------------------
 ; Render:
 ;
 ; This takes the sprites and puts the
 ; information in page 3, where the OAM
-; data goes.
+; data goes. This is what the student writes.
 ;----------------------------------------
 render:                                 ;
-    LDX PLAYER_X                        ;
-    LDY PLAYER_Y                        ;
-    STY $304                            ;
-    STX $307                            ;
-    LDY #30                             ;
-    STY $306                            ;
-    LDY #0                              ;
-    STY $305                            ;
-    LDA #$00                            ; Now pass the OAM parameters to the PPU
-    STA OAMADDR                         ;   and do DMA
-    LDA #$03                            ; Page 3 has our sprites.
-    STA OAMDMA                          ; Start DMA
-    RTS                                 ;
+
+
+% postamble
 ;----------------------------------------
 
 
@@ -225,7 +363,6 @@ palette:                                ;
     .define FRAMECTRL=$4018             ;
     .define PRGROM=$8000                ;
 ;----------------------------------------
-
 
 
 
