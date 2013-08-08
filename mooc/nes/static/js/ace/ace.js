@@ -1905,6 +1905,7 @@ var Editor = function(renderer, session) {
             return;
         this.$isFocused = true;
         this.renderer.showCursor();
+        nes.stop();
         this.renderer.visualizeFocus();
         this._emit("focus");
     };

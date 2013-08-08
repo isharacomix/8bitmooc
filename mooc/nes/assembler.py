@@ -167,7 +167,7 @@ class Assembler(object):
                 elif op == ".org": self.org = self.num(arg)
                 elif op == ".words" or op == ".dw": self.org += len(arg.split(','))*2
                 elif op == ".bytes" or op == ".db": self.org += len(arg.split(','))
-                elif op == ".define":
+                elif op == ".define" and '=' in arg:
                     lab, val = arg.split('=')
                     self.labels[lab] = self.num(val)
                     if len(lab) == 0 or lab[0] not in "abcdefghijklmnopqrstuvwxyz_":

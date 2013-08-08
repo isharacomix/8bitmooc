@@ -38,6 +38,7 @@ class Emulator(object):
         self.last_op = None
         self.last_mode = None
         self.last_arg = None
+        self.last_addr = None
         
         # vblank interval can be reprogrammed if needed
         self.vblank_interval = 10000
@@ -308,6 +309,7 @@ class Emulator(object):
     # This handles getting the argument from a full addressing mode operation.
     def get_argmode(self, op, IMM, ZPAGE, ZPAGEX, ABS, ABSX, ABSY, INDX, INDY):
         arg = None
+        addr = None
         if op in [IMM, ZPAGE, ZPAGEX, INDX, INDY]:
             addr = self.read_PC()
             if op == IMM: arg = addr
@@ -320,6 +322,7 @@ class Emulator(object):
             if op == ABSX: (addr+self.X)&0xFFFF
             if op == ABSY: (addr+self.Y)&0xFFFF
             arg = self.read(addr)
+        self.last_addr = addr
         self.last_arg = arg
         return arg
     
@@ -327,6 +330,10 @@ class Emulator(object):
     # The actual emulation. We emulate at the instruction level, not the clock
     # level, which makes it easier, but less accurate.
     def next_instruction(self):
+        self.last_op = None
+        self.last_mode = None
+        self.last_arg = None
+        self.last_addr = None
         op = self.read_PC()
         self.last_op = op
         
@@ -362,7 +369,7 @@ class Emulator(object):
                 result &= 0xFF
                 self.flagify(result)
                 self.write(result, addr)
-        elif op in [0x24, 0x2C]:
+        elif op in [0x24, 0x2C]: #BIT
             addr = None
             if addr == 0x24: addr = self.read_PC()
             if addr == 0x2C: addr = self.read_word_PC()
@@ -379,8 +386,8 @@ class Emulator(object):
             elif op == 0x70: do_branch = self.V
             elif op == 0x90: do_branch = not self.C
             elif op == 0xB0: do_branch = self.V
-            elif op == 0xD0: do_branch = self.Z
-            elif op == 0xF0: do_branch = not self.Z
+            elif op == 0xD0: do_branch = not self.Z
+            elif op == 0xF0: do_branch = self.Z
             if do_branch:
                 if (offset & 0x80) > 0:
                     offset -= -0x100
@@ -657,4 +664,64 @@ class Emulator(object):
         
         # read the next instruction and run it
         self.next_instruction()
+    
+    # This decodes an operation.
+    def decode(self, opcode):
+        if opcode in [0x69,0x65,0x75,0x6D,0x7D,0x79,0x61,0x71]: return "adc"
+        if opcode in [0x29,0x25,0x35,0x2D,0x3D,0x39,0x21,0x31]: return "and"
+        if opcode in [0x0A,0x06,0x16,0x0E,0x1E]: return "asl"
+        if opcode in [0x24,0x2C]: return "bit"
+        if opcode in [0x10]: return "bpl"
+        if opcode in [0x30]: return "bmi"
+        if opcode in [0x50]: return "bvc"
+        if opcode in [0x70]: return "bvs"
+        if opcode in [0x90]: return "bcc"
+        if opcode in [0xB0]: return "bcs"
+        if opcode in [0xD0]: return "bne"
+        if opcode in [0xF0]: return "beq"
+        if opcode in [0x00]: return "brk"
+        if opcode in [0xC9,0xC5,0xD5,0xCD,0xDD,0xD9,0xC1,0xD1]: return "cmp"
+        if opcode in [0xE0,0xE4,0xEC]: return "cpx"
+        if opcode in [0xC0,0xC4,0xCC]: return "cpy"
+        if opcode in [0xC6,0xD6,0xCE,0xDE]: return "dec"
+        if opcode in [0x49,0x45,0x55,0x4D,0x5D,0x59,0x41,0x51]: return "eor"
+        if opcode in [0x18]: return "clc"
+        if opcode in [0x38]: return "sec"
+        if opcode in [0x58]: return "cli"
+        if opcode in [0x78]: return "sei"
+        if opcode in [0xB8]: return "clv"
+        if opcode in [0xD8]: return "cld"
+        if opcode in [0xF8]: return "sed"
+        if opcode in [0xE6,0xF6,0xEE,0xFE]: return "inc"
+        if opcode in [0x4C,0x6C]: return "jmp"
+        if opcode in [0x20]: return "jsr"
+        if opcode in [0xA9,0xA5,0xB5,0xAD,0xBD,0xB9,0xA1,0xB1]: return "lda"
+        if opcode in [0xA2,0xA6,0xB6,0xAE,0xBE]: return "ldx"
+        if opcode in [0xA0,0xA4,0xB4,0xAC,0xBC]: return "ldy"
+        if opcode in [0x4A,0x46,0x56,0x4E,0x5E]: return "lsr"
+        if opcode in [0xEA]: return "nop"
+        if opcode in [0x09,0x05,0x15,0x0D,0x1D,0x19,0x01,0x11]: return "ora"
+        if opcode in [0xAA]: return "tax"
+        if opcode in [0x8A]: return "txa"
+        if opcode in [0xCA]: return "dex"
+        if opcode in [0xE8]: return "inx"
+        if opcode in [0xA8]: return "tay"
+        if opcode in [0x98]: return "tya"
+        if opcode in [0x88]: return "dey"
+        if opcode in [0xC8]: return "iny"
+        if opcode in [0x2A,0x26,0x36,0x2E,0x3E]: return "rol"
+        if opcode in [0x6A,0x66,0x76,0x6E,0x7E]: return "ror"
+        if opcode in [0x40]: return "rti"
+        if opcode in [0x60]: return "rts"
+        if opcode in [0xE9,0xE5,0xF5,0xED,0xFD,0xF9,0xE1,0xF1]: return "sbc"
+        if opcode in [0x85,0x95,0x8D,0x9D,0x99,0x81,0x91]: return "sta"
+        if opcode in [0x9A]: return "txs"
+        if opcode in [0xBA]: return "tsx"
+        if opcode in [0x48]: return "pha"
+        if opcode in [0x68]: return "pla"
+        if opcode in [0x08]: return "php"
+        if opcode in [0x28]: return "plp"
+        if opcode in [0x86,0x96,0x8E]: return "stx"
+        if opcode in [0x84,0x94,0x8C]: return "sty"
+        return "unknown"
 

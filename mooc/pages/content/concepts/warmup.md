@@ -32,7 +32,7 @@ put your main loop in the NMI block.
     ;----------------------------------------
     NMI:                                    ;
                                             ;
-                                        RTI ; Return from interrupt whenever
+        RTI                                 ; Return from interrupt whenever
     ;---------------------------------------- the frame code is finished.
 
 

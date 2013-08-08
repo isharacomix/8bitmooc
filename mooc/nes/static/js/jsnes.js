@@ -202,6 +202,9 @@ JSNES.prototype = {
         clearInterval(this.frameInterval);
         clearInterval(this.fpsInterval);
         this.isRunning = false;
+        
+        this.ui.updateStatus("Paused");
+        this.ui.buttons.pause.html('<i class="icon-play"></i>');
 
         $(document).
             unbind('keydown', window.keydownevt).
