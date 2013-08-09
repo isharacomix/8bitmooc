@@ -11,7 +11,7 @@
                 <li><a href="{% url 'forums' %}">Community</a></li>
                 <li><a href="{% url 'help_index' %}">Help Center</a></li>
                 <li>
-                    <form class="navbar-search" action="#" method="get">
+                    <form class="navbar-search" action="{% url 'search' %}" method="get">
                         <div class="input-prepend">
                         <span class="add-on"><i class="icon-search"></i></span>
                         <input type="text" class="" placeholder="Search" name="query" />

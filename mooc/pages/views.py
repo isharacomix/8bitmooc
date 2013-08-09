@@ -12,7 +12,8 @@ from students.models import LogEntry
 
 
 # This method simply passes the string to the appropriate template and renders
-# it in markdown.
+# it in markdown. If the page doesn't exist, we redirect and do a search
+# instead.
 def view_page(request, page=None):
     if page is None: return redirect( "help", page="index" )
     if page.lower() != page: return redirect( "help", page.lower() )
@@ -25,5 +26,5 @@ def view_page(request, page=None):
                        'title': p.name,
                        'alerts': request.session.pop('alerts', [])})
     except exceptions.ObjectDoesNotExist:
-        raise Http404()
+        return HttpResponseRedirect(reverse("search")+"?query="+page )
 

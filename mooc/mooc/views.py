@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from students.models import Student, LogEntry
 from challenges.models import Challenge
 from forum.models import DiscussionBoard, DiscussionTopic, DiscussionPost
+from pages.models import Page
 
 
 # This views the home page. If the user is logged in, we redirect to the
@@ -44,6 +45,29 @@ def view_dashboard(request, me):
                   "dashboard.html",
                   {'challenges': Challenge.show_for(me),
                    'announcements': announcements,
+                   'alerts': request.session.pop('alerts', []) })
+
+
+# Searching!
+def search(request):
+    me = Student.from_request(request)
+    LogEntry.log(request, "search for %s"%request)
+    if "query" not in request.GET:
+        return redirect("index")
+    query = request.GET["query"]
+    
+    # Filter!
+    pages = Page.objects.filter(content__icontains=query)
+    results = []
+    for p in pages:
+        i = p.content.index(query)
+        results.append( (p.name,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
+    
+    # TODO search through forum posts
+    return render(request,
+                  "search.html",
+                  {'results': results,
+                   'query': query,
                    'alerts': request.session.pop('alerts', []) })
 
 

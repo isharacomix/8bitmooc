@@ -1,0 +1,33 @@
+{% extends "layout_base.html" %}
+
+{% block title %}Search Results{% endblock title %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="span12">
+            <article class="article">
+                <h2>Search Results for "{{query}}"</h2>
+                <h3>Help Pages</h3>
+                <ul>
+                {% if results %}
+                    {% for slug, digest in results %}
+                    
+                        <li><strong><a href="{% url 'help' page=slug%}">{{slug}}</a></strong>: <em> {{digest}}</em></li>
+                    
+                    {% endfor %}
+                {% else %}
+                    No results.
+                {% endif %}
+                </ul>
+                
+                {% if user.is_authenticated %}
+                <h3>Forum Posts</h3>
+
+                {% endif %}
+            </article>
+        </div>
+    </div>
+
+{% endblock body %}
+

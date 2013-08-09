@@ -10,7 +10,7 @@ admin.autodiscover()
 # Point URLs to their respective apps, and be smart about it.
 urlpatterns = patterns('',
     url(r'^$', views.view_index, name='index'),
-    #url(r'^search/$', views.search, name='search'),
+    url(r'^search/$', views.search, name='search'),
     url(r'^chat/$', views.webchat, name='chat'),
     
     # Apps!
