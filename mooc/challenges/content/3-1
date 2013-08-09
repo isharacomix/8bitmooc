@@ -1,38 +1,58 @@
-%% name: Drawing Sprites
-%% autograde: easy3
+%% name: The Game of Life
+%% autograde: hard1
 %% ordering: 3
 
 % description
-In this assignment, you will write a [[subroutine]] that will draw the paddles
-and ball of a pong game.
+The [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) is a
+zero-player game developed by mathematician John H. Conway that defines a series
+of rules that manage the life and death of organisms on a grid.
 
-You will prepare the [[OAM|oam]] data for the sprites in the memory locations
-on page $03. This project requires a total of seven 8x8 sprites, three sprites
-for the left paddle, three for the right paddle, and one for the ball.
+The rules of game of life are as follows:
+ * There is a grid of cells.
+ * A cell is either alive or dead.
+ * Cells that are adjacent to other cells, including diagonally are referred to
+   as neighbors.
+ * A cell can have a maximum of eight neighbors. A cell on the side of the board
+   only has five, and a cell in the corner only has three.
+ * The game proceeds in turns called "generations". Each generation, the number
+   of neighbors of each cell is calculated.
+ * If a cell began a generation dead and had three living neighbors, the cell
+   will be alive at the beginning of the next generation
+ * If a cell began a generation alive and has two or three living neighbors, the
+   cell will remain alive.
+ * If a cell began a generation alive and has less than two living neighbors or
+   more than three living neighbors, it will die - as if caused by loneliness
+   or overcrowding.
 
-### Variables
- * ```PADDLE1X``` and ```PADDLE1Y``` The X and Y position of the top-left pixel
-   of the paddle on left side.
- * ```PADDLE2X``` and ```PADDLE2Y``` Same for the right side.
- * ```BALLX``` and ```BALLY``` The X and Y position of the top-left pixel of the
-   ball.
+This simple rules define a complicated mathematical simulation referred to as
+a *cellular automaton*, and has been studied extensively since it was first
+conceived in 1970. In this assignment, you will write a subroutine that
+takes a 16x16 grid of cells as input, and changes the grid following the rules
+above so that one generation will have passed. The program on the right will
+allow you to use the directional pad to move the cursor, the NES 'A' button
+(the X key) to toggle the selected cell as being alive or dead, and the NES
+'B' button (the Z key) to run your subroutine and make the generation advance.
 
-### Where to store the information
- * ```$304-$307``` Top segment of left paddle
- * ```$308-$30B``` Middle segment of left paddle
- * ```$30C-$30F``` Bottom segment of left paddle
- * ```$310-$313``` Ball
- * ```$314-$317``` Top segment of right paddle
- * ```$318-$31B``` Middle segment of right paddle
- * ```$31C-$31F``` Bottom segment of right paddle
+### Details
+The grid of cells is stored on page two of the ram. The grid is 16x16 cells,
+meaning that the memory address ```$02yx``` refers to column x and row y on
+the grid. A cell is considered dead if the number 0 is in the memory location,
+and alive if 1 is in the memory location. Your subroutine must replace the
+memory on page 2 with the updated grid as if a generation has passed following
+the rules of the game of life.
 
+You may use the zero page and the memory on page seven as a scratch space. You
+may *not* assume that the memory will be unchanged between generations.
 
 ### Tips
  * Make sure your subroutine ends with an [[RTS|rts]] instruction
  * If you make any labels in the subroutine, make sure they all begin with
-   ```draw_```
- * If you need extra memory locations, use the [[zero page|zero_page]] - don't
-   use any other RAM, since it might be used for other parts of the program.
+   ```life_```
+ * If you need extra memory locations, only use the [[zero page|zero_page]] and
+   the memory on page seven from $700 to $7FF. This data may be changed between
+   generations, but during your subroutine, only your program will access it.
+ * When you are graded, the only values that will be in the grid will be 0's and
+   1's. You do not have to handle error conditions for illegal numbers.
    
 
 % preamble
@@ -46,49 +66,34 @@ for the left paddle, three for the right paddle, and one for the ball.
 ; starts!
 ;----------------------------------------
 START:                                  ;
-    .define PLAYER1X=$200               ;
-    .define PLAYER1Y=$201               ;
-    .define PLAYER2X=$202               ;
-    .define PLAYER2Y=$203               ;
-    .define BALLX=$204                  ;
-    .define BALLY=$205                  ;
-    .define BALLDX=$206                 ;
-    .define BALLDY=$207                 ;
-    LDA #10                             ;
-    STA PLAYER1X                        ;
-    LDA #230                            ;
-    STA PLAYER2X                        ;
-    LDA #50                             ;
-    STA PLAYER1Y                        ;
-    STA PLAYER2Y                        ;
-    STA BALLX                           ;
-    STA BALLY                           ;
-    INC BALLDX
-    INC BALLDY
+    .define CURSOR=$400                 ;
+    .define TIMERD=$401
+    .define BGFLAG=$402
     LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
     STA PPUCTRL                         ;
-    LDA #%00010100                      ; enable sprites
+    LDA #%00011110                      ; enable sprites
     STA PPUMASK                         ;
-INFLOOP: JMP INFLOOP                    ;
+    STA BGFLAG
+    LDA #1
+    STA $200
+INFLOOP:
+    LDA BGFLAG
+    BEQ nobgyo
+    JSR renderbg
+    LDA #0
+    STA BGFLAG
+nobgyo: JMP INFLOOP                    ;
 ;----------------------------------------
 ;
 ; The NMI (non-maskable interrupt) code is run whenever
 ; the screen refreshes.
 ;----------------------------------------
 NMI:                                    ;
+    LDA TIMERD
+    BEQ is_oook
+    DEC TIMERD
+is_oook:
     JSR handle_input                    ;
-    JSR ai                              ;
-                                        ;
-    LDA BALLX                           ;
-    CLC                                 ;
-    ADC BALLDX                          ;
-    STA BALLX                           ;
-    LDA BALLY                           ;
-    CLC                                 ;
-    ADC BALLDY                          ;
-    STA BALLY                           ;
-                                        ;
-    JSR collisions                      ;
     JSR render                          ;
     RTI                                 ; Return from interrupt whenever
 ;---------------------------------------- the frame code is finished.
@@ -96,128 +101,190 @@ NMI:                                    ;
 
 
 ;----------------------------------------
-; Handle input
+; handle input
 ;----------------------------------------
 handle_input:                           ;
+    LDA TIMERD
+    BEQ is_ok
+    JMP not_right
+is_ok:
     LDX #1                              ; Strobe the controller
     STX CONTROL1                        ;
     DEX                                 ;
     STX CONTROL1                        ;
                                         ;
-    LDA CONTROL1                        ; Get rid of A, B, Start, Select
-    LDA CONTROL1                        ; We only need to look at the next
-    LDA CONTROL1                        ; two reads, now.
-    LDA CONTROL1                        ;
+    LDA CONTROL1                        ; A: Toggle the cell.
+    AND #1                              ;
+    BEQ not_a                           ;
+    LDX CURSOR                          ; Get the cursor position
+    LDA $200,X                             ;
+    EOR #1                 ; EOR effectively toggles the bit.
+    STA $200,X    
+    LDA #1
+    STA BGFLAG                          ;
+    LDA #20
+    STA TIMERD
+not_a:                                   ;
+    
+    LDA CONTROL1                        ; B: generation
+    AND #1                              ;
+    BEQ not_b                           ;
+    JSR do_life                         ; "do_life" is the student subroutine
+    LDA #1
+    STA BGFLAG
+    LDA #20
+    STA TIMERD
+not_b:                                  ;
+    
+    LDA CONTROL1                        ; Start: Skip
+    LDA CONTROL1                        ; Select: Skip
                                         ;
     LDA CONTROL1                        ; looking at UP
     AND #1                              ;
-    BEQ not_up                          ; If not pressed, zero flag is set
-    DEC PLAYER1Y                        ;
-    DEC PLAYER1Y                        ;
+    BEQ not_up
+    LDA CURSOR
+    SEC
+    SBC #$10
+    STA CURSOR
+    LDA #10
+    STA TIMERD
+                                        ; If not pressed, zero flag is set
 not_up:                                 ;
     LDA CONTROL1                        ;
     AND #1                              ;
     BEQ not_down                        ;
-    INC PLAYER1Y                        ;
-    INC PLAYER1Y                        ;
+    LDA CURSOR
+    CLC
+    ADC #$10
+    STA CURSOR
+    LDA #10
+    STA TIMERD
 not_down:                               ;
-    RTS                                 ;
-;----------------------------------------
-; The ai controls paddle 2.
-;----------------------------------------
-ai:                                     ;
-    INC PLAYER2Y                        ; The AI isn't very smart.
-    INC PLAYER2Y                        ; The AI isn't very smart.
-    RTS                                 ;
-;----------------------------------------
-; Collisions
-;----------------------------------------
-collisions:                             ;
-    LDY BALLY                           ;
-    LDX BALLX
-    CPY #6                              ;
-    BCS nohittop                        ;
-    LDA #1                              ;
-    STA BALLDY                          ;
-nohittop:                               ;
-    CPY #220                            ;
-    BCC nohitbottom                     ;
-    LDA #-1                             ;
-    STA BALLDY                          ;
-nohitbottom:                            ;
-    CPX #2
-    BCS nohitleft
-    LDA #1
-    STA BALLDX
-    LDA #100
-    STA BALLX
-nohitleft:
-    CPX #244
-    BCC nohitright
-    LDA #-1
-    STA BALLDX
-    LDA #100
-    STA BALLX
-nohitright:
-    CPX #18
-    BNE nohitlpad
-    LDX #40
-    LDY PLAYER1Y
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-lpadloop:
-    CPY BALLY
-    BEQ hitlpad
-    INY
-    DEX
-    BEQ nohitlpad
-    JMP lpadloop
-hitlpad:    
-    LDA #1
-    STA BALLDX
-nohitlpad:
-    LDX BALLX
-    CPX #222
-    BNE nohitrpad
-    LDX #40
-    LDY PLAYER2Y
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-    DEY
-rpadloop:
-    CPY BALLY
-    BEQ hitrpad
-    INY
-    DEX
-    BEQ nohitrpad
-    JMP rpadloop
-hitrpad:
-    LDA #-1
-    STA BALLDX
-nohitrpad:
+    LDA CONTROL1
+    AND #1
+    BEQ not_left
+    DEC CURSOR
+    LDA #10
+    STA TIMERD
+not_left:
+    LDA CONTROL1
+    AND #1
+    BEQ not_right
+    INC CURSOR
+    LDA #10
+    STA TIMERD
+not_right:
     RTS                                 ;
 ;----------------------------------------
 
 
+
+
+
+;---------------------------------------
+; Render! We have to render 256 tiles
+; for the grid, so we use the background
+; for that, and a sprite for our cursor.
+;---------------------------------------
+render:
+    LDA CURSOR
+    AND #%11110000
+    LSR A
+    ADC #29
+    STA $304
+    LDA CURSOR
+    AND #%00001111
+    ASL A
+    ASL A
+    ASL A
+    ADC #48
+    STA $307
+    LDA #0
+    STA $305
+    STA $306
+
+    LDA #$00                            ; Now pass the OAM parameters to the PPU
+    STA OAMADDR                         ;   and do DMA
+    LDA #$03                            ; Page 3 has our sprites.
+    STA OAMDMA                          ; Start DMA
+    RTS
 ;----------------------------------------
-; Render:
-;
-; This takes the sprites and puts the
-; information in page 3, where the OAM
-; data goes. This is what the student writes.
+
+
+
 ;----------------------------------------
-render:                                 ;
+; render the bg. this is resourc
+; intensive, so...
+;----------------------------------------
+renderbg:
+    LDA #%00000000                      ; 
+    STA PPUCTRL                         ; disable the interrupts for the
+    STA PPUMASK                         ; time being.
+    
+    ; Do the background now
+    LDA PPUSTATUS
+    LDA #$20
+    STA PPUADDR
+    LDA #$00
+    STA PPUADDR
+    
+    LDX #$86
+rloop1:    
+    LDA #0
+    STA PPUDATA
+    DEX
+    BNE rloop1
+    
+    LDX #0
+    STX $2
+    LDY #$10
+rloopout:
+    LDX #$10
+rloop2:
+    STX $1
+    LDX $2
+    LDA $200,X
+    STA PPUDATA
+    INC $2
+    LDX $1
+    DEX
+    BNE rloop2
+    LDX #$10
+rloop3:
+    LDA #0
+    STA PPUDATA
+    DEX
+    BNE rloop3
+    
+    
+    DEY
+    BNE rloopout
+    
+    
+    
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
+    LDA #%00011110                      ; enable sprites
+    STA PPUMASK                         ;
+    RTS
+
+;---------------------------------------
+
+
+
+
+
+
+
+
+;----------------------------------------
+; do_life - what the student has to do
+;----------------------------------------
+do_life:
+
+
+
+
 
 
 % postamble

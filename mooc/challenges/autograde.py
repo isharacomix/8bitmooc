@@ -36,7 +36,7 @@ memmap = """.define ZEROPAGE=$0000
     .define PPUSTATUS=$2002
     .define OAMADDR=$2003
     .define OAMDATA=$2004
-    .define SCROLL=$2005
+    .define PPUSCROLL=$2005
     .define PPUADDR=$2006
     .define PPUDATA=$2007
     .define SQ1VOL=$4000
