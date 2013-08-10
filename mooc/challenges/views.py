@@ -147,10 +147,15 @@ def view_sos(request, name):
     except exceptions.ObjectDoesNotExist: raise Http404()
     
     # Make sure the student has completed it.
-    if challenge not in me.challenge_set.all():
+    if challenge not in me.challenge_set.all() and not me.ta:
         request.session['alerts'].append(('alert-error',
                                           '''You can't respond to SOS requests
                                           until you complete the challenge!'''))
+        return redirect("index")
+    if not challenge.autograde and not me.ta:
+        request.session['alerts'].append(('alert-error',
+                                          '''Only instructors and TAs can grade
+                                          code submission projects.'''))
         return redirect("index")
     
     
@@ -165,6 +170,14 @@ def view_sos(request, name):
             fb.confident = True if request.POST.get("confident") else False
             fb.good = True if request.POST.get("good") else False
             fb.save()
+            
+            if request.POST.get("pass") and me.ta:
+                target.active = False
+                target.save()
+                target.submission.correct = True
+                challenge.completed_by.add( target.student )
+                target.submission.save()
+                challenge.save()
             
             if (len( target.feedback_set.all() ) >= 3):
                 target.active = False

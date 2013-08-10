@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 try: c = Challenge.objects.get(slug=slug)
                 except: c = Challenge(slug=slug)
                 
-                c.content = ""
+                c.description = ""
                 c.preamble = ""
                 c.postamble = ""
                 c.autograde = None

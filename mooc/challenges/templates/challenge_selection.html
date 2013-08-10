@@ -25,6 +25,8 @@
     {% endif %}
     {% if complete and c.autograde and not student %}
       <td><a href="{% url 'sos' c.slug %}" class="btn btn-danger btn-mini"><i class="icon-user icon-white"> </a></td>
+    {% elif user.student.ta and not student %}
+      <td><a href="{% url 'sos' c.slug %}" class="btn btn-success btn-mini"><i class="icon-user icon-white"> </a></td>
     {% endif %}
   </tr>
   {% endfor %}

@@ -44,6 +44,12 @@
                             <input type="checkbox" name="good" value="True" />
                             Was this a good question?
                         </label>
+                        {% if not challenge.autograde and user.student.ta %}
+                        <label class="checkbox">
+                            <input type="checkbox" name="pass" value="True" />
+                            Should this assignment be considered passed?
+                        </label>
+                        {% endif %}
                         <button class="btn btn-success" type="submit" name="Respond" value="respond">Respond!</button>
                         </form>
                     </div>
