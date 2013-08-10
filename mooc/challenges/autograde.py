@@ -86,7 +86,7 @@ def easy1(challenge, student, code, completed):
                               """%(memmap, code) )
     if errors: return None
     
-    count = 0
+    counts = []
     for test in [[0],[1],[2],[3],[4],[5],[6],[7],[4,5],[4,6],[4,7],[5,7],[4,5,6,7]]:
         e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
         x = 74
@@ -99,10 +99,10 @@ def easy1(challenge, student, code, completed):
         if 5 in test: y+=1
         if 6 in test: x-=1
         if 7 in test: x+=1
-        count += run( e, 0x100 )
+        counts.append( run( e, 0x100 ) )
         if e.read(0x200) != x and e.read(0x201) != y:
             return None
-    return rom_size(rom), count
+    return rom_size(rom), sum(counts)/len(counts)
 
 
 # Challenge 1-3: Sprites and OAM.
@@ -125,7 +125,7 @@ def easy3(challenge, student, code, completed):
                               """%(memmap, code) )
     if errors: return None
 
-    count = 0
+    counts = []
     for test in [[41,61,11,13,9,14],[61,11,13,9,14,99]]:
         p1x,p1y,p2x,p2y,bx,by = test
         e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
@@ -133,7 +133,7 @@ def easy3(challenge, student, code, completed):
         while i < 6:
             e.write( test[i], 0x200+i )
             i += 1
-        count += run( e, 0x200 )
+        counts.append( run( e, 0x200 ) )
         if e.oam[0:4] != [0,0,0,0]: return None
         if e.oam[4:8] != [p1y,0,1,p1x]: return None
         if e.oam[8:12] != [p1y+8,0,1,p1x]: return None
@@ -144,7 +144,7 @@ def easy3(challenge, student, code, completed):
         if e.oam[28:32] != [p2y+16,0,2,p2x]: return None
         for a in e.oam[32:]:
             if a != 0: return None
-    return rom_size(rom), count
+    return rom_size(rom), sum(counts)/len(counts)
 
 
 
@@ -164,11 +164,11 @@ def hard1(challenge, student, code, completed):
     
     # We do two basic tests. In the first, we simply start with a completely
     # filled grid. All cells should die.
-    count = 0
+    counts = []
     e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
     for i in range(0x100):
         e.write( 1, 0x200+i )
-    count += run( e, 0x10000 )
+    counts.append( run( e, 0x10000 ) )
     for i in range(0x100):
         if e.read( 0x200+i ) != 0: return None
     
@@ -226,15 +226,15 @@ def hard1(challenge, student, code, completed):
     e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
     for i in range(0x100):
         e.write( start[i], 0x200+i )
-    count += run( e, 0x10000 )
+    counts.append( run( e, 0x10000 ) )
     for i in range(0x100):
         if e.read( 0x200+i ) != stage1[i]: return None
     e.PC = 0xC000
-    count += run( e, 0x10000 )
+    counts.append( run( e, 0x10000 ) )
     for i in range(0x100):
         if e.read( 0x200+i ) != stage2[i]: return None
     
-    return rom_size(rom), count
+    return rom_size(rom), sum(counts)/len(counts)
 
 
 
