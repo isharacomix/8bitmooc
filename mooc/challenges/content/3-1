@@ -12,11 +12,11 @@ The rules of game of life are as follows:
  * A cell is either alive or dead.
  * Cells that are adjacent to other cells, including diagonally are referred to
    as neighbors.
- * A cell can have a maximum of eight neighbors. A cell on the side of the board
-   only has five, and a cell in the corner only has three.
+ * All cells have eight neighbors. A cell on the border's neighbors "wrap around"
+   to the other side of the grid.
  * The game proceeds in turns called "generations". Each generation, the number
    of neighbors of each cell is calculated.
- * If a cell began a generation dead and had three living neighbors, the cell
+ * If a cell began a generation dead and had exactly three living neighbors, the cell
    will be alive at the beginning of the next generation
  * If a cell began a generation alive and has two or three living neighbors, the
    cell will remain alive.
@@ -53,6 +53,10 @@ may *not* assume that the memory will be unchanged between generations.
    generations, but during your subroutine, only your program will access it.
  * When you are graded, the only values that will be in the grid will be 0's and
    1's. You do not have to handle error conditions for illegal numbers.
+ * If you find your program taking a long time to run, you may want to disable
+   graphics before running your subroutine and then turning them back on.
+   Remember you'll want to turn on both the sprites (for the cursor) and the
+   background (for the grid).
    
 
 % preamble
@@ -69,14 +73,17 @@ START:                                  ;
     .define CURSOR=$400                 ;
     .define TIMERD=$401
     .define BGFLAG=$402
+    .define GENFLAG=$403
     LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
     STA PPUCTRL                         ;
     LDA #%00011110                      ; enable sprites
     STA PPUMASK                         ;
     STA BGFLAG
-    LDA #1
-    STA $200
 INFLOOP:
+    LDA GENFLAG
+    BEQ nogen
+    JSR do_life
+nogen:
     LDA BGFLAG
     BEQ nobgyo
     JSR renderbg
@@ -122,17 +129,17 @@ is_ok:
     STA $200,X    
     LDA #1
     STA BGFLAG                          ;
-    LDA #20
+    LDA #10
     STA TIMERD
 not_a:                                   ;
     
     LDA CONTROL1                        ; B: generation
     AND #1                              ;
     BEQ not_b                           ;
-    JSR do_life                         ; "do_life" is the student subroutine
     LDA #1
     STA BGFLAG
-    LDA #20
+    STA GENFLAG
+    LDA #10
     STA TIMERD
 not_b:                                  ;
     
@@ -163,14 +170,28 @@ not_down:                               ;
     LDA CONTROL1
     AND #1
     BEQ not_left
+    LDA CURSOR
+    AND #$F0
+    STA $FF
     DEC CURSOR
+    LDA CURSOR
+    AND #$0F
+    ORA $FF
+    STA CURSOR
     LDA #10
     STA TIMERD
 not_left:
     LDA CONTROL1
     AND #1
     BEQ not_right
+    LDA CURSOR
+    AND #$F0
+    STA $FF
     INC CURSOR
+    LDA CURSOR
+    AND #$0F
+    ORA $FF
+    STA CURSOR
     LDA #10
     STA TIMERD
 not_right:
@@ -241,12 +262,12 @@ rloop1:
 rloopout:
     LDX #$10
 rloop2:
-    STX $1
-    LDX $2
+    STX $F1
+    LDX $F2
     LDA $200,X
     STA PPUDATA
-    INC $2
-    LDX $1
+    INC $F2
+    LDX $F1
     DEX
     BNE rloop2
     LDX #$10

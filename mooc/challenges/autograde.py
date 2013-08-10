@@ -146,6 +146,29 @@ def easy3(challenge, student, code, completed):
     return rom_size(rom), count
 
 
+
+# Challenge 3-1: Game of Life
+    a = Assembler()
+    rom, errors = a.assemble( """%s
+                              .org $C000
+                              %s
+                              forever: jmp forever
+                              .org $fffa
+                              .dw $C000
+                              .dw $C000
+                              .dw $C000
+                              """%(memmap, code) )
+    if errors: return None
+
+    count = 0
+    
+    
+    
+    return rom_size(rom), count
+
+
+
+
 # This function actually runs the autograder, mapping strings to functions.
 # It essentially returns True if the assignment was successful, and it also
 # does a bunch of side effects when successful as well.
@@ -154,6 +177,7 @@ def grade(challenge, student, code, completed):
                             "test": test,
                             "easy1": easy1,
                             "easy3": easy3,
+                            "hard1": hard1,
                           }
     if challenge.autograde in AUTOGRADE_FUNCTIONS:
         func = AUTOGRADE_FUNCTIONS[challenge.autograde]
