@@ -8,6 +8,7 @@ zero-player game developed by mathematician John H. Conway that defines a series
 of rules that manage the life and death of organisms on a grid.
 
 The rules of game of life are as follows:
+
  * There is a grid of cells.
  * A cell is either alive or dead.
  * Cells that are adjacent to other cells, including diagonally are referred to
@@ -83,6 +84,8 @@ INFLOOP:
     LDA GENFLAG
     BEQ nogen
     JSR do_life
+    LDA #0
+    STA GENFLAG
 nogen:
     LDA BGFLAG
     BEQ nobgyo
@@ -389,8 +392,8 @@ bkgloop:                                ;
         DEX                             ;
         BNE bkgloop                     ; BNE will jump if X != 0
         LDA #$00                        ;
-        STA SCROLL                      ; Set the scrolling to 0
-        STA SCROLL                      ;
+        STA PPUSCROLL                   ; Set the scrolling to 0
+        STA PPUSCROLL                   ;
         JMP START                       ;
 ;----------------------------------------
 ; Here's the color palette.

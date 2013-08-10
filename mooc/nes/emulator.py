@@ -319,8 +319,8 @@ class Emulator(object):
             if op != IMM: arg = self.read(addr)
         else:
             addr = self.read_word_PC()
-            if op == ABSX: (addr+self.X)&0xFFFF
-            if op == ABSY: (addr+self.Y)&0xFFFF
+            if op == ABSX: addr = (addr+self.X)&0xFFFF
+            if op == ABSY: addr = (addr+self.Y)&0xFFFF
             arg = self.read(addr)
         self.last_addr = addr
         self.last_arg = arg
@@ -385,12 +385,12 @@ class Emulator(object):
             elif op == 0x50: do_branch = not self.V
             elif op == 0x70: do_branch = self.V
             elif op == 0x90: do_branch = not self.C
-            elif op == 0xB0: do_branch = self.V
+            elif op == 0xB0: do_branch = self.C
             elif op == 0xD0: do_branch = not self.Z
             elif op == 0xF0: do_branch = self.Z
             if do_branch:
                 if (offset & 0x80) > 0:
-                    offset -= -0x100
+                    offset += -0x100
                 self.PC = (self.PC+offset)&0xFFFF
         elif op == 0x00: #BRK
             self.PC = (self.PC+1)&0xFFFF

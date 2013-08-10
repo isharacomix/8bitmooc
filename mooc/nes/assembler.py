@@ -209,6 +209,7 @@ class Assembler(object):
                 val = self.num(argnum)
                 if not symbol:
                     self.err("Incorrect addressing mode for %s"%op)
+                    symbol = 0xFF
                 self.write_prg( symbol, self.org )
                 self.write_prg( val, self.org+1 )
                 self.org += 2

@@ -111,8 +111,8 @@ put your main loop in the NMI block.
             DEX                             ;
             BNE bkgloop                     ; BNE will jump if X != 0
             LDA #$00                        ;
-            STA SCROLL                      ; Set the scrolling to 0
-            STA SCROLL                      ;
+            STA PPUSCROLL                   ; Set the scrolling to 0
+            STA PPUSCROLL                   ;
             JMP START                       ;
     ;----------------------------------------
     ; Here's the color palette.
