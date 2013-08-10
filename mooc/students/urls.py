@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^logout/$', views.handle_logout, name="logout"),
     url(r'^terms/$', views.terms_of_use, name="terms"),
     url(r'^user/(?P<username>[\w-]+)/$', views.user_profile, name='profile'),
+    url(r'^demo/$', views.create_demo_user, name="demo"),
 )
 

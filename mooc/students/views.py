@@ -165,3 +165,19 @@ def user_profile(request, username):
                    'published': CodeSubmission.objects.filter(published__gt=0, student=student).order_by('-timestamp'),
                    'alerts': request.session.pop('alerts', []) })
 
+
+# Demo User
+def create_demo_user(request):
+    if not settings.DEMO_MODE:
+        request.session["alerts"].append(("alert-error","Demo users are not enabled at this time."))
+        return redirect("index")
+    
+    username = "DemoUser%d"%len(Student.objects.all())
+    user = User.objects.create_user(username, username+"@example.com", str(random.randint(100000000,999999999)))
+    user.save()
+    student = Student(user=user)
+    student.save()
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+    return redirect("index")
+

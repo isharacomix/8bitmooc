@@ -6,6 +6,7 @@ from settings import *
 
 DEBUG = True
 NO_NEW_ACCOUNTS = False
+DEMO_MODE = False
 ALLOWED_HOSTS = []
 
 DATABASES = {
