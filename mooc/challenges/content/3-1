@@ -1,6 +1,6 @@
 %% name: The Game of Life
 %% autograde: hard1
-%% ordering: 3
+%% ordering: 7
 
 % description
 The [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) is a

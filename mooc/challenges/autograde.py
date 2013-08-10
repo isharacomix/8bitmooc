@@ -66,10 +66,6 @@ memmap = """.define ZEROPAGE=$0000
     .define PRGROM=$8000"""
 
 
-# Test autograded assignment.
-def test(challenge, student, code, completed):
-    return 100, 100
-
 # Challenge 1-1: Tests the controller input.
 def easy1(challenge, student, code, completed):
     a = Assembler()
@@ -244,7 +240,6 @@ def hard1(challenge, student, code, completed):
 # does a bunch of side effects when successful as well.
 def grade(challenge, student, code, completed):
     AUTOGRADE_FUNCTIONS = {
-                            "test": test,
                             "easy1": easy1,
                             "easy3": easy3,
                             "hard1": hard1,
