@@ -7,7 +7,12 @@ scaffolding to help you learn how the NES functions, and now it's time to
 get past the exercises and do some real work - it's time to make a game for
 the NES.
 
-All of
+All of the challenges up until now have taught you various parts of the NES,
+from its programming language to its hardware. Putting it all together is a
+challenge in and of itself, and not to be taken lightly. Come up with an idea
+of what you want to make, plan out how you will use your 2 KB of memory, and
+then try to make it work. If it doesn't work out the first few times, feel
+free to scrap it and start over. Use the [[warmup]] code as a starting point.
 
 If you need any help at all with this project, please interact with your
 classmates on the forums. If you've managed to complete other challenges
@@ -19,6 +24,5 @@ playground to publish demos of your game before it's ready to go.
 When you're ready to submit your project for grading, click on the "Done"
 button. One of the instructors will take a look at it and provide feedback
 on your project.
-
 
 
