@@ -59,7 +59,7 @@ def view_challenge(request, name):
         CR.student = me
         CR.challenge = challenge
         CR.code = code
-        CR.is_correct = False
+        CR.is_correct = False if challenge.autograde else None
         CR.save()
         
         # Convert the last code submission into a diff image, but only save it
