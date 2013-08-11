@@ -417,10 +417,10 @@ class Emulator(object):
             addr = None
             if op in [0xC6, 0xD6]:
                 addr = self.read_PC()
-                if addr == 0xD6: addr = (addr+self.X)&0xFF
+                if op == 0xD6: addr = (addr+self.X)&0xFF
             else:
                 addr = self.read_word_PC()
-                if addr == 0xDE: addr = (addr+self.X)&0xFFFF
+                if op == 0xDE: addr = (addr+self.X)&0xFFFF
             result = (self.read(addr) - 1)&0xFF
             self.flagify(result)
             self.write(result, addr)
@@ -440,10 +440,10 @@ class Emulator(object):
             addr = None
             if op in [0xE6, 0xF6]:
                 addr = self.read_PC()
-                if addr == 0xF6: addr = (addr+self.X)&0xFF
+                if op == 0xF6: addr = (addr+self.X)&0xFF
             else:
                 addr = self.read_word_PC()
-                if addr == 0xFE: addr = (addr+self.X)&0xFFFF
+                if op == 0xFE: addr = (addr+self.X)&0xFFFF
             result = (self.read(addr) + 1)&0xFF
             self.flagify(result)
             self.write(result, addr)
@@ -473,6 +473,8 @@ class Emulator(object):
                 addr = self.read_word_PC()
                 if op == 0xBE: addr = (addr+self.Y)&0xFFFF
                 arg = self.read(addr)
+            self.last_arg = arg
+            self.last_addr = addr
             self.X = arg
             self.flagify(self.X)
         elif op in [0xA0, 0xA4, 0xB4, 0xAC, 0xBC]: #LDY
@@ -486,6 +488,8 @@ class Emulator(object):
                 addr = self.read_word_PC()
                 if op == 0xBC: addr = (addr+self.X)&0xFFFF
                 arg = self.read(addr)
+            self.last_arg = arg
+            self.last_addr = addr
             self.Y = arg
             self.flagify(self.Y)
         elif op in [0x4A, 0x46, 0x56, 0x4E, 0x5E]: #LSR

@@ -4,7 +4,7 @@
 
 % description
 One of the most common exercises done in Computer Science is sorting. In this
-exercise, you will sort a list of numbers in memory in ascending order.
+challenge, you will sort a list of numbers in memory in ascending order.
 
 There is a list of 64 numbers in memory on page two from $200-$23F. Your job
 is to sort them in ascending order. In the demo on the right, the X position of

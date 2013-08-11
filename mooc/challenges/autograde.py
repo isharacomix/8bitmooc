@@ -25,9 +25,12 @@ def rom_size( rom ):
 def run( emu, limit ):
     i = 0
     emu.last_op = None
+    o = ""
     while i < limit and emu.last_op != 0x60:
         emu.step()
         i += 1
+        o += emu.decode(emu.last_op)+" "+str(emu.last_arg)+"/"
+    print o
     return i
 
 
@@ -170,8 +173,16 @@ def medium1(challenge, student, code, completed):
         l = []
         for i in range(64): l.append(random.randint(0,255))
         for i in range(64): e.write( l[i], 0x200+i )
+        
         counts.append( run( e, 0x10000 ) )
         l.sort()
+        
+        eee = []
+        for i in range(64):
+            eee.append( e.read( 0x200+i) )
+        print l
+        print eee
+        
         for i in range(64):
             if e.read( 0x200+i) != l[i]: return None
     
