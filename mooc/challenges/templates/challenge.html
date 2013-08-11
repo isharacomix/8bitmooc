@@ -6,8 +6,8 @@
 
 {% block body %}
 
+<form name="input" action="{% url 'challenge' challenge.slug %}" method="post">{% csrf_token %}
     <div class="row">
-        <form name="input" action="{% url 'challenge' challenge.slug %}" method="post">{% csrf_token %}
         <div class="span8">
             <div>
                 <div>
@@ -17,7 +17,19 @@
                         {{ challenge.description|markup }}
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="span4">
+            {% if feedback %}
+                <a class="btn btn-block" href="{% url 'feedback' challenge.slug %}">View Feedbacks</a><br />
+            {% endif %}
+        </div>
+    </div>
+        
 
+    <div class="row">
+        <div class="span8">
+            <div>
 <div id="assembly-editor" style="width: 100%; height: 30em;"></div>
 <textarea id="assembly-text" class="input-block-level code-input" rows="20" name="code" wrap="soft">{{ code }}</textarea>
             </div>
@@ -28,9 +40,7 @@
         </div>
         
         <div class="span4">
-            {% if feedback %}
-                <a class="btn btn-block" href="{% url 'feedback' challenge.slug %}">View Feedbacks</a><br />
-            {% endif %}
+
         
             <div id="emulator"></div>
     
@@ -96,8 +106,8 @@
 </div>
         
         
-        </form>
     </div>
+    </form>
 
 {% endblock body %}
 

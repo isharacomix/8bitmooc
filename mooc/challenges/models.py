@@ -27,7 +27,6 @@ class Challenge(models.Model):
                                        challenge.""")
     autograde       = models.SlugField("Autograde Function",
                                        blank=True,
-                                       null=True,
                                        help_text="""Specifies the function for
                                        the autograder if this is an autograded 
                                        challenge. If left blank, it will be

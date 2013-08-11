@@ -5,8 +5,8 @@
 
 {% block body %}
 
+    <form name="input" action="{% url 'playground' %}" method="post">{% csrf_token %}
     <div class="row">
-        <form name="input" action="{% url 'playground' %}" method="post">{% csrf_token %}
         <div class="span8">
             <div>
                 <div>
@@ -27,6 +27,13 @@
                     <a href="{% url 'help' 'warmup' %}">NES warmup code</a>.
                     </p>
                 </div>
+            </div>
+        </div>
+     </div>   
+        
+     <div class="row">
+        <div class="span8">
+            <div>
 
             <input class="input-block-level" type="text" placeholder="Project Name" name="name" value="{{name}}" />
 
@@ -75,9 +82,8 @@
                 {% endfor %}
             </div>
         </div>
-        </form>
-        
     </div>
+    </form>
 
 {% endblock body %}
 

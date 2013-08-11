@@ -12,6 +12,7 @@ from nes.assembler import Assembler
 from nes.emulator import Emulator
 
 import time
+import random
 
 # The length of the ROM is determined by removing all of the dummy characters
 # (0xFF) from the ROM and then counting what's left.
@@ -144,6 +145,40 @@ def easy3(challenge, student, code, completed):
 
 
 
+# Challenge 2-1: Sorting
+def medium1(challenge, student, code, completed):
+    a = Assembler()
+    rom, errors = a.assemble( """%s
+                              .org $C000
+                              %s
+                              forever: jmp forever
+                              .org $fffa
+                              .dw $C000
+                              .dw $C000
+                              .dw $C000
+                              """%(memmap, code) )
+    if errors: return None
+    
+    # Testing this one is easy. We simply create lists and then see if the
+    # student's sort matches Python's. We will randomly create 5 lists to
+    # average out "best cases". Granted, this means that it's possible for
+    # a student to beat the "record" by just running the code multiple times,
+    # but more efficient sorts should always win out.
+    counts = []
+    for test in range(5):
+        e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
+        l = []
+        for i in range(64): l.append(random.randint(0,255))
+        for i in range(64): e.write( l[i], 0x200+i )
+        counts.append( run( e, 0x10000 ) )
+        l.sort()
+        for i in range(64):
+            if e.read( 0x200+i) != l[i]: return None
+    
+    return rom_size(rom), sum(counts)/len(counts)
+    
+
+
 # Challenge 3-1: Game of Life
 def hard1(challenge, student, code, completed):
     a = Assembler()
@@ -235,6 +270,12 @@ def hard1(challenge, student, code, completed):
 
 
 
+# Challenge 3-3: Maze Solver
+def hard3(challenge, student, code, completed):
+    return None
+
+
+
 # This function actually runs the autograder, mapping strings to functions.
 # It essentially returns True if the assignment was successful, and it also
 # does a bunch of side effects when successful as well.
@@ -242,7 +283,9 @@ def grade(challenge, student, code, completed):
     AUTOGRADE_FUNCTIONS = {
                             "easy1": easy1,
                             "easy3": easy3,
+                            "medium1": medium1,
                             "hard1": hard1,
+                            "hard3": hard3,
                           }
     if challenge.autograde in AUTOGRADE_FUNCTIONS:
         func = AUTOGRADE_FUNCTIONS[challenge.autograde]

@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 c.description = ""
                 c.preamble = ""
                 c.postamble = ""
-                c.autograde = None
+                c.autograde = ""
                 
                 stage = "description"
                 for l in data.splitlines():

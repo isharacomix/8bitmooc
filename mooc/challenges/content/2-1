@@ -1,0 +1,298 @@
+%% name: Sorting
+%% autograde: medium1
+%% ordering: 4
+
+% description
+One of the most common exercises done in Computer Science is sorting. In this
+exercise, you will sort a list of numbers in memory in ascending order.
+
+There is a list of 64 numbers in memory on page two from $200-$23F. Your job
+is to sort them in ascending order. In the demo on the right, the X position of
+each sprite shows where in memory it is, and the Y position shows its value.
+If your algorithm works correctly, then the sprites will be lined up in a
+diagonal line that starts at the top-left and goes down to the bottom-right.
+
+How you sort the list is up to you. You might want to read up on
+[sorting algorithms](https://en.wikipedia.org/wiki/Sorting_algorithms) to come
+up with some ideas on how to approach the problem.
+
+In the demo on the right, use the left and right directional buttons to select
+a sprite, and use up and down to change its value. Press the B button ('Z' key)
+to run your sorting program. If you need extra space to program, you can use
+the zero page and page seven.
+
+### Tips
+ * Make sure your subroutine ends with an [[RTS|rts]] instruction
+ * If you make any labels in the subroutine, make sure they all begin with
+   ```sort_```
+ * If you need extra memory locations, only use the [[zero page|zero_page]] and
+   the memory on page seven from $700 to $7FF. This data may be changed
+   between calls to your subroutine, but during your subroutine, only your
+   program will access it.
+   
+
+% preamble
+;----------------------------------------
+START:
+    .define SELECTED=$400
+    .define DOSORT=$401
+
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
+    LDA #%00011110                      ; enable sprites
+    STA PPUMASK                         ;
+    
+INFLOOP:
+        LDA DOSORT
+        BEQ nosort
+        JSR sorting
+        LDA #0
+        STA DOSORT
+nosort:
+        JMP INFLOOP                    ;
+
+NMI:
+        JSR handle_input
+        JSR render
+        RTI
+;----------------------------------------
+
+
+
+handle_input:
+    LDX #1                              ; Strobe the controller
+    STX CONTROL1                        ;
+    DEX                                 ;
+    STX CONTROL1                        ;
+                                        ;
+    LDA CONTROL1                        ; Get rid of A, B, Start, Select
+    LDA CONTROL1                        ; We only need to look at the next
+    AND #1
+    STA DOSORT
+    
+    LDA CONTROL1                        ; two reads, now.
+    LDA CONTROL1                        ;
+                                        ;
+    LDX SELECTED
+                                        
+    LDA CONTROL1                        ; looking at UP
+    AND #1                              ;
+    BEQ not_up                          ; If not pressed, zero flag is set
+    DEC $200,X                          ;
+not_up:                                 ;
+    LDA CONTROL1                        ;
+    AND #1                              ;
+    BEQ not_down                        ;
+    INC $200,X                          ;
+not_down:                               ;
+    LDA CONTROL1                        ;
+    AND #1                              ;
+    BEQ not_left                        ;
+    DEX
+not_left:
+    LDA CONTROL1                        ;
+    AND #1                              ;
+    BEQ not_right                        ;
+    INX
+not_right:
+    TXA
+    AND #%00111111
+    STA SELECTED
+    RTS
+
+
+
+;-----------------------------------
+render:
+    LDY #$0
+    LDX #$0
+  rloop:
+    LDA $200,Y
+    STA $300,X
+    INX
+    LDA #0
+    STA $300,X
+    INX
+    LDA #1
+    CPY SELECTED
+    BNE nopeeee
+    LDA #2
+nopeeee:    
+    STA $300,X
+    INX
+    TYA
+    ASL A
+    ASL A
+    STA $300,X
+    INX
+    BEQ over
+    INY
+    JMP rloop
+    
+over:
+    LDA #$00                            ; Now pass the OAM parameters to the PPU
+    STA OAMADDR                         ;   and do DMA
+    LDA #$03                            ; Page 3 has our sprites.
+    STA OAMDMA                          ; Start DMA
+    RTS    
+
+
+
+
+;-
+;
+;-
+sorting:
+
+
+
+
+
+
+% postamble
+;----------------------------------------
+
+
+
+
+; ******************************************************
+; STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP
+;
+; Don't change any of the code underneath this line unless
+; you know what you are doing. Unlike many computers, the
+; NES has to have time to warm up before it can run code.
+; This code will warm up the NES, clear out the memory,
+; and put it in a known state so that you can write the
+; important stuff up above.
+;*******************************************************
+.org $F000                              ;
+RESET:                                  ;
+        SEI                             ; Disable IRQs
+        CLD                             ; Disable decimal mode (not on NES)
+        LDX #$40                        ;
+        STX FRAMECTRL                   ; Disable APU frame IRQ
+        LDX #$FF                        ;
+        TXS                             ; Set stack pointer to top of stack
+        INX                             ; Set X to 0
+        STX PPUCTRL                     ; Disable NMI
+        STX PPUMASK                     ; Disable rendering
+        STX DMCFREQ                     ; Disable DMC IRQs
+vblankwait1:                            ; Wait for the first vertical blank to
+        BIT PPUSTATUS                   ;    ensure PPU is ready.
+        BPL vblankwait1                 ;
+clrmem:                                 ; Zero out all memory
+        LDA #$00                        ;
+        STA $0000, x                    ;
+        STA $0100, x                    ;
+        STA $0200, x                    ;
+        STA $0400, x                    ;
+        STA $0500, x                    ;
+        STA $0600, x                    ;
+        STA $0700, x                    ;
+        LDA #$FE                        ;
+        STA $0300, x                    ;
+        INX                             ;
+        BNE clrmem                      ;
+vblankwait2:                            ; After 2 vertical blanks, the PPU is
+        BIT PPUSTATUS                   ;    is ready to go.
+        BPL vblankwait2                 ;
+;----------------------------------------
+; Now we load our sprite palettes.
+;----------------------------------------
+        LDA PPUSTATUS                   ; read PPU status to reset the high/low latch
+        LDA #$3F                        ;
+        STA PPUADDR                     ; write the high byte of $3F00 address
+        LDA #$00                        ;
+        STA PPUADDR                     ; write the low byte of $3F00 address
+        LDX #$00                        ; start out at 0
+loadpalettes:                           ;
+        LDA palette, x                  ; load data from address (palette + the value in x)
+        STA PPUDATA                     ; write to PPU
+        INX                             ; X = X + 1
+        CPX #$20                        ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
+        BNE loadpalettes                ; Branch to LoadPalettesLoop if compare was Not Equal to zero
+                                        ; if compare was equal to 32, keep going down
+;----------------------------------------
+; Now load a blank background. We need to fill $1000 bytes from $2000 to $3000
+;----------------------------------------
+        LDA PPUSTATUS                   ; read PPU status to reset the high/low latch                                      
+        LDA #$20                        ; Background VRAM starts at $2000
+        STA PPUADDR                     ;
+        LDA #$00                        ;
+        STA PPUADDR                     ;
+        LDA #$00                        ; We will zero out the VRAM.
+        LDX #$10                        ; We have to iterate over 0-256 only $10 times.
+        LDY #$00                        ;
+bkgloop:                                ;
+        STA PPUDATA                     ; Write to the VRAM. Note that no matter how the
+        DEY                             ; scroll mirroring is set, this will work.
+        BNE bkgloop                     ; BNE will jump if Y != 0
+        DEX                             ;
+        BNE bkgloop                     ; BNE will jump if X != 0
+        LDA #$00                        ;
+        STA PPUSCROLL                   ; Set the scrolling to 0
+        STA PPUSCROLL                   ;
+        JMP START                       ;
+;----------------------------------------
+; Here's the color palette.
+;----------------------------------------
+palette:                                ;
+        .db $0F,$31,$32,$33             ;
+        .db $0F,$35,$36,$37             ;
+        .db $0F,$39,$3A,$3B             ;
+        .db $0F,$3D,$3E,$0F             ;
+        .db $0F,$28,$18,$38             ;
+        .db $0F,$1C,$0C,$2C             ;
+        .db $0F,$15,$05,$25             ;
+        .db $0F,$02,$38,$3C             ;
+;----------------------------------------        
+; Interrupt table - located in the last six bytes of memory.
+;----------------------------------------
+        .org $FFFA                      ; Interrupt table is last three words
+        .dw NMI                         ; When an NMI happens (once per frame
+                                        ;   if enabled, the draw loop)
+        .dw RESET                       ; When the processor first turns on or
+                                        ;   is reset, it will jump to RESET
+        .dw 0                           ; External interrupt IRQ is not used
+;----------------------------------------
+; Define all of the memory locations in the memory map.
+;----------------------------------------
+    .define ZEROPAGE=$0000              ;
+    .define STACK=$0100                 ;
+    .define PPUCTRL=$2000               ;
+    .define PPUMASK=$2001               ;
+    .define PPUSTATUS=$2002             ;
+    .define OAMADDR=$2003               ;
+    .define OAMDATA=$2004               ;
+    .define PPUSCROLL=$2005             ;
+    .define PPUADDR=$2006               ;
+    .define PPUDATA=$2007               ;
+    .define SQ1VOL=$4000                ;
+    .define SQ1SWEEP=$4001              ;
+    .define SQ1LO=$4002                 ;
+    .define SQ1HI=$4003                 ;
+    .define SQ2VOL=$4004                ;
+    .define SQ2SWEEP=$4005              ;
+    .define SQ2LO=$4006                 ;
+    .define SQ2HI=$4007                 ;
+    .define TRILIN=$4008                ;
+    .define TRILO=$400A                 ;
+    .define TRIHI=$400B                 ;
+    .define NOISEVOL=$400C              ;
+    .define NOISELO=$400E               ;
+    .define NOISEHI=$400F               ;
+    .define DMCFREQ=$4010               ;
+    .define DMCRAW=$4011                ;
+    .define DMCSTART=$4012              ;
+    .define DMCLEN=$4013                ;
+    .define OAMDMA=$4014                ;
+    .define SNDCHNL=$4015               ;
+    .define CONTROL1=$4016              ;
+    .define CONTROL2=$4017              ;
+    .define FRAMECTRL=$4018             ;
+    .define PRGROM=$8000                ;
+;----------------------------------------
+
+
+
+

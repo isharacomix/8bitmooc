@@ -110,6 +110,7 @@ put your main loop in the NMI block.
             BNE bkgloop                     ; BNE will jump if Y != 0
             DEX                             ;
             BNE bkgloop                     ; BNE will jump if X != 0
+            LDA PPUSTATUS                   ; read PPU status to reset the high/low latch  
             LDA #$00                        ;
             STA PPUSCROLL                   ; Set the scrolling to 0
             STA PPUSCROLL                   ;

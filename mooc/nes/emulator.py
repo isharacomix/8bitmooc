@@ -95,8 +95,7 @@ class Emulator(object):
         self.vblank = 0
         
         # Semaphores for $2005-$2007. Read from PPUStatus to reset the latch
-        self.scroll_sem = 0         # When 0, we write to X
-        self.address_sem = 0        # When 0, we write to the upper byte
+        self.ppu_latch = 0
         
         # Load the ROM and VRAM with our arguments.
         if prgrom and len(prgrom)<=0x8000:
@@ -180,17 +179,16 @@ class Emulator(object):
             self.oam[self.oam_addr] = what
             self.oam_addr += 1
         if where == 0x05:
-            if self.scroll_sem == 0: self.scroll_x = what
-            if self.scroll_sem == 1: self.scroll_y = what
-            self.scroll_sem += 1
+            if self.ppu_latch == 0: self.scroll_x, self.ppu_latch = what, 1
+            else: self.scroll_y = what
         if where == 0x06:
-            if self.address_sem == 0:
+            if self.ppu_latch == 0:
                 self.ppu_addr &= 0xff
                 self.ppu_addr |= (what << 8)
-            if self.address_sem == 1:
+                self.ppu_latch = 1
+            else:
                 self.ppu_addr &= 0xff00
                 self.ppu_addr |= what
-            self.address_sem += 1
         if where == 0x07:
             self.vram[self.vram_addr(self.ppu_address)] = what
             self.ppu_address += self.ppu_increment
@@ -204,8 +202,7 @@ class Emulator(object):
             x = 0
             if self.vblank: x |= 0x80
             self.vblank = 0
-            self.scroll_sem = 0
-            self.address_sem = 0
+            self.ppu_latch = 0
             return x
         if where == 0x04:
             return self.oam[self.oam_addr]
