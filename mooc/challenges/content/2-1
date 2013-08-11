@@ -9,8 +9,9 @@ exercise, you will sort a list of numbers in memory in ascending order.
 There is a list of 64 numbers in memory on page two from $200-$23F. Your job
 is to sort them in ascending order. In the demo on the right, the X position of
 each sprite shows where in memory it is, and the Y position shows its value.
-If your algorithm works correctly, then the sprites will be lined up in a
-diagonal line that starts at the top-left and goes down to the bottom-right.
+If your algorithm works correctly, then when your program is run, the sprites
+will be lined up in a diagonal line that starts at the top-left and goes down to
+the bottom-right.
 
 How you sort the list is up to you. You might want to read up on
 [sorting algorithms](https://en.wikipedia.org/wiki/Sorting_algorithms) to come
@@ -36,6 +37,17 @@ the zero page and page seven.
 START:
     .define SELECTED=$400
     .define DOSORT=$401
+
+        LDX #0
+        LDA #%10101010
+start_loop:
+        STX $0
+        EOR #%00101100
+        ROR A
+        EOR $0
+        STA $200,X
+        INX
+        BNE start_loop
 
     LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
     STA PPUCTRL                         ;

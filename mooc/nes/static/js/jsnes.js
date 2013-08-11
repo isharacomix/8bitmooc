@@ -6924,11 +6924,12 @@ if (typeof jQuery !== 'undefined') {
                 /*
                  * Buttons
                  */
-                self.buttons.pause.click(function() {
+                self.buttons.pause.click(function(e) {
                     if (self.nes.isRunning) {
                         self.nes.stop();
                         self.updateStatus("Paused");
                         self.buttons.pause.html('<i class="icon-play"></i>');
+                        e.preventDefault();
                     }
                     else {
                         self.nes.start();
@@ -6936,12 +6937,13 @@ if (typeof jQuery !== 'undefined') {
                     }
                 });
         
-                self.buttons.restart.click(function() {
+                self.buttons.restart.click(function(e) {
                     self.nes.reloadRom();
                     self.nes.start();
+                    e.preventDefault();
                 });
         
-                self.buttons.sound.click(function() {
+                self.buttons.sound.click(function(e) {
                     if (self.nes.opts.emulateSound) {
                         self.nes.opts.emulateSound = false;
                         self.buttons.sound.html('<i class="icon-volume-up"></i>');
@@ -6950,10 +6952,11 @@ if (typeof jQuery !== 'undefined') {
                         self.nes.opts.emulateSound = true;
                         self.buttons.sound.html('<i class="icon-volume-off"></i>');
                     }
+                    e.preventDefault();
                 });
         
                 self.zoomed = false;
-                self.buttons.zoom.click(function() {
+                self.buttons.zoom.click(function(e) {
                     if (self.zoomed) {
                         self.screen.animate({
                             width: '256px',
@@ -6970,6 +6973,7 @@ if (typeof jQuery !== 'undefined') {
                         self.buttons.zoom.html('<i class="icon-zoom-out"></i>');
                         self.zoomed = true;
                     }
+                    e.preventDefault();
                 });
                 
                 /*
