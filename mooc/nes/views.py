@@ -71,7 +71,7 @@ def view_playground(request):
             return redirect("playground")
     
     # Render the page.
-    code = "; put default code here one day"
+    code = ""
     if 'rom_code' in request.session:
         code = request.session["rom_code"]
         pattern = request.session.get("rom_pattern")
