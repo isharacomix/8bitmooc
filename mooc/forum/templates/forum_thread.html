@@ -16,6 +16,12 @@
         </ul>
         
             <h1>{{ topic.title }}</h1>
+            {% if user.student.ta %}
+            <div>
+<button class="btn btn-mini {% if topic.hidden %}btn-success{% else %}btn-danger{% endif %}" type="submit" name="topic" value="hide">{% if topic.hidden %}Show{% else %}Hide{% endif %}</button>
+<button class="btn btn-mini {% if topic.locked %}btn-success{% else %}btn-danger{% endif %}" type="submit" name="topic" value="lock">{% if topic.locked %}Unlock{% else %}Lock{% endif %}</button>
+            </div>
+            {% endif %}
             
             {% for p in posts %}
 
@@ -25,12 +31,19 @@
                     <img class="img-polaroid" src="{% avatar_url p.author.user 128 %}&d=retro" alt="" />
                 </a>
                 <div class="media-body">
-                    <article>
+                    <article {% if p.hidden %}class="muted"{% endif %}>
                     {{ p.content|minimarkup }}
                     </article>
                     <p><small><em>Posted by <a href="{% url 'profile' p.author.username %}">@{{ p.author.username }}</a>
                     {% if p.author.ta %} (admin) {% endif %}
                     {{ p.timestamp|timesince }} ago.</em></small></p>
+                    
+                {% if user.student.ta %}
+                <div>
+                    <button class="btn btn-mini {% if p.hidden %}btn-success{% else %}btn-danger{% endif %}" type="submit" name="hide" value="{{ p.id }}">
+                    {% if p.hidden %}Show{% else %}Hide{% endif %}</button>
+                </div>
+                {% endif %}
                 </div>
             </div>
 
@@ -40,6 +53,8 @@
             {% if can_write and not topic.locked %}
             <textarea class="input-block-level" rows="8" name="content"></textarea>
             <button class="btn btn-large btn-success" type="submit" name="thread" value="thread">Post</button>
+            {% elif topic.locked %}
+            This topic is locked. No further replies are permitted.
             {% endif %}
         </div>
     </form>

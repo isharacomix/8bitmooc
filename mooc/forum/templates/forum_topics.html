@@ -23,9 +23,10 @@
                     <th>Last Post</th>
                 </tr>
                 {% for topic, count, last, new in topics %}
-                <tr>
+                <tr {% if topic.hidden %}class="muted"{% endif %}>
                     <td>
                       {% if topic.sticky %}<i class="icon-exclamation-sign"></i>{% endif %}
+                      {% if topic.locked %}<i class="icon-lock"></i>{% endif %}
                       
                       {% if new %}<strong>{% endif %}
                         <a href="{% url 'thread' topic.board.slug topic.id %}">{{topic.title}}</a>

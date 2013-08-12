@@ -77,7 +77,10 @@ def view_board(request, category):
     # Get all of the topics, along with the last person who commented on them
     # and when that was.
     topic_tuples = []
-    for t in DiscussionTopic.objects.filter(hidden=False, board=board)[pagination*page:pagination*(page+1)]:
+    topics = DiscussionTopic.objects.filter(board=board)
+    if not me.ta:
+        topics = topics.filter(hidden=False)
+    for t in topics[pagination*page:pagination*(page+1)]:
         posts = DiscussionPost.objects.filter(topic=t, hidden=False).order_by("-timestamp")
         count = len(posts)
         new = False
@@ -109,7 +112,19 @@ def view_thread(request, category, thread):
     # If this is a POST, we are either replying to someone or we are voting.
     # Manage permissions respectively and redirect.
     if request.method == "POST":
-        if board.can_write(me) and (not topic.locked):
+        if "hide" in request.POST and me.ta:
+            try:
+                p = DiscussionPost.objects.get(id=int(request.POST["hide"]))
+                p.hidden = not p.hidden
+                p.save()
+            except: pass
+        elif "topic" in request.POST and me.ta:
+            if "lock" == request.POST.get("topic"):
+                topic.locked = not topic.locked
+            if "hide" == request.POST.get("topic"):
+                topic.hidden = not topic.hidden
+            topic.save()
+        elif "content" in request.POST and board.can_write(me) and (not topic.locked):
             p = DiscussionPost()
             p.topic = topic
             p.author = me
@@ -120,7 +135,9 @@ def view_thread(request, category, thread):
     
     # Get all of the posts. Start on the last page by default.
     pagination = 20
-    posts = DiscussionPost.objects.filter(hidden=False, topic=topic)
+    posts = DiscussionPost.objects.filter(topic=topic)
+    if not me.ta:
+        post = posts.filter(hidden=False)
     pages = (len(posts)/pagination)+1
     page = pages-1
     if "page" in request.GET and request.GET["page"].isdigit():
