@@ -9,6 +9,11 @@
         <div class="span2">
             <img src="{% avatar_url student.user 256 %}&d=retro" alt="" />
             <a href="http://github.com/{{ student.username }}" class="btn btn-block btn-success">Github Profile</a>
+            {% if user.student.ta %}
+            <form action="{% url 'profile' student.username %}" method="POST">{% csrf_token %}
+<button class="btn btn-block {% if student.banned %}btn-success{% else %}btn-danger{% endif %}" type="submit" name="ban" value="ban">{% if student.banned %}Unban{% else %}Ban{% endif %}</button>
+            </form>
+            {% endif %}
         </div>
         
         <div class="span10">

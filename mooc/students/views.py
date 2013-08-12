@@ -157,6 +157,14 @@ def user_profile(request, username):
     except exceptions.ObjectDoesNotExist:
         request.session["alerts"].append(("alert-error","That user does not exist."))
         return redirect("index")
+    me = Student.from_request(request)
+    
+    if request.method == "POST":
+        if me.ta and "ban" in request.POST:
+            student.banned = not student.banned
+            student.agreed = False
+            student.save()
+        return redirect("profile", username=username)
     
     return render(request,
                   "profile.html",
