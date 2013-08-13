@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core import exceptions
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
 
 
 # The Student model maintains extra information for verified Users in the

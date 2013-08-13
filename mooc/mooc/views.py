@@ -21,8 +21,15 @@ from pages.models import Page
 def view_index(request):
     me = Student.from_request(request)
     
-    if me and not me.agreed: return redirect("terms")
-    elif me and me.banned: return redirect("logout")
+    if me and me.banned:
+        logout(request)
+        if "alerts" not in request.session: request.session["alerts"] = []
+        request.session["alerts"].append(("alert-error","""This account has
+                                          been suspended. If you believe this
+                                          is in error, please contact the site
+                                          administrator."""))
+        return redirect("index")
+    elif me and not me.agreed: return redirect("terms")
     elif me: return view_dashboard(request, me)
     
     return render(request,
