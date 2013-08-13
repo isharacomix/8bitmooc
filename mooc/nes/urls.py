@@ -10,6 +10,6 @@ urlpatterns = patterns('',
     url(r'^rom/$', views.get_rom, name='rom'),
     url(r'^playground/$', views.view_playground, name='playground'),
     url(r'^playground/(?P<id>[\d]+)$', views.view_published, name='play'),
-    #url(r'^sprites/$', views.sprite_list, name='sprites'),
+    url(r'^sprites/$', views.sprite_list, name='sprites'),
 )
 

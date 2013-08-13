@@ -113,3 +113,10 @@ def get_rom(request):
     else:
         raise Http404()
 
+
+# This shows the list of all of the sprites available.
+def sprite_list(request):
+    return render(request, "sprites.html", {'patterns': Pattern.objects.all()})
+
+
+

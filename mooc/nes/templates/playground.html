@@ -15,7 +15,9 @@
                     <p>
                     The purpose of the playground is to give you a space where
                     you can try out the things you learn and make your own
-                    games!
+                    games! You can use any of the
+                    <a href="{% url 'sprites' %}">sprite sheets</a> we have
+                    available.
                     {% if not user.is_authenticated %}
                     If you want to publish and share your creations,
                     <a href="{% url 'login' %}">log in with Github</a> and join
