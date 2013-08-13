@@ -30,11 +30,6 @@ class Student(models.Model):
                                           default=False,
                                           help_text="""If banned, the user can
                                           no longer log into the site.""")
-    complete        = models.BooleanField("Complete",
-                                          default=False,
-                                          help_text="""Set to True when the
-                                          student completes all of the
-                                          challenges.""")
     joined          = models.DateTimeField("Joined",
                                            auto_now_add=True,
                                            help_text="""The time the student joined the
