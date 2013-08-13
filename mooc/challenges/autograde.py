@@ -193,7 +193,10 @@ def hard1(challenge, student, code, completed):
                               .dw $C000
                               .dw $C000
                               """%(memmap, code) )
+    print errors
     if errors: return None
+    
+
     
     # We do two basic tests. In the first, we simply start with a completely
     # filled grid. All cells should die.
@@ -201,7 +204,7 @@ def hard1(challenge, student, code, completed):
     e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
     for i in range(0x100):
         e.write( 1, 0x200+i )
-    counts.append( run( e, 0x10000 ) )
+    counts.append( run( e, 0x100000 ) )
     for i in range(0x100):
         if e.read( 0x200+i ) != 0: return None
     
@@ -259,14 +262,15 @@ def hard1(challenge, student, code, completed):
     e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
     for i in range(0x100):
         e.write( start[i], 0x200+i )
-    counts.append( run( e, 0x10000 ) )
+    counts.append( run( e, 0x100000 ) )
     for i in range(0x100):
         if e.read( 0x200+i ) != stage1[i]: return None
     e.PC = 0xC000
-    counts.append( run( e, 0x10000 ) )
+    counts.append( run( e, 0x100000 ) )
     for i in range(0x100):
         if e.read( 0x200+i ) != stage2[i]: return None
     
+    print "OK"
     return rom_size(rom), sum(counts)/len(counts)
 
 
