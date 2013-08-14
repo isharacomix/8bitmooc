@@ -13,6 +13,7 @@ similar behavior.
  * Branching
  * Jump and Subroutine
  * Stack
+ * Miscellaneous
  
 
 Load/Store Operations
@@ -260,4 +261,18 @@ handlers.
     PLP (PuLl Processor status)     $28  4
     
 All of these operations are one byte in size.
+
+
+Miscellaneous Operations
+------------------------
+There are also two other operations, INC and DEC, that don't fit in any of the
+other categories, and NOP, which does absolutely nothing except safely burn
+cycles.
+
+# INC (INCrement memory)
+
+# DEC (DECrement memory)
+
+# NOP (No OPeration)
+
 
