@@ -90,6 +90,7 @@ def handle_oauth(request):
         login(request, user)
         user.student.unread_since = user.student.last_login
         user.student.last_login = timezone.now()
+        user.student.save()
         request.session["alerts"].append(("alert-success","Welcome back, %s!"%username))
         return redirect("index")
     elif user and user.student.banned:

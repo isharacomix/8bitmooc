@@ -67,7 +67,7 @@ def search(request):
     pages = Page.objects.filter(content__icontains=query)
     results = []
     for p in pages:
-        i = p.content.index(query)
+        i = p.content.lower().index(query.lower())
         results.append( (p.name,"..."+p.content[max(0,i-50):min(len(p.content),i+50)]+"...") )
     
     # TODO search through forum posts
