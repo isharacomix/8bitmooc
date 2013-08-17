@@ -97,7 +97,7 @@ def easy1(challenge, student, code, completed):
         if 6 in test: x-=1
         if 7 in test: x+=1
         counts.append( run( e, 0x100 ) )
-        if e.read(0x200) != x and e.read(0x201) != y:
+        if e.read(0x200) != x or e.read(0x201) != y:
             return None
     return rom_size(rom), sum(counts)/len(counts)
 
