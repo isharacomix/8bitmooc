@@ -68,7 +68,7 @@ def view_challenge(request, name):
             old.parent = CR
             old_code = old.code
             old.code = ""
-            for d in difflib.unified_diff( old_code.splitlines(), CR.code.splitlines()):
+            for d in difflib.unified_diff( CR.code.splitlines(), old_code.splitlines()):
                 old.code += d + "\n"
             if len(old.code) < len(old_code):
                 old.save()
