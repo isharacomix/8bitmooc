@@ -177,6 +177,7 @@ def user_profile(request, username):
 
 # Demo User
 def create_demo_user(request):
+    me = Student.from_request(request)
     if not settings.DEMO_MODE:
         request.session["alerts"].append(("alert-error","Demo users are not enabled at this time."))
         return redirect("index")
