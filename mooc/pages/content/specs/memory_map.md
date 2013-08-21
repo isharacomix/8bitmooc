@@ -23,6 +23,8 @@ reading or writing memory address $09E0 has the exact same effect as reading
 or writing $1E0, since the higher address is simply a mirror of the lower
 address.
 
+Also note that the [[PPU]]'s [[video ram|vram]] also has a memory map.
+
 
 The Zero Page ($0000-$00FF)
 ---------------------------
@@ -106,14 +108,14 @@ are listed here and discussed in more detail on the PPU spec sheet.
     $2000   PPUCTRL     Used to turn on and off NMI generation on each frame
     $2001   PPUMASK     Used to turn on and off rendering of sprites/backgrounds
     $2002   PPUSTATUS   Can be read by the programmer to see when rendering occurs
-    $2003   OAMADDR     Set the address for OAM (sprite locations and properties)
+    $2003   OAMADDR     Set the address for [[OAM]] (sprite locations and properties)
     $2004   OAMDATA     Modify OAM sprite locations or properties
     $2005   PPUSCROLL   Scrolls the background
     $2006   PPUADDR     Sets the VRAM memory pointer
     $2007   PPUDATA     Stores data in VRAM (for changing palettes or backgrounds)
 
-The PPU has its own internal memory map for VRAM, which is discussed on the PPU
-spec sheet.
+The PPU has its own internal memory map for VRAM, which is discussed on the
+PPU spec sheet.
 
 
 APU Registers ($4000-$401F)

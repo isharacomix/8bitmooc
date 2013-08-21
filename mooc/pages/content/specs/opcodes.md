@@ -355,9 +355,16 @@ makes it possible to dynamically create jumps without using branching.
     Absolute      JSR $5597     $20  3 bytes    6 cycles
 
 ### BRK (BReaK)
-    Implied       BRK           $00  1 bytes    7 cycles
+    Implied       BRK #$44      $00  2 bytes    7 cycles
 
-JSR jumps to a memory location in the same way that 
+JSR jumps to a memory location in the same way that JMP does, but in addition
+to changing the program counter, it also stores the current program counter
+value on the [[stack]] before jumping there. This way, after running the code that
+you jump to, it is possible to return back, using the RTS instruction. BRK
+is similar, in that it also performs a jump, but it ignores the argument and
+jumps to the memory address in the [[vector table|vector_table]] that matches
+the IRQ pointer (located at $FFFE and $FFFF). Also, the JSR instruction does not
+store the processor status register on the stack, but the BRK instruction does.
 
 
 ### RTS (ReTurn from Subroutine)

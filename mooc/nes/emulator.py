@@ -177,7 +177,7 @@ class Emulator(object):
             self.oam_addr = what
         if where == 0x04:
             self.oam[self.oam_addr] = what
-            self.oam_addr += 1
+            self.oam_addr = (self.oam_addr+1) & 0xff
         if where == 0x05:
             if self.ppu_latch == 0: self.scroll_x, self.ppu_latch = what, 1
             else: self.scroll_y = what
