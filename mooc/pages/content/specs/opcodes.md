@@ -14,6 +14,7 @@ similar behavior.
  * Jump and Subroutine
  * Stack
  * Miscellaneous
+ * Assembler Directives
  
 
 Load/Store Operations
@@ -436,5 +437,61 @@ NOPs are used to kill cycles when doing carefully timed programs. When doing
 extremely fancy graphics hacks, it's necessary to synchronize your code with
 the picture processing unit while it is running. We won't be doing anything
 that requires careful timing, so you likely won't be using this operation.
+
+
+Assembler Directives
+--------------------
+Assembler directives aren't actually opcodes - they are commands that the
+assembler can interpret and use to improve code assembly before translating
+the operations into machine code.
+
+The #8bitmooc assembler supports a few opcodes.
+
+### .org
+
+The .org directive tells the assembler "start putting your machine code here".
+This is necessary so that when labels are calculated, they are the correct
+value. This is often used to set up the [[vector table|vector_table]].
+
+    .org $FFFA      ; This tells the assembler that the next three words
+    .dw NMI         ; should be written starting at memory location $FFFA.
+    .dw START       ;
+    .dw IRQ         ;
+
+### .db
+### .bytes
+
+.db allows you to put literal bytes directly in the ROM. This is usually used
+when putting data such as backgrounds and palettes in the ROM to be moved into
+VRAM. It is possible to write multiple values by putting commas between them.
+.bytes is a synonym for .db.
+
+### .dw
+### .words
+
+.dw is the same as .db, except instead of writing single bytes, it is used to
+write two-byte words (in the proper byte order, where the low byte is placed
+before the high byte). .dw is often used to put pointers to memory locations
+in RAM, such as in the vector table.
+
+### .ascii
+
+Like .db, this writes data directly to memory, but instead of writing numbers,
+writes ASCII characters, which is useful when storing dialogue or menu prompts
+in the ROM. .ascii can store any string that can be enclosed in quotation marks,
+but can not print quotation marks themselves.
+
+    .ascii "Hello, world!"
+    
+### .define label=X
+
+.define allows you to define a string as a particular number. While this can be
+used to define constants, it's very useful when giving names to memory locations
+so that code isn't simply a list of cryptic hexadecimal numbers.
+
+    .define PLAYER_HP=$200
+    .define PLAYER_MP=$201
+    
+    LDA PLAYER_HP
 
 
