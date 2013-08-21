@@ -300,9 +300,59 @@ define the bottom-left, and the last two define the bottom-right.
 
 ### Palettes
 
+Since sprites are made up of two bits, it means that each pixel can contain
+a value between 0 and 3. The color that these numbers represent are based on
+the palette assigned to that sprite. Each of the eight palettes stored by the
+PPU are made up of three colors each, and all share a universal background
+color that represents the "transparency" color.
 
+Palettes on the NES contain three colors each, and share a universal background
+color. They are stored on the 
 
-Special Thanks
---------------
-Thanks to the folks behind the [NESDev Wiki
+    $3F00 	        Universal background color
+    $3F01-$3F03 	Background palette 0
+    $3F05-$3F07 	Background palette 1
+    $3F09-$3F0B 	Background palette 2
+    $3F0D-$3F0F 	Background palette 3
+    $3F10           Mirror of $3F00
+    $3F11-$3F13 	Sprite palette 0
+    $3F15-$3F17 	Sprite palette 1
+    $3F19-$3F1B 	Sprite palette 2
+    $3F1D-$3F1F 	Sprite palette 3
+
+Each byte contains one color, which is based on hue (phase) and brightness
+(voltage).
+
+    76543210
+      ||||||
+      ||++++- Hue (phase, determines NTSC/PAL chroma)
+      ++----- Value (voltage, determines NTSC/PAL luma)
+
+![NES Color Palette](/img/palette.img)
+
+Below is some sample code for how a palette can be defined and copied into VRAM.
+
+    palettedata:
+            .db $0F,$31,$32,$33
+            .db $0F,$35,$36,$37
+            .db $0F,$39,$3A,$3B
+            .db $0F,$3D,$3E,$0F
+            .db $0F,$28,$18,$38
+            .db $0F,$1C,$0C,$2C
+            .db $0F,$15,$05,$25
+            .db $0F,$02,$38,$3C
+            
+    loadpalettes:
+            LDA PPUSTATUS
+            LDA #$3F
+            STA PPUADDR
+            LDA #$00
+            STA PPUADDR
+            LDX #$00
+    paletteloop:
+            LDA palettedata, x
+            STA PPUDATA
+            INX
+            CPX #$20
+            BNE paletteloop
 
