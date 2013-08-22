@@ -11,20 +11,20 @@ on page $03. This project requires a total of seven 8x8 sprites, three sprites
 for the left paddle, three for the right paddle, and one for the ball.
 
 ### Variables
- * ```PADDLE1X``` and ```PADDLE1Y``` The X and Y position of the top-left pixel
+ * ```PLAYER1X``` and ```PLAYER1Y``` The X and Y position of the top-left pixel
    of the paddle on left side.
- * ```PADDLE2X``` and ```PADDLE2Y``` Same for the right side.
+ * ```PLAYER2X``` and ```PLAYER2Y``` Same for the right side.
  * ```BALLX``` and ```BALLY``` The X and Y position of the top-left pixel of the
    ball.
 
 ### Where to store the information
- * ```$304-$307``` Top segment of left paddle
- * ```$308-$30B``` Middle segment of left paddle
- * ```$30C-$30F``` Bottom segment of left paddle
- * ```$310-$313``` Ball
- * ```$314-$317``` Top segment of right paddle
- * ```$318-$31B``` Middle segment of right paddle
- * ```$31C-$31F``` Bottom segment of right paddle
+ * ```$304-$307``` Top segment of left paddle (color 1)
+ * ```$308-$30B``` Middle segment of left paddle (color 1)
+ * ```$30C-$30F``` Bottom segment of left paddle (color 1)
+ * ```$310-$313``` Ball (color 0)
+ * ```$314-$317``` Top segment of right paddle (color 2)
+ * ```$318-$31B``` Middle segment of right paddle (color 2)
+ * ```$31C-$31F``` Bottom segment of right paddle (color 2)
 
 
 ### Tips
