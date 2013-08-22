@@ -83,7 +83,7 @@ Reading this register also resets the latch used for PPUSCROLL and PPUADDR below
 
 ### OAMADDR ($2003)
 This register is used to set the pointer to the PPU's [[OAM]] buffer. OAM stands
-for Object Access Memory, and contains the data used to render sprites on the
+for Object Attribute Memory, and contains the data used to render sprites on the
 screen. A sprite is an 8x8 (or 8x16, depending on PPUCTRL's value) pixel tile
 that can be rendered relatively quickly on the screen. The NES is capable of
 rendering 64 sprites, with up to 8 sprites possible in any given scanline.

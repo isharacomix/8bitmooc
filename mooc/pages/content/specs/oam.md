@@ -1,5 +1,5 @@
-Object Access Memory
-====================
+Object Attribute Memory
+=======================
 OAM is an internal buffer in the PPU used to store information for sprites.
 The OAM buffer is 256 bytes wide, and each sprite requires 4 bytes of data to
 be rendered, meaning that the buffer can contain 64 sprites at a time. The

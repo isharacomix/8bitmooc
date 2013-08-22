@@ -93,3 +93,35 @@ and only has 3 registers exposed to the programmer.
     |||||+++- High three bytes of the timer (pitch).
     +++++---- Length: How long the sound should play before stopping.
 
+
+OAM DMA
+-------
+The Direct Memory Access for [[OAM]] is handled by the APU, and not the PPU.
+Register $4014 (OAMDMA) is used for this purpose. Read the full article on OAM
+for usage and behavior.
+
+
+Controllers
+-----------
+The controllers for the NES are also controlled by the APU. In order to read
+from the controllers, you start by writing a 1 to CONTROL1 ($4016) followed by
+a 0. The reason for this is that by writing a 1, you open a latch on the
+microcontroller in the controller itself. When this latch is open, the buttons
+will turn on and off values in the controller's registers. When a zero is
+written, the latch closes, and the values on the registers are frozen and
+unaffected by future button presses. This process is called *strobing* the
+controller port.
+
+
+### CONTROL1 $4016 (CONTROL2 $4017)
+After strobing the controller port, you are then able to read from player one
+and player two's controllers. When you read from either controller register,
+the least significant bit contains the value of the pressed button, and the
+other bits are open busses, meaning that they may contain garbage data that
+needs to be zeroed out (such as with the command ```AND #1```).
+
+Since only one bit contains the information for a button press, you need to read
+from the controller register eight times in order to get the state of all eight
+buttons. The buttons will be read in the order **A, B, Select, Start, Up, Down,
+Left, Right**. On an unmodified NES, all reads afterwards will be 0s.
+
