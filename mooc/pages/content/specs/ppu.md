@@ -2,13 +2,14 @@ The Picture Processing Unit
 ===========================
 The PPU (Picture Processing Unit) is responsible for all of the graphics
 routines of the NES. The PPU provides eight memory-mapped registers that allow
-the programmer to 
+the programmer to interact with its hardware, which enable turning on and off
+rendering, drawing backgrounds, and changing the coloring of the images on the
+screen.
 
 
 Registers
 ---------
 ### PPUCTRL ($2000)
-
 This register sets most of the switches needed for rendering graphics on the
 NES. This identifies which nametables and pattern tables are used for rendering
 (discussed in the memory map section at the bottom of this page)
@@ -31,7 +32,6 @@ complicated calculations.
 
 
 ### PPUMASK ($2001)
-
 The PPU mask register contains several one bit switches to turn on and off
 various graphical features such as monochrome displays, intensified colors, and
 backgrounds. When any of the bits are set to 1, they are turned on.
@@ -54,7 +54,6 @@ be doing - usually the value that will be written to this register is #%00011110
 
 
 ### PPUSTATUS ($2002)
-
 The PPU status register is a read-only register that has three bits (5, 6, 7)
 that provide information about the state of rendering.
 
@@ -83,7 +82,6 @@ Reading this register also resets the latch used for PPUSCROLL and PPUADDR below
 
 
 ### OAMADDR ($2003)
-
 This register is used to set the pointer to the PPU's [[OAM]] buffer. OAM stands
 for Object Access Memory, and contains the data used to render sprites on the
 screen. A sprite is an 8x8 (or 8x16, depending on PPUCTRL's value) pixel tile
@@ -99,7 +97,6 @@ to it before using OAMDMA (see the docs on [[OAM]]).
 
 
 ### OAMDATA ($2004)
-
 When data is written to OAMDATA, the value is stored into the OAM buffer at
 the location pointed to by OAMADDR. When a value is stored here, the value in
 OAMADDR is incremented, so it is possible to store data in the entire buffer by
@@ -113,7 +110,6 @@ impractical.
 
 
 ### PPUSCROLL ($2005)
-
 The PPU scroll register is used to scroll the background horizontally and
 vertically. The first time that this register is written to, the X position of
 the scroll is set. The second and subsequent times, the Y position is set. To
@@ -130,7 +126,6 @@ detail in the VRAM section below.
 
 
 ### PPUADDR ($2006)
-
 Much like OAMADDR is the pointer to the 256 byte OAM buffer, PPUADDR provides a
 pointer for access to the PPU's VRAM. Much like PPUSCROLL, writing to this
 address is latched. The first write to this address sets the high byte of the
@@ -143,7 +138,6 @@ PPUSCROLL to the desired location (usually 0,0 when you are just getting started
 
 
 ### PPUDATA ($2007)
-
 Much like OAMDATA, writing to PPUDATA sets the value pointed to by PPUADDR to
 the stored value if the address is writabale (not read-only). After writing to
 PPUDATA, PPUADDR is incremented by either 1 (if bit 2 of PPUCTRL is False) or 32
@@ -180,7 +174,6 @@ assigned to the pixel values.
 
 
 ### Pattern Tables
-
 Pattern tables are essentially the sprite sheets of the NES. These contain the
 pixel data for the tiles that are used to make up the sprites and backgrounds.
 There are two $1000-byte pattern tables, which can hold 256 sprites each.
@@ -224,7 +217,6 @@ sheets dynamically as the game ran.
 
 
 ### Name Tables
-
 Name tables are data structures used to represent the background of the playfield.
 Unlike sprites, which move around often and aren't fixed to a grid, the background
 is a rigid grid of 8x8 tiles that are changed fairly infrequently using PPUADDR
@@ -299,7 +291,6 @@ define the bottom-left, and the last two define the bottom-right.
 
 
 ### Palettes
-
 Since sprites are made up of two bits, it means that each pixel can contain
 a value between 0 and 3. The color that these numbers represent are based on
 the palette assigned to that sprite. Each of the eight palettes stored by the

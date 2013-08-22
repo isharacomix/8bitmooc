@@ -1,7 +1,15 @@
 Opcodes
 =======
 This document covers all of the opcodes for the 6502, their usage, and their
-behavior. The opcodes are divided into the following groups based on their
+behavior. Opcodes are human-readable mneumonics that correspond directly to
+binary, machine code instructions - each opcode represents a single task that
+the [[CPU]] can perform. Assembly instructions are usually broken into two
+components: the opcodes (a three-letter instruction) and an argument, though
+not all opcodes need an argument. The job of the assembler is to read through
+all of the opcodes and convert them into machine code, which ultimately results
+in an NES ROM image.
+
+The opcodes in this list are divided into the following groups based on their
 similar behavior.
 
  * Load/Store
@@ -447,8 +455,8 @@ the operations into machine code.
 
 The #8bitmooc assembler supports a few opcodes.
 
-### .org
 
+### .org
 The .org directive tells the assembler "start putting your machine code here".
 This is necessary so that when labels are calculated, they are the correct
 value. This is often used to set up the [[vector table|vector_table]].
@@ -458,24 +466,24 @@ value. This is often used to set up the [[vector table|vector_table]].
     .dw START       ;
     .dw IRQ         ;
 
+
 ### .db
 ### .bytes
-
 .db allows you to put literal bytes directly in the ROM. This is usually used
 when putting data such as backgrounds and palettes in the ROM to be moved into
 VRAM. It is possible to write multiple values by putting commas between them.
 .bytes is a synonym for .db.
 
+
 ### .dw
 ### .words
-
 .dw is the same as .db, except instead of writing single bytes, it is used to
 write two-byte words (in the proper byte order, where the low byte is placed
 before the high byte). .dw is often used to put pointers to memory locations
 in RAM, such as in the vector table.
 
-### .ascii
 
+### .ascii
 Like .db, this writes data directly to memory, but instead of writing numbers,
 writes ASCII characters, which is useful when storing dialogue or menu prompts
 in the ROM. .ascii can store any string that can be enclosed in quotation marks,
@@ -483,8 +491,8 @@ but can not print quotation marks themselves.
 
     .ascii "Hello, world!"
     
+    
 ### .define label=X
-
 .define allows you to define a string as a particular number. While this can be
 used to define constants, it's very useful when giving names to memory locations
 so that code isn't simply a list of cryptic hexadecimal numbers.

@@ -10,7 +10,6 @@ the [[PPU]] and [[APU]] to alter these values.
 Format
 ------
 ### Byte 0: Y position
-
 The first byte contains the vertical position of the top-left pixel of the
 sprite where lower values mean closer to the top. Sprites do not wrap around the
 screen when they reach the edge, meaning that it's possible to effectively hide
@@ -22,7 +21,6 @@ the sprite invisible (since it's below the bottom of the screen).
 
 
 ### Byte 1: Pattern Index
-
 This byte indicates which tile from the pattern table will be rendered
 for this sprite. How this works depends on the value of bit 5 of PPUCTRL. If
 this bit is False, the sprite is 8x8 pixels, and if the bit is True, sprites
@@ -58,7 +56,6 @@ For more information, read the [[PPU]] entries about pattern tables.
 
 
 ### Byte 2: Properties
-
 This byte contains other properties about the sprite.
 
     76543210
@@ -70,7 +67,6 @@ This byte contains other properties about the sprite.
 
 
 ### Byte 3: X position
-
 The final byte contains the horizontal position of the top-left pixel of the
 sprite where lower values mean closer to the left. Just as with the Y position,
 sprites do not wrap when they run off the side of the screen.
