@@ -169,8 +169,8 @@ put your main loop in the NMI block.
         .define TRILO=$400A                 ;
         .define TRIHI=$400B                 ;
         .define NOISEVOL=$400C              ;
-        .define NOISELO=$400E               ;
-        .define NOISEHI=$400F               ;
+        .define NOISEMODE=$400E             ;
+        .define NOISELEN=$400F              ;
         .define DMCFREQ=$4010               ;
         .define DMCRAW=$4011                ;
         .define DMCSTART=$4012              ;

@@ -142,8 +142,8 @@ sheet.
     $400B   TRIHI       High byte of period and counter for triangle wave
     $400C   NOISEVOL    Volume for noise generator
     $400D   (n/a)
-    $400E   NOISELO     Pitch and shape of noise generator
-    $400F   NOISEHI     Counter for the noise generator
+    $400E   NOISEMODE   Pitch and shape of noise generator
+    $400F   NOISELEN    Counter for the noise generator
     $4010   DMCFREQ     Play mode and frequency for DMC channel
     $4011   DMCRAW      7-bit DAC
     $4012   DMCSTART    Starting position of the DMC waveform
@@ -261,8 +261,8 @@ is already a part of the [[warmup]] code.
         .define TRILO=$400A                 ;
         .define TRIHI=$400B                 ;
         .define NOISEVOL=$400C              ;
-        .define NOISELO=$400E               ;
-        .define NOISEHI=$400F               ;
+        .define NOISEMODE=$400E             ;
+        .define NOISELEN=$400F              ;
         .define DMCFREQ=$4010               ;
         .define DMCRAW=$4011                ;
         .define DMCSTART=$4012              ;
