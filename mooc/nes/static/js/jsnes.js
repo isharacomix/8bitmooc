@@ -5282,6 +5282,7 @@ JSNES.PPU.prototype = {
         }
     },
     
+    // CPU Register $2000:
     updateControlReg1: function(value){
         
         this.triggerRendering();
@@ -5299,6 +5300,7 @@ JSNES.PPU.prototype = {
         
     },
     
+    // CPU Register $2001:
     updateControlReg2: function(value){
         
         this.triggerRendering();
@@ -6259,6 +6261,11 @@ JSNES.PPU.NameTable = function(width, height, name) {
     
     this.tile = new Array(width*height);
     this.attrib = new Array(width*height);
+    for ( i = 0; i < width*height; i++ )
+    {
+        this.tile[i] = 0;
+        this.attrib[i] = 0;
+    }
 };
 
 JSNES.PPU.NameTable.prototype = {
