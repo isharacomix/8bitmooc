@@ -145,7 +145,7 @@ PPUDATA, PPUADDR is incremented by either 1 (if bit 2 of PPUCTRL is False) or 32
 
 Writing to PPUDATA is necessary to update the background nametables and the
 color palettes. However, since using this register changes PPUADDR, it should
-not be used except except when rendering is turned off using PPUMASK.
+**not be used except except when rendering is turned off using PPUMASK**.
 
 
 VRAM Memory Map

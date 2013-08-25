@@ -52,8 +52,8 @@ infinitely, it can either be a smooth sound or a high-paced "fluttering" effect.
     76543210
     ||||||||
     |||||+++- Shift count: Number of bits to shift in the frequency.
-    ||||+---- Negate flag: If 0, the sweep will increase, going to higher
-    ||||      frequencies. If 1, the sweep will decrease, going to lower
+    ||||+---- Negate flag: If 0, the sweep will decrease, going to higher
+    ||||      frequencies. If 1, the sweep will increase, going to lower
     ||||      frequencies. 
     |+++----- The period of the divider (higher numbers, slower sweep)
     +-------- Set to 1 to enable.
@@ -199,9 +199,9 @@ by 1 to determine the number of bytes in the sample.
 Sound Control
 -------------
 ### SNDCHAN ($4015)
-The sound channel register also serves as an APU status register. By writing a
-zero to the bits that correspond to the sound channels, you can immediately
-silence them. Writing to this register also always clears the DMC interrupt flag.
+Before any sounds can play, they must be turned on using the SNDCHAN register.
+Write a 1 to enable a channel and a 0 to silence it. Writing to this register
+also always clears the DMC interrupt flag.
 
     76543210 (write)
        |||||
@@ -211,6 +211,7 @@ silence them. Writing to this register also always clears the DMC interrupt flag
        |+---- Noise
        +----- DMC
 
+The sound channel register also serves as an APU status register. 
 Reading from this register reports on the status of whether or not certain
 channels are currently playing (their length counters are greater than zero).
 It also reports on whether or not the APU is generating IRQs. When performing

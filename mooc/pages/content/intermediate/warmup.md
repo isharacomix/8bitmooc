@@ -42,8 +42,8 @@ put your main loop in the NMI block.
                                             ;
         RTI                                 ; Return from interrupt whenever
     ;---------------------------------------- the frame code is finished.
-
-
+    
+    
     ; ******************************************************
     ; STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP
     ;
@@ -104,20 +104,6 @@ put your main loop in the NMI block.
     ;----------------------------------------
     ; Now load a blank background. We need to fill $1000 bytes from $2000 to $3000
     ;----------------------------------------
-            LDA PPUSTATUS                   ; read PPU status to reset the high/low latch                                      
-            LDA #$20                        ; Background VRAM starts at $2000
-            STA PPUADDR                     ;
-            LDA #$00                        ;
-            STA PPUADDR                     ;
-            LDA #$00                        ; We will zero out the VRAM.
-            LDX #$10                        ; We have to iterate over 0-256 only $10 times.
-            LDY #$00                        ;
-    bkgloop:                                ;
-            STA PPUDATA                     ; Write to the VRAM. Note that no matter how the
-            DEY                             ; scroll mirroring is set, this will work.
-            BNE bkgloop                     ; BNE will jump if Y != 0
-            DEX                             ;
-            BNE bkgloop                     ; BNE will jump if X != 0
             LDA PPUSTATUS                   ; read PPU status to reset the high/low latch  
             LDA #$00                        ;
             STA PPUSCROLL                   ; Set the scrolling to 0
