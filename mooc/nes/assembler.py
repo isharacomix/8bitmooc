@@ -217,12 +217,15 @@ class Assembler(object):
                     self.write_prg( val>>8, self.org )
                     self.org += 1
             elif op in ["bpl","bmi","bvc","bvs","bcc","bcs","bne","beq"]:
-                self.labels["*"] = self.org+2
-                self.write_prg( SYMBOL_TABLE[op], self.org )
-                self.write_prg( self.num(arg)-self.org-2, self.org+1 )
-                if abs(self.num(arg)-self.org-2) > 120:
-                    self.err("Branch exceeds one-byte limit. Use a JMP instead.")
-                self.org += 2
+                if not arg:
+                        self.err("Branch missing label.")
+                else:
+                    self.labels["*"] = self.org+2
+                    self.write_prg( SYMBOL_TABLE[op], self.org )
+                    self.write_prg( self.num(arg)-self.org-2, self.org+1 )
+                    if abs(self.num(arg)-self.org-2) > 120:
+                        self.err("Branch exceeds one-byte limit. Use a JMP instead.")
+                    self.org += 2
             elif op == 'jsr':
                 self.labels["*"] = self.org+3
                 self.write_prg( SYMBOL_TABLE[op], self.org )
