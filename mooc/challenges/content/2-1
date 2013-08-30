@@ -57,7 +57,11 @@ start_loop:
 INFLOOP:
         LDA DOSORT
         BEQ nosort
+        LDA #%00000000                      ; enable NMI, sprites from Pattern Table 1
+        STA PPUCTRL                         ;
         JSR sorting
+        LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+        STA PPUCTRL                         ;
         LDA #0
         STA DOSORT
 nosort:
@@ -90,22 +94,22 @@ handle_input:
     LDA CONTROL1                        ; looking at UP
     AND #1                              ;
     BEQ not_up                          ; If not pressed, zero flag is set
-    DEC $200,X                          ;
+    DEX
 not_up:                                 ;
     LDA CONTROL1                        ;
     AND #1                              ;
     BEQ not_down                        ;
-    INC $200,X                          ;
+    INX
 not_down:                               ;
     LDA CONTROL1                        ;
     AND #1                              ;
     BEQ not_left                        ;
-    DEX
+    DEC $200,X                          ;
 not_left:
     LDA CONTROL1                        ;
     AND #1                              ;
     BEQ not_right                        ;
-    INX
+    INC $200,X                          ;
 not_right:
     TXA
     AND #%00111111
@@ -119,7 +123,9 @@ render:
     LDY #$0
     LDX #$0
   rloop:
-    LDA $200,Y
+    TYA
+    ASL A
+    ASL A
     STA $300,X
     INX
     LDA #0
@@ -132,9 +138,7 @@ render:
 nopeeee:    
     STA $300,X
     INX
-    TYA
-    ASL A
-    ASL A
+    LDA $200,Y
     STA $300,X
     INX
     BEQ over
@@ -291,19 +295,23 @@ palette:                                ;
     .define TRILO=$400A                 ;
     .define TRIHI=$400B                 ;
     .define NOISEVOL=$400C              ;
-    .define NOISELO=$400E               ;
-    .define NOISEHI=$400F               ;
+    .define NOISEMODE=$400E             ;
+    .define NOISELEN=$400F              ;
     .define DMCFREQ=$4010               ;
     .define DMCRAW=$4011                ;
     .define DMCSTART=$4012              ;
     .define DMCLEN=$4013                ;
     .define OAMDMA=$4014                ;
-    .define SNDCHNL=$4015               ;
+    .define SNDCHAN=$4015               ;
     .define CONTROL1=$4016              ;
     .define CONTROL2=$4017              ;
-    .define FRAMECTRL=$4018             ;
+    .define FRAMECTRL=$4017             ;
     .define PRGROM=$8000                ;
 ;----------------------------------------
+
+
+
+
 
 
 

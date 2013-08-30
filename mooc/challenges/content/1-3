@@ -76,6 +76,9 @@ INFLOOP: JMP INFLOOP                    ;
 ; the screen refreshes.
 ;----------------------------------------
 NMI:                                    ;
+    LDA #%00000000                      ; Turn off interrupts
+    STA PPUCTRL                         ;
+    JSR render                          ;
     JSR handle_input                    ;
     JSR ai                              ;
                                         ;
@@ -89,7 +92,8 @@ NMI:                                    ;
     STA BALLY                           ;
                                         ;
     JSR collisions                      ;
-    JSR render                          ;
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
     RTI                                 ; Return from interrupt whenever
 ;---------------------------------------- the frame code is finished.
 
@@ -350,19 +354,21 @@ palette:                                ;
     .define TRILO=$400A                 ;
     .define TRIHI=$400B                 ;
     .define NOISEVOL=$400C              ;
-    .define NOISELO=$400E               ;
-    .define NOISEHI=$400F               ;
+    .define NOISEMODE=$400E             ;
+    .define NOISELEN=$400F              ;
     .define DMCFREQ=$4010               ;
     .define DMCRAW=$4011                ;
     .define DMCSTART=$4012              ;
     .define DMCLEN=$4013                ;
     .define OAMDMA=$4014                ;
-    .define SNDCHNL=$4015               ;
+    .define SNDCHAN=$4015               ;
     .define CONTROL1=$4016              ;
     .define CONTROL2=$4017              ;
-    .define FRAMECTRL=$4018             ;
+    .define FRAMECTRL=$4017             ;
     .define PRGROM=$8000                ;
 ;----------------------------------------
+
+
 
 
 

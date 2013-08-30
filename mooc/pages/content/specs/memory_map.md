@@ -271,7 +271,7 @@ is already a part of the [[warmup]] code.
         .define SNDCHAN=$4015               ;
         .define CONTROL1=$4016              ;
         .define CONTROL2=$4017              ;
-        .define FRAMECTRL=$4018             ;
+        .define FRAMECTRL=$4017             ;
         .define PRGROM=$8000                ;
     ;----------------------------------------
 

@@ -54,10 +54,6 @@ may *not* assume that the memory will be unchanged between generations.
    generations, but during your subroutine, only your program will access it.
  * When you are graded, the only values that will be in the grid will be 0's and
    1's. You do not have to handle error conditions for illegal numbers.
- * If you find your program taking a long time to run, you may want to disable
-   graphics before running your subroutine and then turning them back on.
-   Remember you'll want to turn on both the sprites (for the cursor) and the
-   background (for the grid).
    
 
 % preamble
@@ -83,7 +79,11 @@ START:                                  ;
 INFLOOP:
     LDA GENFLAG
     BEQ nogen
+    LDA #%00000000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
     JSR do_life
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
     LDA #0
     STA GENFLAG
 nogen:
@@ -284,7 +284,10 @@ rloop3:
     DEY
     BNE rloopout
     
-    
+    LDA PPUSTATUS
+    LDA #0
+    STA PPUSCROLL
+    STA PPUSCROLL
     
     LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
     STA PPUCTRL                         ;

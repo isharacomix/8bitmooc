@@ -58,6 +58,7 @@ put your main loop in the NMI block.
     RESET:                                  ;
             SEI                             ; Disable IRQs
             CLD                             ; Disable decimal mode (not on NES)
+            BIT PPUSTATUS                   ;
             LDX #$40                        ;
             STX FRAMECTRL                   ; Disable APU frame IRQ
             LDX #$FF                        ;
@@ -74,12 +75,11 @@ put your main loop in the NMI block.
             STA $0000, x                    ;
             STA $0100, x                    ;
             STA $0200, x                    ;
+            STA $0300, x                    ;
             STA $0400, x                    ;
             STA $0500, x                    ;
             STA $0600, x                    ;
             STA $0700, x                    ;
-            LDA #$FE                        ;
-            STA $0300, x                    ;
             INX                             ;
             BNE clrmem                      ;
     vblankwait2:                            ; After 2 vertical blanks, the PPU is
@@ -165,7 +165,7 @@ put your main loop in the NMI block.
         .define SNDCHAN=$4015               ;
         .define CONTROL1=$4016              ;
         .define CONTROL2=$4017              ;
-        .define FRAMECTRL=$4018             ;
+        .define FRAMECTRL=$4017             ;
         .define PRGROM=$8000                ;
     ;----------------------------------------
 
