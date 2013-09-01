@@ -1,5 +1,6 @@
 %% name: Drawing Sprites
 %% autograde: easy3
+%% pattern: challenge
 %% ordering: 3
 
 % description
@@ -25,6 +26,7 @@ for the left paddle, three for the right paddle, and one for the ball.
  * ```$314-$317``` Top segment of right paddle (color 2)
  * ```$318-$31B``` Middle segment of right paddle (color 2)
  * ```$31C-$31F``` Bottom segment of right paddle (color 2)
+ * You should use sprite #$20 for the pattern.
 
 
 ### Tips

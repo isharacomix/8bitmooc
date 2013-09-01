@@ -1,5 +1,6 @@
 %% name: The Game of Life
 %% autograde: hard1
+%% pattern: challenge
 %% ordering: 7
 
 % description
@@ -223,8 +224,9 @@ render:
     ASL A
     ADC #48
     STA $307
-    LDA #0
+    LDA #$10
     STA $305
+    LDA #1
     STA $306
 
     LDA #$00                            ; Now pass the OAM parameters to the PPU
@@ -457,6 +459,7 @@ palette:                                ;
     .define FRAMECTRL=$4018             ;
     .define PRGROM=$8000                ;
 ;----------------------------------------
+
 
 
 

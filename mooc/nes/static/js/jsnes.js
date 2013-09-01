@@ -6941,6 +6941,7 @@ if (typeof jQuery !== 'undefined') {
                     else {
                         self.nes.start();
                         self.buttons.pause.html('<i class="icon-pause"></i>');
+                        e.preventDefault();
                     }
                 });
         

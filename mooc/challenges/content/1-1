@@ -1,5 +1,6 @@
 %% name: Controller Input
 %% autograde: easy1
+%% pattern: challenge
 %% ordering: 1
 
 % description
@@ -80,7 +81,7 @@ render:                                 ;
     STX $307                            ;
     LDY #30                             ;
     STY $306                            ;
-    LDY #0                              ;
+    LDY #$10                            ;
     STY $305                            ;
     LDA #$00                            ; Now pass the OAM parameters to the PPU
     STA OAMADDR                         ;   and do DMA

@@ -132,10 +132,12 @@ class Assembler(object):
                 inc_elements = self.parse(kern.code, arg)
                 new_elements += inc_elements
             elif op == ".ascii":
-                arg = arg[1:-1]
+                endl = original.index('"')
+                endr = original.index('"',endl+1)
+                qstring = original[endl+1:endr]
                 new_arg = ""
                 skip = False
-                for c in arg:
+                for c in qstring:
                     try: x = ord(c)
                     except: x = 0
                     if skip:

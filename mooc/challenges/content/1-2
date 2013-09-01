@@ -1,176 +1,39 @@
-%% name: Sorting
-%% autograde: medium1
+%% name: Render Text
+%% autograde: easy2
 %% pattern: challenge
-%% ordering: 4
+%% ordering: 2
 
 % description
-One of the most common exercises done in Computer Science is sorting. In this
-challenge, you will sort a list of numbers in memory in ascending order.
+The NES doesn't come with a standard set of routines for printing out text to
+the screen, but that doesn't mean we can't write one ourselves! By using a
+spritesheet that has characters in the memory locations that correspond to the
+[[ASCII]] values, we can simply copy ASCII strings out of memory and store them
+in the [[PPU]]'s nametables (the memory location where background information is
+stored) to render them to the screen.
 
-There is a list of 64 numbers in memory on page two from $200-$23F. Your job
-is to sort them in ascending order. In the demo on the right, the X position of
-each sprite shows where in memory it is, and the Y position shows its value.
-If your algorithm works correctly, then when your program is run, the sprites
-will be lined up in a diagonal line that starts at the top-left and goes down to
-the bottom-right.
+Read the documentation about the [[PPU]] and write a subroutine that takes the
+text from the memory location $E000 and displays it on the screen by copying
+that data to the [[PPU]]'s nametables. You can customize the message that
+appears by using the following code:
 
-How you sort the list is up to you. You might want to read up on
-[sorting algorithms](https://en.wikipedia.org/wiki/Sorting_algorithms) to come
-up with some ideas on how to approach the problem.
-
-In the demo on the right, use the left and right directional buttons to select
-a sprite, and use up and down to change its value. Press the B button ('Z' key)
-to run your sorting program. If you need extra space to program, you can use
-the zero page and page seven.
+    .org TEXT
+    .ascii "Hello world! Put your example text here! Make sure the text is pretty long!"
 
 ### Tips
  * Make sure your subroutine ends with an [[RTS|rts]] instruction
  * If you make any labels in the subroutine, make sure they all begin with
-   ```sort_```
- * If you need extra memory locations, only use the [[zero page|zero_page]] and
-   the memory on page seven from $700 to $7FF. This data may be changed
-   between calls to your subroutine, but during your subroutine, only your
-   program will access it.
+   ```print_```
+ * Remember that the first row of the screen's output is hidden. To write out
+   your text, skip over the first row.
+ * If you need extra memory locations, use the [[zero page|zero_page]], but you
+   should be able to write this without any extra memory.
+ * Only printable characters will be used.
+ * You only have to handle a string up to 100 characters long.
+
    
 
 % preamble
-;----------------------------------------
-START:
-    .define SELECTED=$400
-    .define DOSORT=$401
-
-        LDX #0
-        LDA #%10101010
-start_loop:
-        STX $0
-        EOR #%00101100
-        ROR A
-        EOR $0
-        STA $200,X
-        INX
-        BNE start_loop
-
-    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
-    STA PPUCTRL                         ;
-    LDA #%00011110                      ; enable sprites
-    STA PPUMASK                         ;
-    
-INFLOOP:
-        LDA DOSORT
-        BEQ nosort
-        LDA #%00000000                      ; enable NMI, sprites from Pattern Table 1
-        STA PPUCTRL                         ;
-        JSR sorting
-        LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
-        STA PPUCTRL                         ;
-        LDA #0
-        STA DOSORT
-nosort:
-        JMP INFLOOP                    ;
-
-NMI:
-        JSR handle_input
-        JSR render
-        RTI
-;----------------------------------------
-
-
-
-handle_input:
-    LDX #1                              ; Strobe the controller
-    STX CONTROL1                        ;
-    DEX                                 ;
-    STX CONTROL1                        ;
-                                        ;
-    LDA CONTROL1                        ; Get rid of A, B, Start, Select
-    LDA CONTROL1                        ; We only need to look at the next
-    AND #1
-    STA DOSORT
-    
-    LDA CONTROL1                        ; two reads, now.
-    LDA CONTROL1                        ;
-                                        ;
-    LDX SELECTED
-                                        
-    LDA CONTROL1                        ; looking at UP
-    AND #1                              ;
-    BEQ not_up                          ; If not pressed, zero flag is set
-    DEX
-not_up:                                 ;
-    LDA CONTROL1                        ;
-    AND #1                              ;
-    BEQ not_down                        ;
-    INX
-not_down:                               ;
-    LDA CONTROL1                        ;
-    AND #1                              ;
-    BEQ not_left                        ;
-    DEC $200,X                          ;
-not_left:
-    LDA CONTROL1                        ;
-    AND #1                              ;
-    BEQ not_right                        ;
-    INC $200,X                          ;
-not_right:
-    TXA
-    AND #%00111111
-    STA SELECTED
-    RTS
-
-
-
-;-----------------------------------
-render:
-    LDY #$0
-    LDX #$0
-  rloop:
-    TYA
-    ASL A
-    ASL A
-    STA $300,X
-    INX
-    LDA #$10
-    STA $300,X
-    INX
-    LDA #1
-    CPY SELECTED
-    BNE nopeeee
-    LDA #2
-nopeeee:    
-    STA $300,X
-    INX
-    LDA $200,Y
-    STA $300,X
-    INX
-    BEQ over
-    INY
-    JMP rloop
-    
-over:
-    LDA #$00                            ; Now pass the OAM parameters to the PPU
-    STA OAMADDR                         ;   and do DMA
-    LDA #$03                            ; Page 3 has our sprites.
-    STA OAMDMA                          ; Start DMA
-    RTS    
-
-
-
-
-;-
-;
-;-
-sorting:
-
-
-
-
-
-
-% postamble
-;----------------------------------------
-
-
-
+.define TEXT=$E000
 
 ; ******************************************************
 ; STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP
@@ -296,24 +159,40 @@ palette:                                ;
     .define TRILO=$400A                 ;
     .define TRIHI=$400B                 ;
     .define NOISEVOL=$400C              ;
-    .define NOISEMODE=$400E             ;
-    .define NOISELEN=$400F              ;
+    .define NOISELO=$400E               ;
+    .define NOISEHI=$400F               ;
     .define DMCFREQ=$4010               ;
     .define DMCRAW=$4011                ;
     .define DMCSTART=$4012              ;
     .define DMCLEN=$4013                ;
     .define OAMDMA=$4014                ;
-    .define SNDCHAN=$4015               ;
+    .define SNDCHNL=$4015               ;
     .define CONTROL1=$4016              ;
     .define CONTROL2=$4017              ;
-    .define FRAMECTRL=$4017             ;
+    .define FRAMECTRL=$4018             ;
     .define PRGROM=$8000                ;
 ;----------------------------------------
 
+.org $C000
+
+START:                                  ;
+    JSR rendertext
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
+    LDA #%00011110                      ; enable sprites
+    STA PPUMASK                         ;
+
+INFLOOP:
+    JMP INFLOOP
+NMI:
+    RTI
+    
+    
+rendertext:
 
 
 
-
-
+% postamble
+; na
 
 

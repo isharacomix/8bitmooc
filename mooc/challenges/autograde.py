@@ -63,7 +63,7 @@ memmap = """.define ZEROPAGE=$0000
     .define SNDCHNL=$4015
     .define CONTROL1=$4016
     .define CONTROL2=$4017
-    .define FRAMECTRL=$4018
+    .define FRAMECTRL=$4017
     .define PRGROM=$8000"""
 
 
@@ -102,6 +102,37 @@ def easy1(challenge, student, code, completed):
     return rom_size(rom), sum(counts)/len(counts)
 
 
+# Challenge 1-2: Rendering Text
+def easy2(challenge, student, code, completed):
+    a = Assembler()
+    rom, errors = a.assemble( """%s
+                              .org $C000
+                              .define TEXT=$E000
+                              %s
+                              forever: jmp forever
+                              .org $fffa
+                              .dw $C000
+                              .dw $C000
+                              .dw $C000
+                              """%(memmap, code) )
+    if errors: return None
+    
+    rom = rom[:0x2010]+("\xff"*0x500)+rom[0x2510:]
+
+    counts = []
+    for test in ["Hello world","Potato skillets"]:
+        e = Emulator( rom[0x10:0x4010], rom[0x4010:] )
+        for i,c in enumerate(test):
+            e.rom[0x6000+i] = ord(c)
+        counts.append( run( e, 0x10000 ) )
+        for i,c in enumerate(test):
+            print e.vram[0x2020+i]
+        for i,c in enumerate(test):
+            if e.vram[0x2020+i] != ord(c):
+                return None
+    return rom_size(rom), sum(counts)/len(counts)
+    
+
 # Challenge 1-3: Sprites and OAM.
 def easy3(challenge, student, code, completed):
     a = Assembler()
@@ -131,14 +162,14 @@ def easy3(challenge, student, code, completed):
             e.write( test[i], 0x200+i )
             i += 1
         counts.append( run( e, 0x200 ) )
-        if e.oam[0:4] != [0,0,0,0]: return None
-        if e.oam[4:8] != [p1y,0,1,p1x]: return None
-        if e.oam[8:12] != [p1y+8,0,1,p1x]: return None
-        if e.oam[12:16] != [p1y+16,0,1,p1x]: return None
-        if e.oam[16:20] != [by,0,0,bx]: return None
-        if e.oam[20:24] != [p2y,0,2,p2x]: return None
-        if e.oam[24:28] != [p2y+8,0,2,p2x]: return None
-        if e.oam[28:32] != [p2y+16,0,2,p2x]: return None
+        if e.oam[0:4] != [0,0x20,0,0]: return None
+        if e.oam[4:8] != [p1y,0x20,1,p1x]: return None
+        if e.oam[8:12] != [p1y+8,0x20,1,p1x]: return None
+        if e.oam[12:16] != [p1y+16,0x20,1,p1x]: return None
+        if e.oam[16:20] != [by,0x20,0,bx]: return None
+        if e.oam[20:24] != [p2y,0x20,2,p2x]: return None
+        if e.oam[24:28] != [p2y+8,0x20,2,p2x]: return None
+        if e.oam[28:32] != [p2y+16,0x20,2,p2x]: return None
         for a in e.oam[32:]:
             if a != 0: return None
     return rom_size(rom), sum(counts)/len(counts)
@@ -288,6 +319,7 @@ def hard3(challenge, student, code, completed):
 def grade(challenge, student, code, completed):
     AUTOGRADE_FUNCTIONS = {
                             "easy1": easy1,
+                            "easy2": easy2,
                             "easy3": easy3,
                             "medium1": medium1,
                             "hard1": hard1,

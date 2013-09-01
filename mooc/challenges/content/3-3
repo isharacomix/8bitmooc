@@ -1,5 +1,6 @@
 %% name: Maze Solver
 %% autograde: hard3
+%% pattern: challenge
 %% ordering: 9
 
 % description
@@ -44,10 +45,6 @@ This is likely the hardest challenge in the course. Good luck!
    program will access it.
  * When you are graded, the only values that will be in the maze will be 0's and
    1's. You do not have to handle error conditions for illegal numbers.
- * If you find your program taking a long time to run, you may want to disable
-   graphics before running your subroutine and then turning them back on.
-   Remember you'll want to turn on both the sprites (for the cursor) and the
-   background (for the maze).
    
 
 % preamble

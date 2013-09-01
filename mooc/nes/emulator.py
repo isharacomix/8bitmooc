@@ -74,7 +74,7 @@ class Emulator(object):
         
         # PPU Registers
         self.base_nametable = 0     # Which table? $2000 + this * $400
-        self.ppu_increment = 0      # Increment by 1 (across) or 32 (down)?
+        self.ppu_increment = 1      # Increment by 1 (across) or 32 (down)?
         self.sprite_table = 0       # Which table is the sprites?
         self.bg_table = 0           # Which table is the background?
         self.big_sprites = False    # Sprites are 8x16 when true
@@ -149,7 +149,7 @@ class Emulator(object):
     
     # Returns a mapped vram address
     def vram_addr(self, where):
-        where &= 0x4000
+        where &= 0x3FFF
         if where >= 0x3F00:
             return ((where-0x3F00)%0x20) + 0x3F00
         if where >= 0x3000: where -= 0x1000
@@ -190,8 +190,9 @@ class Emulator(object):
                 self.ppu_addr &= 0xff00
                 self.ppu_addr |= what
         if where == 0x07:
-            self.vram[self.vram_addr(self.ppu_address)] = what
-            self.ppu_address += self.ppu_increment
+            self.vram[self.vram_addr(self.ppu_addr)] = what
+            print (hex(self.vram_addr(self.ppu_addr)), " > %c"%what )
+            self.ppu_addr += self.ppu_increment
 
     
     # This reads from the PPU. Legal "where" values inclide 0x00-0x07, but 
@@ -207,7 +208,7 @@ class Emulator(object):
         if where == 0x04:
             return self.oam[self.oam_addr]
         if where == 0x07:
-            return self.vram[self.vram_addr(self.ppu_address)]
+            return self.vram[self.vram_addr(self.ppu_addr)]
         return 0x00
     
     
