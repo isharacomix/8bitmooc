@@ -1,0 +1,367 @@
+%% name: Collisions
+%% autograde: medium2
+%% pattern: challenge
+%% ordering: 5
+
+% description
+One challenge that's particularly important when designing games is collision
+detection. In this program, we're going to create a simple game where the player
+character can move around the field, and if it collides with a crate, it gets
+pushed around.
+
+ * PLAYER_X and PLAYER_Y are the X and Y positions of the top left of the player's
+   8x8 pixel box.
+ * BOXn_Y and BOXn_X are the X and Y positions of the top left of the 8x8 pixel
+   boxes of the pushable crates. There are 6 crates numbered from 1 to 6.
+ * The memory locations of the boxes: ```
+    .define BOX1_Y=$204
+    .define BOX1_X=$205
+    .define BOX2_Y=$206
+    .define BOX2_X=$207
+    .define BOX3_Y=$208
+    .define BOX3_X=$209
+    .define BOX4_Y=$20A
+    .define BOX4_X=$20B
+    .define BOX5_Y=$20C
+    .define BOX5_X=$20D
+    .define BOX6_Y=$20E
+    .define BOX6_X=$20F
+   ```
+
+When the player moves, the variables PLAYER_DX and PLAYER_DY will contain the
+number of pixels that the player moved in the X and Y directions respectively.
+If the player collides with a crate, the DX should be added to the crate's X
+value and the DY should be added to the crate's Y value. You don't need to worry
+about crate-crate collisions, only player-crate.
+
+The best way to check for a collision is to see if the 8x8 boxes of the
+player and crate overlap. If they overlap, then perform the push. Otherwise,
+do nothing.
+
+### Tips
+ * Make sure your subroutine ends with an [[RTS|rts]] instruction
+ * If you make any labels in the subroutine, make sure they all begin with
+   ```collide_```
+ * If you need extra memory locations, only use the [[zero page|zero_page]] and
+   the memory on page seven from $700 to $7FF. This data may be changed
+   between calls to your subroutine, but during your subroutine, only your
+   program will access it.
+   
+
+% preamble
+;----------------------------------------
+; Put the name of your program and a basic explanation
+; of how it works here.
+;
+; The START label is where the program begins. Here you
+; should initialize your program's variables. Make sure
+; you turn on your graphics before the infinite loop
+; starts!
+;----------------------------------------
+START:                                  ;
+    .define PLAYER_X=$200               ;
+    .define PLAYER_Y=$201               ;
+    .define PLAYER_DX=$202
+    .define PLAYER_DY=$203
+    
+    .define BOX1_Y=$204
+    .define BOX1_X=$205
+    .define BOX2_Y=$206
+    .define BOX2_X=$207
+    .define BOX3_Y=$208
+    .define BOX3_X=$209
+    .define BOX4_Y=$20A
+    .define BOX4_X=$20B
+    .define BOX5_Y=$20C
+    .define BOX5_X=$20D
+    .define BOX6_Y=$20E
+    .define BOX6_X=$20F
+    
+    LDA #50                             ;
+    STA PLAYER_X                        ;
+    STA PLAYER_Y                        ;
+    STA BOX1_X
+    STA BOX1_Y
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
+    LDA #%00010100                      ; enable sprites
+    STA PPUMASK                         ;
+INFLOOP: JMP INFLOOP                    ;
+;----------------------------------------
+;
+; The NMI (non-maskable interrupt) code is run whenever
+; the screen refreshes.
+;----------------------------------------
+NMI:                                    ;
+    LDA #%00000000                      ;  turn off interrupts
+    STA PPUCTRL                         ;
+    JSR render                          ;
+    LDX #0
+    STX PLAYER_DX
+    STX PLAYER_DY
+    JSR handle_input                    ;
+    LDX PLAYER_DX
+    LDY PLAYER_DY
+    JSR collisions
+    LDA #%10010000                      ; enable NMI, sprites from Pattern Table 1
+    STA PPUCTRL                         ;
+    RTI                                 ; Return from interrupt whenever
+;---------------------------------------- the frame code is finished.
+
+
+
+;----------------------------------------
+; Handle Input:
+;
+; Looks at the controller and increments
+; or decrements PLAYER_X and PLAYER_Y
+; depending on the button pressed.
+;----------------------------------------
+handle_input:                           ;
+LDX #9
+STX CONTROL1
+DEX
+STX CONTROL1
+
+LDA CONTROL1
+LDA CONTROL1
+LDA CONTROL1
+LDA CONTROL1
+
+LDA CONTROL1
+AND #1
+BEQ ctl_noup
+DEC PLAYER_Y
+DEC PLAYER_DY
+ctl_noup:
+
+
+LDA CONTROL1
+AND #1
+BEQ ctl_nodown
+INC PLAYER_Y
+INC PLAYER_DY
+ctl_nodown:
+LDA CONTROL1
+AND #1
+BEQ ctl_noleft
+DEC PLAYER_X
+DEC PLAYER_DX
+ctl_noleft:
+LDA CONTROL1
+AND #1
+BEQ ctl_noright
+INC PLAYER_X
+INC PLAYER_DY
+ctl_noright:
+RTS
+;----------------------
+
+
+
+
+;-------
+; Collisions function needs to look at all X and Y values and check for collisions.
+; If true, add the DX and DY to the box's position.
+;---------
+collisions:
+
+
+
+
+
+% postamble
+
+
+
+;----------------------------------------
+; Render:
+;
+; This takes the sprites and puts the
+; information in page 3, where the OAM
+; data goes.
+;----------------------------------------
+render:                                 ;
+    LDX PLAYER_X                        ;
+    LDY PLAYER_Y                        ;
+    STY $304                            ;
+    STX $307                            ;
+    LDY #30                             ;
+    STY $306                            ;
+    LDY #$10                            ;
+    STY $305                            ;
+    
+    LDX #0
+    LDY #0
+rendloop:
+    LDA BOX1_Y,X
+    STA $308,Y
+    INX
+    INY
+    LDA #$20
+    STA $308,Y
+    INY
+    LDA #0
+    STA $308,Y
+    INY
+    LDA BOX1_Y,X
+    STA $308,Y
+    INX
+    INY
+    CPX #10
+    BNE rendloop
+    
+    
+    
+    LDA #$00                            ; Now pass the OAM parameters to the PPU
+    STA OAMADDR                         ;   and do DMA
+    LDA #$03                            ; Page 3 has our sprites.
+    STA OAMDMA                          ; Start DMA
+    RTS                                 ;
+;----------------------------------------
+
+
+
+
+; ******************************************************
+; STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP
+;
+; Don't change any of the code underneath this line unless
+; you know what you are doing. Unlike many computers, the
+; NES has to have time to warm up before it can run code.
+; This code will warm up the NES, clear out the memory,
+; and put it in a known state so that you can write the
+; important stuff up above.
+;*******************************************************
+.org $F000                              ;
+RESET:                                  ;
+        SEI                             ; Disable IRQs
+        CLD                             ; Disable decimal mode (not on NES)
+        LDX #$40                        ;
+        STX FRAMECTRL                   ; Disable APU frame IRQ
+        LDX #$FF                        ;
+        TXS                             ; Set stack pointer to top of stack
+        INX                             ; Set X to 0
+        STX PPUCTRL                     ; Disable NMI
+        STX PPUMASK                     ; Disable rendering
+        STX DMCFREQ                     ; Disable DMC IRQs
+vblankwait1:                            ; Wait for the first vertical blank to
+        BIT PPUSTATUS                   ;    ensure PPU is ready.
+        BPL vblankwait1                 ;
+clrmem:                                 ; Zero out all memory
+        LDA #$00                        ;
+        STA $0000, x                    ;
+        STA $0100, x                    ;
+        STA $0200, x                    ;
+        STA $0400, x                    ;
+        STA $0500, x                    ;
+        STA $0600, x                    ;
+        STA $0700, x                    ;
+        LDA #$FE                        ;
+        STA $0300, x                    ;
+        INX                             ;
+        BNE clrmem                      ;
+vblankwait2:                            ; After 2 vertical blanks, the PPU is
+        BIT PPUSTATUS                   ;    is ready to go.
+        BPL vblankwait2                 ;
+;----------------------------------------
+; Now we load our sprite palettes.
+;----------------------------------------
+        LDA PPUSTATUS                   ; read PPU status to reset the high/low latch
+        LDA #$3F                        ;
+        STA PPUADDR                     ; write the high byte of $3F00 address
+        LDA #$00                        ;
+        STA PPUADDR                     ; write the low byte of $3F00 address
+        LDX #$00                        ; start out at 0
+loadpalettes:                           ;
+        LDA palette, x                  ; load data from address (palette + the value in x)
+        STA PPUDATA                     ; write to PPU
+        INX                             ; X = X + 1
+        CPX #$20                        ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
+        BNE loadpalettes                ; Branch to LoadPalettesLoop if compare was Not Equal to zero
+                                        ; if compare was equal to 32, keep going down
+;----------------------------------------
+; Now load a blank background. We need to fill $1000 bytes from $2000 to $3000
+;----------------------------------------
+        LDA PPUSTATUS                   ; read PPU status to reset the high/low latch                                      
+        LDA #$20                        ; Background VRAM starts at $2000
+        STA PPUADDR                     ;
+        LDA #$00                        ;
+        STA PPUADDR                     ;
+        LDA #$00                        ; We will zero out the VRAM.
+        LDX #$10                        ; We have to iterate over 0-256 only $10 times.
+        LDY #$00                        ;
+bkgloop:                                ;
+        STA PPUDATA                     ; Write to the VRAM. Note that no matter how the
+        DEY                             ; scroll mirroring is set, this will work.
+        BNE bkgloop                     ; BNE will jump if Y != 0
+        DEX                             ;
+        BNE bkgloop                     ; BNE will jump if X != 0
+        LDA #$00                        ;
+        STA PPUSCROLL                   ; Set the scrolling to 0
+        STA PPUSCROLL                   ;
+        JMP START                       ;
+;----------------------------------------
+; Here's the color palette.
+;----------------------------------------
+palette:                                ;
+        .db $0F,$31,$32,$33             ;
+        .db $0F,$35,$36,$37             ;
+        .db $0F,$39,$3A,$3B             ;
+        .db $0F,$3D,$3E,$0F             ;
+        .db $0F,$28,$18,$38             ;
+        .db $0F,$1C,$0C,$2C             ;
+        .db $0F,$15,$05,$25             ;
+        .db $0F,$02,$38,$3C             ;
+;----------------------------------------        
+; Interrupt table - located in the last six bytes of memory.
+;----------------------------------------
+        .org $FFFA                      ; Interrupt table is last three words
+        .dw NMI                         ; When an NMI happens (once per frame
+                                        ;   if enabled, the draw loop)
+        .dw RESET                       ; When the processor first turns on or
+                                        ;   is reset, it will jump to RESET
+        .dw 0                           ; External interrupt IRQ is not used
+;----------------------------------------
+; Define all of the memory locations in the memory map.
+;----------------------------------------
+    .define ZEROPAGE=$0000              ;
+    .define STACK=$0100                 ;
+    .define PPUCTRL=$2000               ;
+    .define PPUMASK=$2001               ;
+    .define PPUSTATUS=$2002             ;
+    .define OAMADDR=$2003               ;
+    .define OAMDATA=$2004               ;
+    .define PPUSCROLL=$2005             ;
+    .define PPUADDR=$2006               ;
+    .define PPUDATA=$2007               ;
+    .define SQ1VOL=$4000                ;
+    .define SQ1SWEEP=$4001              ;
+    .define SQ1LO=$4002                 ;
+    .define SQ1HI=$4003                 ;
+    .define SQ2VOL=$4004                ;
+    .define SQ2SWEEP=$4005              ;
+    .define SQ2LO=$4006                 ;
+    .define SQ2HI=$4007                 ;
+    .define TRILIN=$4008                ;
+    .define TRILO=$400A                 ;
+    .define TRIHI=$400B                 ;
+    .define NOISEVOL=$400C              ;
+    .define NOISEMODE=$400E             ;
+    .define NOISELEN=$400F              ;
+    .define DMCFREQ=$4010               ;
+    .define DMCRAW=$4011                ;
+    .define DMCSTART=$4012              ;
+    .define DMCLEN=$4013                ;
+    .define OAMDMA=$4014                ;
+    .define SNDCHAN=$4015               ;
+    .define CONTROL1=$4016              ;
+    .define CONTROL2=$4017              ;
+    .define FRAMECTRL=$4017             ;
+    .define PRGROM=$8000                ;
+;----------------------------------------
+
+
+
+
+

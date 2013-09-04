@@ -211,6 +211,27 @@ def medium1(challenge, student, code, completed):
     return rom_size(rom), sum(counts)/len(counts)
     
 
+# Challenge 2-2: Collisions
+def medium2(challenge, student, code, completed):
+    a = Assembler()
+    rom, errors = a.assemble( """%s
+                              .org $C000
+                              %s
+                              forever: jmp forever
+                              .org $fffa
+                              .dw $C000
+                              .dw $C000
+                              .dw $C000
+                              """%(memmap, code) )
+    if errors: return None
+    
+    # In this case, we simply provide a number of initial configurations and
+    # see if the student performs them correctly.
+    counts = []
+    
+    return rom_size(rom), sum(counts)/len(counts)
+
+
 
 # Challenge 3-1: Game of Life
 def hard1(challenge, student, code, completed):
